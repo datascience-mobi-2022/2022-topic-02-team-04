@@ -1,0 +1,45 @@
+---
+title: "Datasets"
+author: "Fabian Strobel"
+date: '2022-04-30'
+output: pdf_document
+---
+
+To get an overview the four given datasets are loaded into variables.
+```{r}
+tcga_exp = readRDS("~/GitHub/2022-topic-02-team-04/datasets/tcga_tumor_log2TPM.RDS")
+tcga_annot = readRDS("~/GitHub/2022-topic-02-team-04/datasets/tcga_tumor_annotation.RDS")
+tcga_tumor_norm = readRDS("~/GitHub/2022-topic-02-team-04/datasets/tcga_tumor_normal_datascience_proj_2022.RDS")
+genesets = readRDS("~/GitHub/2022-topic-02-team-04/datasets/hallmarks_genesets.rds")
+```
+
+The first 2 objects are data frames.
+```{r}
+dim(tcga_exp)
+dim(tcga_annot)
+```
+
+The third object is a list with 5 entries corresponding to 5 tumor types (BRCA = breast cancer; KIRC = kidney renal carcinoma; LUAD = lung adenocarcinoma; PRAD = prostate adenocarcinoma; THCA = Thyroid carcinoma); each entry of the list is itself a list with 3 entries, corresponding to (1) a data frame with expression values for tumor samples, (2) a data frame with expression values for normal samples from the same patients, (3) a data frame with clinical annotations for these patients.
+```{r}
+prad = tcga_tumor_norm[["PRAD"]]
+prad.tumor = prad[["tumor"]]
+prad.norm = prad[["normal"]]
+prad.annot = prad[["clinical"]]
+
+dim(prad.tumor)
+dim(prad.norm)
+dim(prad.annot)
+```
+
+The last object is again a list
+```{r}
+class(genesets)
+names(genesets)
+names(genesets$genesets)
+
+## these are the first genes of the first geneset
+head(genesets$genesets[[1]])
+
+## the element description contains a description of the genesets
+head(genesets$description)
+```
