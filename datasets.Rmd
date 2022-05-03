@@ -5,7 +5,32 @@ date: '2022-04-30'
 output: pdf_document
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
+```
+
 To get an overview the four given datasets are loaded into variables.
+
+```{r}
+# How I loaded the datasets (L.)
+
+print(memory.size())
+
+print(memory.limit())
+
+memory.limit(size=56000) 
+
+
+tcga_exp = readRDS(file.choose())
+
+tcga_annot = readRDS(file.choose())
+
+tcga_tumor_norm = readRDS(file.choose())
+
+genesets = readRDS(file.choose())
+```
+
 ```{r}
 tcga_exp = readRDS("~/R/datasets/tcga_tumor_log2TPM.RDS")
 tcga_annot = readRDS("~/R/datasets/tcga_tumor_annotation.RDS")
