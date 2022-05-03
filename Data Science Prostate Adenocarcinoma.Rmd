@@ -1,0 +1,57 @@
+---
+title: "Data Science Prostate Adenocarcinoma"
+author: "Laura Lange"
+date: "30 4 2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+# Load datasets
+
+```{r}
+print(memory.size())
+
+print(memory.limit())
+
+memory.limit(size=56000) 
+```
+
+```{r}
+tcga_exp = readRDS(file.choose())
+
+tcga_annot = readRDS(file.choose())
+
+tcga_tumor_norm = readRDS(file.choose())
+
+genesets = readRDS(file.choose())
+```
+
+# Investigate Datasets
+
+Tcga_exp and tcga_annot are data frames 
+
+```{r}
+dim(tcga_exp)
+ 
+dim(tcga_annot)
+```
+tcga_tumor_norm is a list
+
+```{r}
+length(tcga_tumor_norm)
+
+#head(tcga_tumor_norm)
+
+```
+
+
+genesets is also a list
+
+```{r}
+l
+```
+
