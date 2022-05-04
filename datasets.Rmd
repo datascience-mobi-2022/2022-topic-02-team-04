@@ -1,6 +1,6 @@
 ---
 title: "Datasets"
-author: "Fabian Strobel"
+author: "Fabian Strobel, Laura Lange"
 date: '2022-04-30'
 output: pdf_document
 ---
@@ -32,10 +32,11 @@ genesets = readRDS(file.choose())
 ```
 
 ```{r}
-tcga_exp = readRDS("~/R/datasets/tcga_tumor_log2TPM.RDS")
-tcga_annot = readRDS("~/R/datasets/tcga_tumor_annotation.RDS")
-tcga_tumor_norm = readRDS("~/R/datasets/tcga_tumor_normal_datascience_proj_2022.RDS")
-genesets = readRDS("~/R/datasets/hallmarks_genesets.rds")
+## With this code I should work to load the data from the gitignore storage
+tcga_exp = readRDS("~/GitHub/2022-topic-02-team-04/data/tcga_tumor_log2TPM.RDS")
+tcga_annot = readRDS("~/GitHub/2022-topic-02-team-04/data/tcga_tumor_annotation.RDS")
+tcga_tumor_norm = readRDS("~/GitHub/2022-topic-02-team-04/data/tcga_tumor_normal_datascience_proj_2022.RDS")
+genesets = readRDS("~/GitHub/2022-topic-02-team-04/data/hallmarks_genesets.rds")
 ```
 
 The first 2 objects are data frames.
