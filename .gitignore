@@ -3,3 +3,6 @@ data/hallmarks_genesets.rds
 data/tcga_tumor_annotation.RDS
 data/tcga_tumor_log2TPM.RDS
 data/tcga_tumor_normal_datascience_proj_2022.RDS
+cancer_hallmark_and_metabolic_pathways_in_cancer/.Rproj.user/5B2D899B/sources/s-33812208/lock_file
+cancer_hallmark_and_metabolic_pathways_in_cancer/.Rproj.user/shared/notebooks/patch-chunk-names
+cancer_hallmark_and_metabolic_pathways_in_cancer/cancer_hallmark_and_metabolic_pathways_in_cancer.Rproj
