@@ -1,0 +1,18 @@
+"0","## the element description contains a description of the genesets
+head(genesets$description)
+"
+"1","[1]"
+"1"," ""na""                                 "
+"1"," ""all angiogenesis inducing genes""    "
+"1","
+"
+"1","[3]"
+"1"," ""VEGF pathway""                       "
+"1"," ""negative regulators of angiogenesis"""
+"1","
+"
+"1","[5]"
+"1"," ""positive regulators of angiogenesis"""
+"1"," ""na""                                 "
+"1","
+"

@@ -1,0 +1,8 @@
+"0","min.val.gene = apply(tcga_exp, 1, min)"
+"0","max.val.gene = apply(tcga_exp, 1, max)"
+"0","genes.remove = which(max.val.gene/min.val.gene <=5 | max.val.gene - min.val.gene <= 500)"
+"0","length(genes.remove)"
+"1","[1]"
+"1"," 60498"
+"1","
+"
