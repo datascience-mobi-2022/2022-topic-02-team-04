@@ -43,6 +43,8 @@ The first 2 objects are data frames.
 ```{r}
 dim(tcga_exp)
 dim(tcga_annot)
+
+colnames(tcga_exp)
 ```
 
 The third object is a list with 5 entries corresponding to 5 tumor types (BRCA = breast cancer; KIRC = kidney renal carcinoma; LUAD = lung adenocarcinoma; PRAD = prostate adenocarcinoma; THCA = Thyroid carcinoma); each entry of the list is itself a list with 3 entries, corresponding to (1) a data frame with expression values for tumor samples, (2) a data frame with expression values for normal samples from the same patients, (3) a data frame with clinical annotations for these patients.
