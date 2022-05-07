@@ -14,9 +14,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Load original data (60,000x10,000 Matrix)
 ```{r}
 ## Does not work
-#setwd('.')
-#directory = "data/tcga_tumor_log2TPM.RDS"
-#tcga_exp <- readRDS(directory)
+setwd('.')
+directory = "data/tcga_tumor_log2TPM.RDS"
+tcga_exp <- readRDS(directory)
 ```
 
 ## Checking for NAs and removing rows containing NAs
@@ -30,6 +30,18 @@ dim(tcga_exp)
 ## Thresholding
 ```{r}
 min(tcga_exp)
+## The minimal value is -9.9658 -> this equals a read amount of zero
+
+means = apply(tcga_exp,1,mean)
+q <- quantile(means, seq(0,1, 0.1))
+plot(means, main = "Distribution of all means of tcga_exp"); abline(h = c(q), col="red", lty = 2)
+
+mean(means)
+median(means)
+q <- quantile(means, seq(0,1, 0.1))
+## Which mean of reads is low enough to be deleted from the dataset?
+
+length(which(means > 0))
 ```
 
 ## Filtering
