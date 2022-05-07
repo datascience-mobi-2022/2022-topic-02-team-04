@@ -1,5 +1,0 @@
-"0","## With this code I should work to load the data from the gitignore storage"
-"0","tcga_exp = readRDS(""~/GitHub/2022-topic-02-team-04/data/tcga_tumor_log2TPM.RDS"")"
-"0","tcga_annot = readRDS(""~/GitHub/2022-topic-02-team-04/data/tcga_tumor_annotation.RDS"")"
-"0","tcga_tumor_norm = readRDS(""~/GitHub/2022-topic-02-team-04/data/tcga_tumor_normal_datascience_proj_2022.RDS"")"
-"0","genesets = readRDS(""~/GitHub/2022-topic-02-team-04/data/hallmarks_genesets.rds"")"
