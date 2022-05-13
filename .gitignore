@@ -298,3 +298,4 @@ datasets.Rmd
 .Rproj.user/.RDataTmp
 
 data/tcga_exp_cleaned.rds
+data/pathways.rds
