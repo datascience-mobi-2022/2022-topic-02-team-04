@@ -71,3 +71,7 @@ var_cleaned <- apply(tcga_exp_cleaned, 1, var)
 min(var_cleaned)
 ```
 
+```{r export}
+#saveRDS(tcga_exp_cleaned, file = "tcga_exp_cleaned")
+```
+
