@@ -19,3 +19,11 @@ directory = "data/add_data_sets.rds"
 add_gene_sets <- readRDS(directory)
 ```
 
+```{r combine the two lists}
+total_gene_sets <- append(giv_gene_sets[["genesets"]], add_gene_sets)
+total_gene_sets_ordered <- total_gene_sets[order(names(total_gene_sets))]
+```
+
+```{r export}
+saveRDS(total_gene_sets, file = "pathways.rds")
+```
