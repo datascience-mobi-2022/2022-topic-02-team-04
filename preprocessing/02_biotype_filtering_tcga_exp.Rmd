@@ -1,0 +1,18 @@
+---
+title: "02_biotype_filtering_tcga_exp_cleaned"
+author: "Fabian Strobel"
+date: '2022-05-13'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load variance filtered data (40,000x10,000 Matrix)
+```{r Load data}
+## Set directory
+setwd('.')
+directory = "data/tcga_exp_cleaned.rds"
+tcga_exp_cleaned <- readRDS(directory)
+```
