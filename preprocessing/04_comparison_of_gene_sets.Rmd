@@ -1,0 +1,73 @@
+---
+title: "04_comparison_of_gene_sets"
+author: "Fabian Strobel"
+date: '2022-05-13'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load data}
+setwd('.')
+directory = "data/pathways.rds"
+pathways <- readRDS(directory)
+```
+"The Jaccard Index is a statistical measure that is frequently used to compare the similarity of binary variable sets. It is the length of the union divided by the size of the intersection between the sets."
+
+Jaccard Similarity = (number of observations in both sets) / (number in either set)
+
+$$
+J(A, B) = \frac{|A∩B|}{|A∪B|} = \frac{|A∩B|}{|A|+|B|-|A∩B|}
+$$
+$$
+0 \leq J(A, B) \leq 1
+$$
+Definition of Jaccard Metric
+```{r Jaccard function}
+jaccard <- function(a, b) {
+    intersection = length(intersect(a, b))
+    union = length(a) + length(b) - intersection
+    return (intersection/union)
+}
+```
+
+
+```{r single test}
+jaccard(pathways[["Angio_AACR"]],pathways[["Angio_ALL"]])
+
+class(pathways[["Angio_AACR"]]) # character
+class(pathways[1]) # list
+```
+
+```{r}
+## Leere Matrix, da sonst for Schleife nicht geht
+jaccard_matrix <- data.frame(matrix(NA, nrow = 65, ncol = 65))
+rownames(jaccard_matrix) = names(pathways)
+colnames(jaccard_matrix) = names(pathways)
+
+k = 1; l = 1
+for (i in length(pathways)) {
+  for (j in length(pathways)) {
+    x <- jaccard(as.character(pathways[k]), as.character(pathways[l]))
+    jaccard_matrix[k,l] <- x
+    k = k + 1
+    if(k == 65){l <- l + 1}
+    if(k == 65){k <- 1}
+  }
+}
+```
+
+```{r}
+library("pheatmap")
+pheatmap(cor(dat[4:14]), cluster_rows = FALSE, cluster_cols = FALSE)
+
+## Clear out double values and ones
+for (i in 1:ncol(corr)) {
+  for (j in 1:nrow(corr)) {
+   if(i >= j) {corr[i,j] <- NA}
+  }
+}
+```
+
