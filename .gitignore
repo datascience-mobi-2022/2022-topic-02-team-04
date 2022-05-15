@@ -1,3 +1,5 @@
+genes.rds
+add_data_sets.rds
 .Rproj.user
 # Created by https://www.toptal.com/developers/gitignore/api/r,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=r,windows
@@ -295,3 +297,5 @@ datasets.Rmd
 .Rproj.user/.Rproj.user/BEAEBAD0/jobs/46D00282-output.json
 .Rproj.user/.RDataTmp
 
+data/tcga_exp_cleaned.rds
+data/pathways.rds

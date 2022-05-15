@@ -1,0 +1,55 @@
+---
+title: "05_biotype_analysis"
+author: "Fabian Strobel"
+date: '2022-05-15'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r genes from expression matrix}
+#setwd('.')
+#tcga_exp_cleaned <- readRDS("data/tcga_exp_cleaned.rds")
+#genes <- rownames(tcga_exp_cleaned)
+#saveRDS(genes, file = "genes.rds")
+```
+
+```{r Split ENSG identifier from Gene Symbol}
+gene_identifier <- strsplit(genes, split = "|", fixed = TRUE)
+
+genes_ens<- sapply(gene_identifier, FUN = function(gene_identifier){
+  ens = gene_identifier[1]
+  return(ens)
+})
+
+genes_symbol<- sapply(gene_identifier, FUN = function(gene_identifier){
+  ens = gene_identifier[2]
+  return(ens)
+})
+```
+
+```{r Remove version number}
+genes_ens_vn <- strsplit(genes_ens, split = ".", fixed = TRUE)
+genes_ensembl <- sapply(genes_ens_vn, FUN = function(genes_ens_vn){
+  ens = genes_ens_vn[1]
+  return(ens)
+})
+```
+
+```{r library}
+library(biomaRt)
+```
+
+```{r Biotypes of genes}
+mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
+
+list_biotype = getBM(attributes = c("ensembl_gene_id", "gene_biotype"), filters = "ensembl_gene_id", values = genes_ensembl, mart = mart, useCache = FALSE)
+```
+From 39020 input genes, 37973 could be matched with a corresponding biotype. But what about the rest?
+
+```{r}
+#unmatched_genes <- genes_ensembl[which(genes_ensembl != list_biotype[1])]
+```
+

@@ -1,0 +1,29 @@
+---
+title: "03_combination_given_and_additional_gene_sets"
+author: "Fabian Strobel"
+date: '2022-05-13'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load data}
+## Set directory
+setwd('.')
+directory = "data/hallmarks_genesets.rds"
+giv_gene_sets <- readRDS(directory)
+
+directory = "data/add_data_sets.rds"
+add_gene_sets <- readRDS(directory)
+```
+
+```{r combine the two lists}
+total_gene_sets <- append(giv_gene_sets[["genesets"]], add_gene_sets)
+total_gene_sets_ordered <- total_gene_sets[order(names(total_gene_sets))]
+```
+
+```{r export}
+saveRDS(total_gene_sets, file = "pathways.rds")
+```
