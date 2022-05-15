@@ -15,7 +15,6 @@ tcga_tumor_norm = readRDS("data/tcga_tumor_normal_datascience_proj_2022.RDS")
 
 # get list PRAD data
 PRAD <- tcga_tumor_norm[[3]]
-58*2
 ```
 
 Clean data 
@@ -32,8 +31,8 @@ rownames(PRAD_na)
 SD <- apply(PRAD_normal_tumor, 1, sd)
 Vari <- SD^2
 
-PRAD_Var <- which(Var < 1)
-PRAD_Cleand <- PRAD_normal_tumor[Var > 1, ]
+PRAD_Var <- which(Vari < 1)
+PRAD_Cleaned <- PRAD_normal_tumor[Vari > 1, ]
 
 # control
 Cleaned <- apply(PRAD_Cleand, 1, var)
@@ -42,9 +41,9 @@ min(Cleaned)
 dim(PRAD_Cleand)
 
 # Seperate date set again 
-PRAD_normal <- PRAD_Cleand[ ,1:58]
+PRAD_normal <- PRAD_Cleaned[ ,1:58]
 
-PRAD_tumor <- PRAD_Cleand[ ,59:116]
+PRAD_tumor <- PRAD_Cleaned[ ,59:116]
 ```
 
 Calculate mean or median for each gene 
@@ -54,18 +53,23 @@ mean_normal <- apply(PRAD_normal, 1, mean)
 mean_tumor <- apply(PRAD_tumor, 1, mean)
 ```
 
-Calculate Fold Change log2[(T-N)/N]
+Calculate Fold Change 
+$$
+log_2[(T)/N]
+$$
 T = tumor 
 N = normal 
 ```{r}
-FoldChange <- (mean_tumor - mean_normal) / mean_normal
+e_mean_tumor <- 2^mean_tumor
+e_mean_normal <- 2^mean_normal
+FoldChange <- (e_mean_tumor) / e_mean_normal
 
 log2FoldChange <- log2(FoldChange)
 ```
 Compare mean/median between normal and tumor (t-test)
 
 ```{r}
-t.test(PRAD_normal[1, ], PRAD_tumor[1, ], alternative = "two.sided", paired = TRUE)$p.value
+t.test(PRAD_normal[1, ], PRAD_tumor[1, ], alternative = "two.sided", paired = TRUE)
 ```
 ```{r}
 p_values <- list()
@@ -108,6 +112,3 @@ ggplot(data = dat, mapping = aes(x=log2_FoldChange, y= -log10(p_value), col = di
   geom_vline(xintercept=c(-0.6, 0.6), col="red") +
   geom_hline(yintercept=-log10(0.05), col="red")
 ```
-
-
-
