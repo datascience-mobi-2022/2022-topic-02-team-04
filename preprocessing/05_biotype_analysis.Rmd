@@ -3,6 +3,8 @@ title: "05_biotype_analysis"
 author: "Fabian Strobel"
 date: '2022-05-15'
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -10,10 +12,12 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r genes from expression matrix}
-#setwd('.')
+setwd('.')
 #tcga_exp_cleaned <- readRDS("data/tcga_exp_cleaned.rds")
 #genes <- rownames(tcga_exp_cleaned)
 #saveRDS(genes, file = "genes.rds")
+
+readRDS("data/genes.rds")
 ```
 
 ```{r Split ENSG identifier from Gene Symbol}
@@ -50,6 +54,40 @@ list_biotype = getBM(attributes = c("ensembl_gene_id", "gene_biotype"), filters 
 From 39020 input genes, 37973 could be matched with a corresponding biotype. But what about the rest?
 
 ```{r}
-#unmatched_genes <- genes_ensembl[which(genes_ensembl != list_biotype[1])]
+list_biotype_genes <- list_biotype[,1]
+
+unmatched_genes <- setdiff(genes_ensembl, list_biotype_genes)
+```
+
+```{r investigate unmatched data}
+readRDS("data/tcga_exp_cleaned")
+
+unmatched_genes_exp <- tcga_exp_cleaned[unmatched_genes,]
+
+## Compute mean of every row/ for every gene
+means_umatched_genes = apply(unmatched_genes_exp,1,mean)
+variance_unmatched_genes = apply(unmatched_genes_exp,1,var)
+
+plot(means_umatched_genes,variance_unmatched_genes, main = "Mean-variance plot for genes \n without known biotype")
+
+mv <- data.frame(means_umatched_genes, variance_unmatched_genes)
+
+ggplot(mv, aes(x = means_umatched_genes, y = variance_unmatched_genes)) +
+  geom_point() + ggtitle("Mean-variance plot for genes without known biotype")
+```
+
+```{r}
+biotypes <- unique(list_biotype[2])
+biotypes
+
+biotypes_counts <- data.frame(matrix(NA, nrow = 32))
+rownames(biotypes_counts) = biotypes[,1]
+colnames(biotypes_counts) = "counts"
+
+for (i in 1:nrow(biotypes)){
+  biotypes_counts[i,] <- length(which(list_biotype$gene_biotype == biotypes[i,]))
+}
+
+biotypes_counts
 ```
 
