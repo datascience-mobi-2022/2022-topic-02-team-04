@@ -3,6 +3,8 @@ title: "04_comparison_of_gene_sets"
 author: "Fabian Strobel"
 date: '2022-05-13'
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -34,40 +36,37 @@ jaccard <- function(a, b) {
 ```
 
 
-```{r single test}
+```{r single tests}
 jaccard(pathways[["Angio_AACR"]],pathways[["Angio_ALL"]])
+jaccard(as.character(pathways[1]), as.character(pathways[2]))
+jaccard(pathways[1],pathways[2])
+
+pA <- names(pathways[1])
+pB <- names(pathways[2])
+jaccard(pathways[[pA]], pathways[[pB]])
 
 class(pathways[["Angio_AACR"]]) # character
 class(pathways[1]) # list
 ```
 
-```{r}
-## Leere Matrix, da sonst for Schleife nicht geht
+```{r Jaccard matrix}
 jaccard_matrix <- data.frame(matrix(NA, nrow = 65, ncol = 65))
 rownames(jaccard_matrix) = names(pathways)
 colnames(jaccard_matrix) = names(pathways)
 
-k = 1; l = 1
-for (i in length(pathways)) {
-  for (j in length(pathways)) {
-    x <- jaccard(as.character(pathways[k]), as.character(pathways[l]))
-    jaccard_matrix[k,l] <- x
-    k = k + 1
-    if(k == 65){l <- l + 1}
-    if(k == 65){k <- 1}
+for (i in 1:length(pathways)) {
+  for (j in 1:length(pathways)) {
+    x <- jaccard(pathways[[names(pathways[i])]], pathways[[names(pathways[j])]])
+    jaccard_matrix[i,j] <- x
   }
 }
 ```
 
-```{r}
+```{r heatmap}
 library("pheatmap")
-pheatmap(cor(dat[4:14]), cluster_rows = FALSE, cluster_cols = FALSE)
-
-## Clear out double values and ones
-for (i in 1:ncol(corr)) {
-  for (j in 1:nrow(corr)) {
-   if(i >= j) {corr[i,j] <- NA}
-  }
-}
+pheatmap(jaccard_matrix, 
+         cluster_rows = TRUE, 
+         cluster_cols = TRUE,
+         fontsize = 10,
+         main = "Jaccard Indices to compare similarity between different pathways")
 ```
-
