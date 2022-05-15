@@ -15,7 +15,6 @@ tcga_tumor_norm = readRDS("data/tcga_tumor_normal_datascience_proj_2022.RDS")
 
 # get list PRAD data
 PRAD <- tcga_tumor_norm[[3]]
-58*2
 ```
 
 Clean data 
@@ -32,19 +31,19 @@ rownames(PRAD_na)
 SD <- apply(PRAD_normal_tumor, 1, sd)
 Vari <- SD^2
 
-PRAD_Var <- which(Var < 1)
-PRAD_Cleand <- PRAD_normal_tumor[Var > 1, ]
+PRAD_Var <- which(Vari < 1)
+PRAD_Cleaned <- PRAD_normal_tumor[Vari > 1, ]
 
 # control
 Cleaned <- apply(PRAD_Cleand, 1, var)
 min(Cleaned)
 
-dim(PRAD_Cleand)
+dim(PRAD_Cleaned)
 
 # Seperate date set again 
-PRAD_normal <- PRAD_Cleand[ ,1:58]
+PRAD_normal <- PRAD_Cleaned[ ,1:58]
 
-PRAD_tumor <- PRAD_Cleand[ ,59:116]
+PRAD_tumor <- PRAD_Cleaned[ ,59:116]
 ```
 
 Calculate mean or median for each gene 
@@ -84,7 +83,7 @@ corrected_p_value <- p.adjust(p_values, method = "bonferroni")
 Make vulcano plot 
 
 ```{r}
-log2_FoldChange <- log2FoldChange
+log2_FoldChange <- FoldChange
 p_value <- corrected_p_value
 dat <- data.frame(log2_FoldChange, p_value)
 
