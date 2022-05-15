@@ -38,7 +38,7 @@ PRAD_Cleaned <- PRAD_normal_tumor[Vari > 1, ]
 Cleaned <- apply(PRAD_Cleand, 1, var)
 min(Cleaned)
 
-dim(PRAD_Cleand)
+dim(PRAD_Cleaned)
 
 # Seperate date set again 
 PRAD_normal <- PRAD_Cleaned[ ,1:58]
@@ -88,7 +88,7 @@ corrected_p_value <- p.adjust(p_values, method = "bonferroni")
 Make vulcano plot 
 
 ```{r}
-log2_FoldChange <- log2FoldChange
+log2_FoldChange <- FoldChange
 p_value <- corrected_p_value
 dat <- data.frame(log2_FoldChange, p_value)
 
