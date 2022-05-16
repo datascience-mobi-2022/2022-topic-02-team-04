@@ -19,9 +19,32 @@ tcga_tumor_norm = readRDS("data/tcga_tumor_normal_datascience_proj_2022.RDS")
 ```
 #test plot zum lernen und üben
 ```{r}
-ggplot(tcga_annot, aes(age_at_initial_pathologic_diagnosis,color=cancer_type_abbreviation ))+ geom_histogram(fill="#AFFFFF")
+ggplot(tcga_annot, aes(age_at_initial_pathologic_diagnosis,color=cancer_type_abbreviation ))+ geom_histogram(binwidth=3, fill="#AFFFFF")
 
 ```
+#Altersverteilung Plot
+```{r}
+ggplot(tcga_annot, aes(age_at_initial_pathologic_diagnosis ))+ 
+  geom_histogram(binwidth=1, fill="tomato1", color="black") + 
+  ggtitle("Disribution of age at initial pathologic diagnosis") +
+  xlab("age at initial pathologic diagnosis") 
+
+```
+
+#Verteilung der Tumortypen
+```{r}
+farbe <- c("blue","blue","blue","blue","red","blue","blue")
+#for(i in 0:33){color=c(farbe+str("blue"))}
+#farbe[11]<-"red"
+ggplot(tcga_annot, aes(y=cancer_type_abbreviation,fill=cancer_type_abbreviation))+ 
+  geom_bar() + 
+  ggtitle("Distribution of cancer types in our expression dataset") +
+  xlab("count") +
+  ylab("cancer type") +
+ scale_fill_manual(values = c("grey50", "grey50", "tomato1", "grey50", "grey50", "grey50", "grey50", "grey50", "grey50", "grey50", "grey50", "tomato1", "grey50", "grey50", "grey50", "grey50", "tomato1", "grey50", "grey50", "grey50", "grey50", "grey50", "tomato4", "grey50", "grey50", "grey50", "grey50", "grey50", "tomato1", "grey50", "grey50", "grey50", "grey50"))
+
+```
+
 
 #dataframe für Varianz un Mittelwert aller Gene (gerade nicht alle weil die daten zum rechnen zu groß sind)
 ```{r}
