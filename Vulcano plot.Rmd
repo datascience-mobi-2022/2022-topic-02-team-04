@@ -41,9 +41,11 @@ min(Cleaned)
 dim(PRAD_Cleaned)
 
 # Seperate date set again 
-PRAD_normal <- PRAD_Cleaned[ ,1:58]
+PRAD_normal <- (PRAD_Cleaned[ ,1:58])
 
-PRAD_tumor <- PRAD_Cleaned[ ,59:116]
+PRAD_tumor <- (PRAD_Cleaned[ ,59:116])
+
+
 ```
 
 Calculate mean or median for each gene 
@@ -69,13 +71,21 @@ log2FoldChange <- log2(FoldChange)
 Compare mean/median between normal and tumor (t-test)
 
 ```{r}
-t.test(PRAD_normal[1, ], PRAD_tumor[1, ], alternative = "two.sided", paired = TRUE)
+PRAD_normal[1,1]
+
+class(as.matrix (PRAD_normal[1, ]))
+
+
+wilcox.test(as.numeric(PRAD_normal[1, ]), as.numeric(PRAD_tumor[1, ]), paired = TRUE, alternative = "two.sided")
 ```
 ```{r}
 p_values <- list()
 
 for(index in 1:nrow(PRAD_normal)) {
-  p_values <- c(p_values, t.test(PRAD_normal[index, ], PRAD_tumor[index, ])$p.value)
+  p_values <- c(p_values, wilcox.test(
+    as.matrix(PRAD_normal[index, ]),
+    as.matrix(PRAD_tumor[index, ]), 
+    paired = TRUE, alternative = "two.sided")$p.value)
   }
 ```
 
