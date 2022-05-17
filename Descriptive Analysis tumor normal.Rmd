@@ -1,0 +1,65 @@
+---
+title: "Untitled"
+author: "Fabian Strobel"
+date: '2022-05-16'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+```
+
+
+```{r}
+tcga_tumor_normal <- readRDS("data/tcga_tumor_normal_datascience_proj_2022.RDS")
+
+PRAD_tumor_normal <- tcga_tumor_normal[["PRAD"]]
+
+PRAD_tumor <- PRAD_tumor_normal[["tumor"]]
+PRAD_normal <- PRAD_tumor_normal[["normal"]]
+PRAD_clinical <- PRAD_tumor_normal[["clinical"]]
+
+rm(tcga_tumor_normal)
+rm(PRAD_tumor_normal)
+
+PRAD_tumor_normal <- cbind(PRAD_tumor, PRAD_normal)
+# Get rid of genes that are not expressed (Variance < 1)
+PRAD_var <- apply(PRAD_tumor_normal, 1, var)
+
+genes.remove = which(PRAD_var < 1)
+PRAD_tumor_normal_cleaned = PRAD_tumor_normal[-genes.remove,]
+
+# Seperate date set again 
+PRAD_tumor <- PRAD_tumor_normal_cleaned[ ,1:52]
+PRAD_normal <- PRAD_tumor_normal_cleaned[ ,53:104]
+```
+
+```{r}
+tumor_m <- apply(PRAD_tumor, 1, mean)
+normal_m <- apply(PRAD_normal, 1, mean)
+
+tumor_var <- apply(PRAD_tumor, 1, var)
+normal_var <- apply(PRAD_normal, 1, var)
+
+type <- rep(c("tumor"), 52)
+type2 <- rep(c("normal"), 52)
+types <- c(type,type2)
+
+mean_exp <- data.frame("mean_exp_tumor" = tumor_m, "mean_exp_normal" = normal_m)
+
+ggplot(stack(data = mean_exp), aes(x = c("tumor", "normal"), y = c(tumor, normal))) + geom_violin() + geom_boxplot(width = 0.1) + ggtitle("mean gene expression") + ylab("mean gene expression") + xlab("tissue type")
+
+ggplot(data = mean_exp, aes(x = "mean_exp_normal", y = mean_exp_normal)) + geom_violin() + geom_boxplot(width = 0.1) + ggtitle("mean gene expression") + ylab("mean gene expression") + xlab("tissue type")
+```
+
+```{r}
+qqnorm(mean_exp$mean_exp_normal)
+qqnorm(mean_exp$mean_exp_tumor)
+```
+

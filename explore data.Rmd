@@ -69,7 +69,7 @@ tgca_exp_tumortype_selection <- data.frame(subset(tgca_exp_tumortype,type=="BRCA
 #vorerst nur 1. plot weil die for schleife irgendwie nicht funktioniert
 ```{r}
 #for(i in 2:6){
-ggplot(tgca_exp_tumortype_selection, aes(type, tgca_exp_tumortype_selection[,3],fill=type))+ geom_boxplot()
+ggplot(tgca_exp_tumortype_selection, aes(type, tgca_exp_tumortype_selection[,3],fill=type))+ geom_violin() + geom_boxplot(width = 0.1)
 #}
 ```
 
