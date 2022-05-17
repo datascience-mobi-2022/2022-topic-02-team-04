@@ -74,7 +74,7 @@ ggplot(tcga_exp_var_mean, aes(mean, variance))+
 
 #ermitteln weniger gene mit hoher Varianz um Boxplotts zwischen ausgewählten Tumor Typen zu plotten
 ```{r}
-tcga_exp_var_mean_orderd <- order(tcga_exp_var_mean[,"variance"])
+tcga_exp_var_mean_orderd <- order(tcga_exp_var_mean[,"variance"], decreasing = TRUE)
 tgca_exp_tumortype <- data.frame(tcga_annot$cancer_type_abbreviation,t(tcga_exp_cleaned[tcga_exp_var_mean_orderd[1:5],]))
 colnames(tgca_exp_tumortype) <- c("type","exp1","exp2","exp3","exp4","exp5")
 
