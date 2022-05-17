@@ -35,7 +35,7 @@ PRAD_Var <- which(Vari < 1)
 PRAD_Cleaned <- PRAD_normal_tumor[Vari > 1, ]
 
 # control
-Cleaned <- apply(PRAD_Cleand, 1, var)
+Cleaned <- apply(PRAD_Cleaned, 1, var)
 min(Cleaned)
 
 dim(PRAD_Cleaned)
@@ -88,7 +88,7 @@ corrected_p_value <- p.adjust(p_values, method = "bonferroni")
 Make vulcano plot 
 
 ```{r}
-log2_FoldChange <- FoldChange
+log2_FoldChange <- log2FoldChange
 p_value <- corrected_p_value
 dat <- data.frame(log2_FoldChange, p_value)
 
@@ -110,5 +110,6 @@ ggplot(data = dat, mapping = aes(x=log2_FoldChange, y= -log10(p_value), col = di
   theme_minimal() +
   scale_color_manual(values = color) +
   geom_vline(xintercept=c(-0.6, 0.6), col="red") +
-  geom_hline(yintercept=-log10(0.05), col="red")
+  geom_hline(yintercept=-log10(0.05), col="red") +
+  labs(title = "Vulcano plot")
 ```
