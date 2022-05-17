@@ -51,15 +51,18 @@ type <- rep(c("tumor"), 52)
 type2 <- rep(c("normal"), 52)
 types <- c(type,type2)
 
-mean_exp <- data.frame("mean_exp_tumor" = tumor_m, "mean_exp_normal" = normal_m)
+mean_exp <- data.frame("tumor" = tumor_m, "normal" = normal_m)
 
-ggplot(stack(data = mean_exp), aes(x = c("tumor", "normal"), y = c(tumor, normal))) + geom_violin() + geom_boxplot(width = 0.1) + ggtitle("mean gene expression") + ylab("mean gene expression") + xlab("tissue type")
+ggplot(data = mean_exp, aes(x = "tumor", y = tumor)) + geom_violin() + geom_boxplot(width = 0.1) + ggtitle("Distribution of mean gene \nexpression in tumor samples") + ylab("mean gene expression") + xlab("tissue type") +ylim(-10,15)
 
-ggplot(data = mean_exp, aes(x = "mean_exp_normal", y = mean_exp_normal)) + geom_violin() + geom_boxplot(width = 0.1) + ggtitle("mean gene expression") + ylab("mean gene expression") + xlab("tissue type")
+ggplot(data = mean_exp, aes(x = "normal", y = normal)) + geom_violin() + geom_boxplot(width = 0.1) + ggtitle("Distribution of mean gene \nexpression in normal samples") + ylab("mean gene expression") + xlab("tissue type") + ylim(-10,15)
 ```
 
 ```{r}
-qqnorm(mean_exp$mean_exp_normal)
-qqnorm(mean_exp$mean_exp_tumor)
+par(mfrow = c(1,3))
+qqnorm(mean_exp$normal, ylab = "normal", main = "qqnorm: Normal tissue")
+qqnorm(mean_exp$tumor, ylab = "tumor", main = "qqnorm: Tumor tissue")
+qqplot(mean_exp$tumor, mean_exp$normal, ylab = "normal", xlab = "tumor", main = "qqplot: Tumor vs. Normal")
+par(mfrow = c(1,1))
 ```
 
