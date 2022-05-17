@@ -2,6 +2,8 @@
 title: "Exploring data"
 output: html_document
 date: '2022-05-12'
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -48,21 +50,31 @@ ggplot(tcga_annot, aes(y=cancer_type_abbreviation,fill=cancer_type_abbreviation)
 
 #dataframe für Varianz un Mittelwert aller Gene (gerade nicht alle weil die daten zum rechnen zu groß sind)
 ```{r}
-tcga_exp_var_mean <- data.frame(varianz=apply(tcga_exp_cleaned[1:1000,],1,var),mittelwert=apply(tcga_exp_cleaned[1:1000,],1,mean))
+#tcga_exp_var_mean <- data.frame(varianz=apply(tcga_exp_cleaned[1:1000,],1,var),mittelwert=apply(tcga_exp_cleaned[1:1000,],1,mean))
 
 ```
 
+```{r}
+means <- apply(tcga_exp_cleaned, 1, mean)
+vars <- apply(tcga_exp_cleaned, 1, var)
+
+tcga_exp_var_mean <- data.frame("variance" = vars, "mean" = means)
+```
+
+
 #plot aller Mittelwerte gegen die Varianz aller Gene
 ```{r}
-ggplot(tcga_exp_var_mean, aes(mittelwert, varianz))+ 
+ggplot(tcga_exp_var_mean, aes(mean, variance))+ 
   geom_point(fill="tomato1",color="tomato4",shape=21) +
   ggtitle("Variance and mean of every gene ") +
   xlab("mean") +
   ylab("variance")
 ```
+
+
 #ermitteln weniger gene mit hoher Varianz um Boxplotts zwischen ausgewählten Tumor Typen zu plotten
 ```{r}
-tcga_exp_var_mean_orderd <- order(tcga_exp_var_mean[,"varianz"])
+tcga_exp_var_mean_orderd <- order(tcga_exp_var_mean[,"variance"])
 tgca_exp_tumortype <- data.frame(tcga_annot$cancer_type_abbreviation,t(tcga_exp_cleaned[tcga_exp_var_mean_orderd[1:5],]))
 colnames(tgca_exp_tumortype) <- c("type","exp1","exp2","exp3","exp4","exp5")
 
@@ -82,3 +94,61 @@ ggplot(tgca_exp_tumortype_selection, aes(type, tgca_exp_tumortype_selection[,3],
 #}
 ```
 
+
+## FABIAN
+
+```{r}
+tcga_exp_var_mean <- data.frame("variance" = vars, "mean" = means)
+top_var <- head(sort(tcga_exp_var_mean$variance, decreasing = T), 5)
+
+attach(tcga_exp_var_mean)
+newdata <- tcga_exp_var_mean[order(variance, decreasing = T),]
+detach(tcga_exp_var_mean)
+
+head(newdata,5)
+
+tcga_exp_tumortype <- data.frame(tcga_annot$cancer_type_abbreviation,t(tcga_exp_cleaned[top_var,]))
+colnames(tcga_exp_tumortype) <- c("type", row.names(head(newdata,5)))
+
+tcga_exp_tumortype_selection <- data.frame(subset(tcga_exp_tumortype,type=="BRCA" |type=="KIRC" |type=="LUAD" |type=="PRAD" |type=="THCA"))
+
+#1
+ggplot(tgca_exp_tumortype_selection, aes(type, tgca_exp_tumortype_selection[,2],fill=type))+ 
+  geom_violin(alpha=0.3) + 
+  geom_boxplot(width = 0.2)+
+  ggtitle("Expression of ENSG00000234648.1|AL162151.3 in different cancer types ") +
+  xlab("cancer type") +
+  ylab("gene expression") 
+
+#2
+ggplot(tgca_exp_tumortype_selection, aes(type, tgca_exp_tumortype_selection[,3],fill=type))+ 
+  geom_violin(alpha=0.3) + 
+  geom_boxplot(width = 0.2)+
+  ggtitle("Expression of ENSG00000281415.1|AC021066.1 in different cancer types ") +
+  xlab("cancer type") +
+  ylab("gene expression") 
+
+#3
+ggplot(tgca_exp_tumortype_selection, aes(type, tgca_exp_tumortype_selection[,4],fill=type))+ 
+  geom_violin(alpha=0.3) + 
+  geom_boxplot(width = 0.2)+
+  ggtitle("Expression of ENSG00000129824.15|RPS4Y1 in different cancer types ") +
+  xlab("cancer type") +
+  ylab("gene expression") 
+
+#4
+ggplot(tgca_exp_tumortype_selection, aes(type, tgca_exp_tumortype_selection[,5],fill=type))+ 
+  geom_violin(alpha=0.3) + 
+  geom_boxplot(width = 0.2)+
+  ggtitle("Expression of ENSG00000206585.1|RNVU1-7 in different cancer types ") +
+  xlab("cancer type") +
+  ylab("gene expression") 
+
+#5
+ggplot(tgca_exp_tumortype_selection, aes(type, tgca_exp_tumortype_selection[,6],fill=type))+ 
+  geom_violin(alpha=0.3) + 
+  geom_boxplot(width = 0.2)+
+  ggtitle("Expression of ENSG00000281194.1|AC055736.3 in different cancer types ") +
+  xlab("cancer type") +
+  ylab("gene expression") 
+```
