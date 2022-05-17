@@ -54,7 +54,11 @@ tcga_exp_var_mean <- data.frame(varianz=apply(tcga_exp_cleaned[1:1000,],1,var),m
 
 #plot aller Mittelwerte gegen die Varianz aller Gene
 ```{r}
-ggplot(tcga_exp_var_mean, aes(mittelwert, varianz))+ geom_point(color="#808080",shape=1)
+ggplot(tcga_exp_var_mean, aes(mittelwert, varianz))+ 
+  geom_point(fill="tomato1",color="tomato4",shape=21) +
+  ggtitle("Variance and mean of every gene ") +
+  xlab("mean") +
+  ylab("variance")
 ```
 #ermitteln weniger gene mit hoher Varianz um Boxplotts zwischen ausgewählten Tumor Typen zu plotten
 ```{r}
@@ -69,7 +73,12 @@ tgca_exp_tumortype_selection <- data.frame(subset(tgca_exp_tumortype,type=="BRCA
 #vorerst nur 1. plot weil die for schleife irgendwie nicht funktioniert
 ```{r}
 #for(i in 2:6){
-ggplot(tgca_exp_tumortype_selection, aes(type, tgca_exp_tumortype_selection[,3],fill=type))+ geom_violin() + geom_boxplot(width = 0.1)
+ggplot(tgca_exp_tumortype_selection, aes(type, tgca_exp_tumortype_selection[,3],fill=type))+ 
+  geom_violin(alpha=0.3) + 
+  geom_boxplot(width = 0.2)+
+  ggtitle("Expression of one gene in different cancer types ") +
+  xlab("cancer type") +
+  ylab("gene expression") 
 #}
 ```
 
