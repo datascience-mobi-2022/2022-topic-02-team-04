@@ -60,9 +60,9 @@ ggplot(data = mean_exp, aes(x = "normal", y = normal)) + geom_violin() + geom_bo
 
 ```{r}
 par(mfrow = c(1,3))
-qqnorm(mean_exp$normal, ylab = "normal", main = "qqnorm: Normal tissue")
-qqnorm(mean_exp$tumor, ylab = "tumor", main = "qqnorm: Tumor tissue")
-qqplot(mean_exp$tumor, mean_exp$normal, ylab = "normal", xlab = "tumor", main = "qqplot: Tumor vs. Normal")
+qqnorm(mean_exp$normal, ylab = "normal tissue", main = "Normal tissue vs. normal distribution", cex.lab = 2, cex.main = 1.8, cex.axis = 2)
+qqnorm(mean_exp$tumor, ylab = "tumor tissue", main = "Tumor tissue vs. normal distribution", cex.lab = 2, cex.main = 1.8, cex.axis = 2)
+qqplot(mean_exp$tumor, mean_exp$normal, ylab = "normal tissue", xlab = "tumor tissue", main = "Tumor tissue vs. normal tissue", cex.lab = 2, cex.main = 1.8, cex.axis = 2)
 par(mfrow = c(1,1))
 ```
 
