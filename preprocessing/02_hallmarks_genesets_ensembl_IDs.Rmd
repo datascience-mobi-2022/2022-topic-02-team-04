@@ -1,0 +1,111 @@
+---
+title: "Untitled"
+author: "Fabian Strobel"
+date: '2022-05-19'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+hallmark_genesets_symbol <- readRDS("data/hallmarks_genesets")
+```
+
+```{r}
+library(EnsDb.Hsapiens.v79)
+
+x <- data.frame(matrix(NA, nrow = 46, ncol = 2))
+
+for (i in 1:46) {
+  x[i,2] <- as.list(ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID")))
+}
+genes_symbol<- sapply(gene_identifier, FUN = function(gene_identifier){
+  ens = gene_identifier[2]
+  return(ens)
+
+## Convert from gene.symbol to ensembl.gene
+Angio_AACR <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+Angio_ALL <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_ALL"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+Angio_VEGF <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_VEGF"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+Angio_N_Reg <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_N_Reg"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+Angio_P_Reg <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_P_Reg"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+Apop_AACR <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Apop_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+Apop_ALL <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Apop_ALL"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+Apop_SURVIVAL <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Apop_SURVIVAL"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+Genome_AACR <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Genome_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+Genome_DN_Reg <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Genome_DN_Reg"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+Genome_REPAIR <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Genome_REPAIR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+Growth_AACR <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Growth_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+geneIDs1 <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symbol[["genesets"]][["Angio_AACR"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+
+
+
+          
+```
