@@ -17,7 +17,7 @@ setwd('.')
 #genes <- rownames(tcga_exp_cleaned)
 #saveRDS(genes, file = "genes.rds")
 
-readRDS("data/genes.rds")
+genes <- readRDS("data/genes.rds")
 ```
 
 ```{r Split ENSG identifier from Gene Symbol}
