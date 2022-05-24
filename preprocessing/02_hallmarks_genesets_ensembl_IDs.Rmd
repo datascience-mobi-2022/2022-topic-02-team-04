@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
+setwd('.')
 hallmark_genesets_symbol <- readRDS("data/hallmarks_genesets")
 ```
 
@@ -21,7 +22,7 @@ Angio_AACR <- ensembldb::select(EnsDb.Hsapiens.v79, keys= hallmark_genesets_symb
 
 genesets <- hallmark_genesets_symbol[["genesets"]]
 
-ens_id <- lapply(genesets, function(x){
-get_ensd = ensembldb::select(EnsDb.Hsapiens.v79, keys= genesets[["x"]], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
+ens_id <- lapply(genesets, function(genesets){
+get_ensd = ensembldb::select(EnsDb.Hsapiens.v79, keys= genesets[], keytype = "SYMBOL", columns = c("SYMBOL","GENEID"))
 return(get_ensd)})
-names(ens_id) <- names(hallmark_genesets_symbol)
+```
