@@ -58,8 +58,8 @@ quant = quantile(var, seq(0, 1, 0.1))
 hist(var, breaks = 30, main = "Variances for each row of tcga_exp \n and quantiles in 10 % steps"); abline(v = quant, col = "red", lty = 2)
 
 ## remove all genes with variance smaller than 1
-genes.remove = which(var < 1)
-tcga_exp_cleaned = tcga_exp[var > 1,]
+genes.remove = which(var < quantile(var, 0.35))
+tcga_exp_cleaned = tcga_exp[var > quantile(var, 0.35),]
 
 ## Amount and share of removed genes
 length(genes.remove)
