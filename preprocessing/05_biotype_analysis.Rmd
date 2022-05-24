@@ -13,9 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r genes from expression matrix}
 setwd('.')
-#tcga_exp_cleaned <- readRDS("data/tcga_exp_cleaned.rds")
-#genes <- rownames(tcga_exp_cleaned)
-#saveRDS(genes, file = "genes.rds")
+tcga_exp_cleaned <- readRDS("data/tcga_exp_cleaned.rds")
+genes <- rownames(tcga_exp_cleaned)
+saveRDS(genes, file = "genes.rds")
 
 genes <- readRDS("data/genes.rds")
 ```
@@ -51,7 +51,7 @@ mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
 
 list_biotype = getBM(attributes = c("ensembl_gene_id", "gene_biotype"), filters = "ensembl_gene_id", values = genes_ensembl, mart = mart, useCache = FALSE)
 ```
-From 39020 input genes, 37973 could be matched with a corresponding biotype. But what about the rest?
+From 39324 input genes, 38268 could be matched with a corresponding biotype. But what about the rest?
 
 ```{r}
 list_biotype_genes <- list_biotype[,1]
@@ -60,6 +60,7 @@ unmatched_genes <- setdiff(genes_ensembl, list_biotype_genes)
 ```
 
 ```{r investigate unmatched data}
+setwd('.')
 readRDS("data/tcga_exp_cleaned")
 
 unmatched_genes_exp <- tcga_exp_cleaned[unmatched_genes,]
@@ -71,6 +72,8 @@ variance_unmatched_genes = apply(unmatched_genes_exp,1,var)
 plot(means_umatched_genes,variance_unmatched_genes, main = "Mean-variance plot for genes \n without known biotype")
 
 mv <- data.frame(means_umatched_genes, variance_unmatched_genes)
+
+library(ggplot2)
 
 ggplot(mv, aes(x = means_umatched_genes, y = variance_unmatched_genes)) +
   geom_point() + ggtitle("Mean-variance plot for genes without known biotype")
