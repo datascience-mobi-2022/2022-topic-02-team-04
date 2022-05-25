@@ -1,0 +1,42 @@
+---
+title: "Vulcano plot different approach"
+author: "Laura Lange"
+date: '2022-05-25'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load data
+
+```{r}
+tcga_tumor_norm = readRDS("data/tcga_tumor_normal_datascience_proj_2022.RDS")
+
+# get list PRAD data
+PRAD <- tcga_tumor_norm[[3]]
+```
+
+Clean data 
+
+```{r}
+# Fuse data frame PRAD normal with PRAD tumor
+PRAD_normal_tumor <- cbind(PRAD[[1]], PRAD[[2]])
+
+# Check for NA
+PRAD_na <- apply(PRAD_normal_tumor, 1, function(x) any(is.na(x)))
+rownames(PRAD_na)
+
+# Get rid of genes that are not expressed (Variance < 1)
+SD <- apply(PRAD_normal_tumor, 1, sd)
+Vari <- SD^2
+
+PRAD_Var <- which(Vari < 1)
+PRAD_normal_tumor_cleaned <- PRAD_normal_tumor[Vari > 1, ]
+
+# control
+Cleaned <- apply(PRAD_normal_tumor_cleaned, 1, var)
+min(Cleaned)
+
+dim(PRAD_Cleaned)
