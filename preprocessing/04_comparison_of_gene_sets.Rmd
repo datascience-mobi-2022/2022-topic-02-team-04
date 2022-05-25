@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r load data}
 setwd('.')
-directory = "data/pathways.rds"
+directory = "data/total_pathways_ensID.rds"
 pathways <- readRDS(directory)
 ```
 "The Jaccard Index is a statistical measure that is frequently used to compare the similarity of binary variable sets. It is the length of the union divided by the size of the intersection between the sets."
@@ -60,6 +60,8 @@ for (i in 1:length(pathways)) {
     jaccard_matrix[i,j] <- x
   }
 }
+
+#diag(jaccard_matrix) = NA
 ```
 
 ```{r heatmap}
@@ -67,6 +69,6 @@ library("pheatmap")
 pheatmap(jaccard_matrix, 
          cluster_rows = TRUE, 
          cluster_cols = TRUE,
-         fontsize = 10,
+         fontsize = 8,
          main = "Jaccard Indices to compare similarity between different pathways")
 ```
