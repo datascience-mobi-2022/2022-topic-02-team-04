@@ -45,7 +45,6 @@ PRAD_normal <- (PRAD_Cleaned[ ,1:58])
 
 PRAD_tumor <- (PRAD_Cleaned[ ,59:116])
 
-
 ```
 
 Calculate mean or median for each gene 
