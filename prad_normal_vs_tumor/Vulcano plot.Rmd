@@ -86,14 +86,18 @@ for(index in 1:nrow(PRAD_normal)) {
     as.matrix(PRAD_tumor[index, ]), 
     paired = TRUE, alternative = "two.sided")$p.value)
   }
+
+hist(as.numeric(p_values), breaks = 20)
 ```
 
 
 Correct p-value via Bonferroni ("bonferroni") / Benjamini-Hichberg ("BH")
 ```{r}
 corrected_p_value <- p.adjust(p_values, method = "bonferroni")
-```
 
+hist(as.numeric(corrected_p_value), breaks = 20)
+
+```
 Make vulcano plot 
 
 ```{r}
