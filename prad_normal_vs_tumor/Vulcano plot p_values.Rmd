@@ -57,9 +57,10 @@ PRAD_matrix <- as.matrix(PRAD_cleaned)
 p_value <- data.frame(NA_col = rep(NA, 8851))
 
 for(index in 1:nrow(PRAD_matrix)) {
-  p_value[index, ] <- wilcox.test( PRAD_matrix[index,1:58], 
-                                   PRAD_matrix[index,59:116],
-                                   paired = TRUE)$p.value
+  p_value[index, ] <- wilcox.test(PRAD_matrix[index,1:58], 
+                                  PRAD_matrix[index,59:116],
+                                  paired = TRUE,
+                                  exact = FALSE)$p.value
   }
 ```
 

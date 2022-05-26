@@ -84,7 +84,7 @@ for(index in 1:nrow(PRAD_normal)) {
   p_values <- c(p_values, wilcox.test(
     as.matrix(PRAD_normal[index, ]),
     as.matrix(PRAD_tumor[index, ]), 
-    paired = TRUE, alternative = "two.sided")$p.value)
+    paired = TRUE, alternative = "two.sided", exact = FALSE)$p.value)
   }
 
 hist(as.numeric(p_values), breaks = 20)
