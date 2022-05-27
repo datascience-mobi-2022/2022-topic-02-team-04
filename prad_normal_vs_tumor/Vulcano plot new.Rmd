@@ -103,6 +103,8 @@ for(index in 1:nrow(PRAD_matrix)) {
                                     paired = TRUE,
                                     exact = FALSE)$p.value
   }
+
+colnames(p_value_2) <- c("p-value")
 ```
 
 
@@ -124,8 +126,9 @@ Plot not corrected p-values
 ```{r}
 # not correced p-values 
 
-hist(p_value_1, breaks = 20)
+hist(as.matrix(p_value_2), breaks = 20)
 ```
+
 correct p-values and plot them again 
 
 ```{r}
@@ -171,14 +174,14 @@ Create vulcano plot with corrected p-values
 ```{r}
 log2_FoldChange <- log2FoldChange
 p_value_corrected <- corrected_p_value
-dat <- data.frame(log2_FoldChange, p_value)
+dat <- data.frame(log2_FoldChange, p_value_corrected)
 
 # add a column of NAs
 dat$diffexpressed <- "NO"
 # if log2Foldchange > 0.6 and pvalue < 0.05, set as "UP" 
-dat$diffexpressed[dat$log2_FoldChange > 0.6 & dat$p_value < 0.05] <- "UP"
+dat$diffexpressed[dat$log2_FoldChange > 0.6 & dat$p_value_corrected < 0.05] <- "UP"
 # if log2Foldchange < -0.6 and pvalue < 0.05, set as "DOWN"
-dat$diffexpressed[dat$log2_FoldChange < -0.6 & dat$p_value < 0.05] <- "DOWN"
+dat$diffexpressed[dat$log2_FoldChange < -0.6 & dat$p_value_corrected < 0.05] <- "DOWN"
 
 # Change point color
 color <- c("blue", "red", "black")
