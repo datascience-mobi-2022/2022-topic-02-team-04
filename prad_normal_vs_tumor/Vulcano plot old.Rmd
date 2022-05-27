@@ -1,5 +1,5 @@
 ---
-title: "Vulcano plot"
+title: "Vulcano plot old"
 author: "Laura Lange"
 date: '2022-05-13'
 output: html_document
@@ -45,7 +45,6 @@ PRAD_normal <- (PRAD_Cleaned[ ,1:58])
 
 PRAD_tumor <- (PRAD_Cleaned[ ,59:116])
 
-
 ```
 
 Calculate mean or median for each gene 
@@ -85,16 +84,20 @@ for(index in 1:nrow(PRAD_normal)) {
   p_values <- c(p_values, wilcox.test(
     as.matrix(PRAD_normal[index, ]),
     as.matrix(PRAD_tumor[index, ]), 
-    paired = TRUE, alternative = "two.sided")$p.value)
+    paired = TRUE, alternative = "two.sided", exact = FALSE)$p.value)
   }
+
+hist(as.numeric(p_values), breaks = 20)
 ```
 
 
 Correct p-value via Bonferroni ("bonferroni") / Benjamini-Hichberg ("BH")
 ```{r}
 corrected_p_value <- p.adjust(p_values, method = "bonferroni")
-```
 
+hist(as.numeric(corrected_p_value), breaks = 20)
+
+```
 Make vulcano plot 
 
 ```{r}
