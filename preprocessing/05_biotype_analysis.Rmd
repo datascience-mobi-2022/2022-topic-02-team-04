@@ -11,6 +11,10 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+-----------------------------------------
+## TCGA Matrix ##
+-----------------------------------------
+
 ```{r genes from expression matrix}
 setwd('.')
 tcga_exp_cleaned <- readRDS("data/tcga_exp_cleaned.rds")
@@ -94,3 +98,115 @@ for (i in 1:nrow(biotypes)){
 biotypes_counts
 ```
 
+
+
+-----------------------------------------
+## Gene sets ##
+-----------------------------------------
+```{r load gene sets}
+setwd('.')
+pathways <- readRDS("total_pathways_ensID.rds")
+
+p_genes <- c(pathways$Angio_AACR,
+             pathways$Angio_ALL, 
+             pathways$Angio_VEGF, 
+             pathways$Angio_N_Reg, 
+             pathways$Angio_P_Reg, 
+             pathways$Apop_AACR, 
+             pathways$Apop_ALL, 
+             pathways$Apop_SURVIVAL, 
+             pathways$Genome_AACR, 
+             pathways$Genome_DN_Reg, 
+             pathways$Genome_REPAIR, 
+             pathways$Growth_AACR, 
+             pathways$Growth_ALL, 
+             pathways$Growth_CONTACT_Inh, 
+             pathways$Growth_Tumor_Supp, 
+             pathways$Immune_AACR, 
+             pathways$Immune_ALL, 
+             pathways$Immune_UP,
+             pathways$Immune_DN, 
+             pathways$Immune_Ils,
+             pathways$Inflam_AACR, 
+             pathways$Inflam_PRO, 
+             pathways$Inflam_NEG, 
+             pathways$Meta_AACR, 
+             pathways$Meta_Glc,
+             pathways$Meta_Gln, 
+             pathways$Meta_Chol, 
+             pathways$Meta_FA, 
+             pathways$Meta_HIF1,
+             pathways$Metas_AACR,
+             pathways$Metas_ALL, 
+             pathways$Metas_EMT_MMP, 
+             pathways$Metas_NEG, 
+             pathways$Metas_EMT, 
+             pathways$Prol_AACR, 
+             pathways$Prol_EGFR, 
+             pathways$Prol_MAPK, 
+             pathways$Prol_PI3CK, 
+             pathways$Prol_NOTCH, 
+             pathways$Prol_ERK, 
+             pathways$Prol_RAS, 
+             pathways$Prol_JAK_STAT, 
+             pathways$Prol_MTOR, 
+             pathways$Prol_WNT, 
+             pathways$Replication_AACR, 
+             pathways$Replication_Telomerase, 
+             pathways$angiogenesis, 
+             pathways$apical_junction, 
+             pathways$apical_surface, 
+             pathways$apoptosis, 
+             pathways$bile_acid_metabolism, 
+             pathways$cholesterol_homeostasis, 
+             pathways$complement, 
+             pathways$dna_repair, 
+             pathways$epithelial_mesenchymal_transition, 
+             pathways$fatty_acid_metabolism, 
+             pathways$g2m_checkpoint, 
+             pathways$glycolysis, 
+             pathways$hypoxia, 
+             pathways$inflammatory_response, 
+             pathways$oxidative_phosphorylation, 
+             pathways$peroxisome, 
+             pathways$reactive_oxygen_species, 
+             pathways$spermatogenesis, 
+             pathways$xenobiotic_metabolism)
+
+lengths(pathways)
+sum(lengths(pathways))
+length(p_genes)
+```
+
+```{r library}
+library(biomaRt)
+```
+
+```{r Biotypes of genes}
+mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
+
+p_list_biotype = getBM(attributes = c("ensembl_gene_id", "gene_biotype"), filters = "ensembl_gene_id", values = p_genes, mart = mart, useCache = FALSE)
+```
+From 20,249 input genes, 13951 could be matched with a corresponding biotype. But what about the rest?
+
+```{r}
+p_list_biotype_genes <- p_list_biotype[,1]
+
+p_unmatched_genes <- setdiff(p_genes, p_list_biotype_genes)
+```
+
+
+```{r}
+p_biotypes <- unique(p_list_biotype[2])
+p_biotypes
+
+p_biotypes_counts <- data.frame(matrix(NA, nrow = nrow(p_biotypes)))
+rownames(p_biotypes_counts) = p_biotypes[,1]
+colnames(p_biotypes_counts) = "counts"
+
+for (i in 1:nrow(p_biotypes)){
+  p_biotypes_counts[i,] <- length(which(p_list_biotype$gene_biotype == p_biotypes[i,]))
+}
+
+p_biotypes_counts
+```
