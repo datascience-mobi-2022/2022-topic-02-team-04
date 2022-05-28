@@ -17,7 +17,7 @@ tcga_tumor_norm = readRDS("data/tcga_tumor_normal_datascience_proj_2022.RDS")
 
 ```{r}
 # get list PRAD data
-PRAD <- tcga_tumor_norm[[3]]
+PRAD <- tcga_tumor_norm[["PRAD"]]
 
 # Fuse data frame PRAD normal with PRAD tumor
 PRAD_normal_tumor <- cbind(PRAD[[1]], PRAD[[2]])
@@ -56,9 +56,9 @@ PRAD_matrix <- as.matrix(PRAD_cleaned)
 Calculate mean for each gene 
 
 ```{r}
-mean_normal <- apply(PRAD_matrix[ ,1:58], 1, mean)
+mean_normal <- apply(PRAD_matrix[ ,1:52], 1, mean)
 
-mean_tumor <- apply(PRAD_matrix[ ,59:116], 1, mean)
+mean_tumor <- apply(PRAD_matrix[ ,53:104], 1, mean)
 ```
 
 Calculate Fold Change 
@@ -83,8 +83,8 @@ Calculate significane of the fold change (paired wilcox-test)
 ```{r}
 # calculate p-value with apply function 
 
-p_value_1 <- apply(PRAD_matrix, 1, function(x) wilcox.test(x[1:58], 
-                                                         x[59:116], 
+p_value_1 <- apply(PRAD_matrix, 1, function(x) wilcox.test(x[1:52], 
+                                                         x[53:104], 
                                                          paired = TRUE,
                                                          exact = FALSE)$p.value)
 
@@ -95,11 +95,11 @@ p_value_1 <- apply(PRAD_matrix, 1, function(x) wilcox.test(x[1:58],
 ```{r}
 # calculate p-value with for loop; stored in data frame
 
-p_value_2 <- data.frame(NA_col = rep(NA, 8851))
+p_value_2 <- data.frame(NA_col = rep(NA, 8159))
 
 for(index in 1:nrow(PRAD_matrix)) {
-  p_value_2[index, ] <- wilcox.test(PRAD_matrix[index,1:58], 
-                                    PRAD_matrix[index,59:116],
+  p_value_2[index, ] <- wilcox.test(PRAD_matrix[index,1:52], 
+                                    PRAD_matrix[index,53:104],
                                     paired = TRUE,
                                     exact = FALSE)$p.value
   }
@@ -111,11 +111,11 @@ colnames(p_value_2) <- c("p-value")
 ```{r}
 # calculate p-value with for loop; stored in matrix
 
-p_value_3 <- matrix(nrow = 8851, ncol = 116)
+p_value_3 <- matrix(nrow = 8159, ncol = 116)
 
 for(index in 1:nrow(PRAD_matrix)) {
-  p_value_3[index, ] <- wilcox.test(PRAD_matrix[index,1:58], 
-                                    PRAD_matrix[index,59:116],
+  p_value_3[index, ] <- wilcox.test(PRAD_matrix[index,1:52], 
+                                    PRAD_matrix[index,53:104],
                                     paired = TRUE,
                                     exact = FALSE)$p.value
   }
