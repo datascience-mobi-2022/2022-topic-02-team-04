@@ -176,23 +176,39 @@ p_genes <- c(pathways$Angio_AACR,
 lengths(pathways)
 sum(lengths(pathways))
 length(p_genes)
+
+dupl <- duplicated(p_genes)
+table(dupl)
+p_genes <- p_genes[dupl == "FALSE"]
+
+length(p_genes)
 ```
 
 ```{r library}
 library(biomaRt)
+library(EnsDb.Hsapiens.v79)
 ```
 
-```{r Biotypes of genes}
+```{r Biotypes of genes biomart}
 mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
 
 p_list_biotype = getBM(attributes = c("ensembl_gene_id", "gene_biotype"), filters = "ensembl_gene_id", values = p_genes, mart = mart, useCache = FALSE)
 ```
-From 20,249 input genes, 13951 could be matched with a corresponding biotype. But what about the rest?
+From 8,239 input genes, 7,797 could be matched with a corresponding biotype. But what about the rest?
 
+```{r EnsDb.Hsapiens.v79}
+p_list_biotypes_EnsDb <- ensembldb::select(EnsDb.Hsapiens.v79, keys= p_genes, keytype = "GENEID", columns = c("GENEBIOTYPE"))
+
+length(intersect(p_list_biotype$ensembl_gene_id, p_list_biotypes_EnsDb$GENEID))
+```
+From 8,239 input genes, 8,194 could be matched with a corresponding biotype.
+
+But what about the rest?
 ```{r}
 p_list_biotype_genes <- p_list_biotype[,1]
 
 p_unmatched_genes <- setdiff(p_genes, p_list_biotype_genes)
+length(p_unmatched_genes)
 ```
 
 
@@ -205,11 +221,15 @@ rownames(p_biotypes_counts) = p_biotypes[,1]
 colnames(p_biotypes_counts) = "counts"
 
 for (i in 1:nrow(p_biotypes)){
-  p_biotypes_counts[i,] <- length(which(p_list_biotype$gene_biotype == p_biotypes[i,]))
+  p_biotypes_counts[i,] <- length(which(p_list_biotype$GENEBIOTYPE == p_biotypes[i,]))
 }
 
 p_biotypes_counts
 ```
+
+##
+SORRY: "gene_biotype" must be changed to "GENEBIOTYPE"
+##
 
 # What we can see is that the protein coding genes make up the majority of our pathway genes
 
