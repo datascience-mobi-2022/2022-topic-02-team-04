@@ -210,3 +210,80 @@ for (i in 1:nrow(p_biotypes)){
 
 p_biotypes_counts
 ```
+
+# What we can see is that the protein coding genes make up the majority of our pathway genes
+
+Let's extract the protein coding genes of our pathways and store them in *protein_coding*
+```{r}
+protein_coding = p_list_biotype[which(p_list_biotype$gene_biotype == "protein_coding"), 1]
+```
+
+In order to check back on the non coding genes, storing them in an individual variable and combining these variables in *non_coding_pathway_genes* might be helpful
+
+```{r}
+miRNA = p_list_biotype[which(p_list_biotype$gene_biotype == "miRNA"), 1]
+length(miRNA)
+
+polymorphic_pseudogene = p_list_biotype[which(p_list_biotype$gene_biotype == "polymorphic_pseudogene"), 1]
+length(polymorphic_pseudogene)
+
+Mt_rRNA = p_list_biotype[which(p_list_biotype$gene_biotype == "Mt_rRNA"), 1]
+length(Mt_rRNA)
+
+lncRNA = p_list_biotype[which(p_list_biotype$gene_biotype == "lncRNA"), 1]
+length(lncRNA)
+
+processed_pseudogene = p_list_biotype[which(p_list_biotype$gene_biotype == "processed_pseudogene"), 1]
+length(miRNA)
+
+unprocessed_pseudogene = p_list_biotype[which(p_list_biotype$gene_biotype == "unprocessed_pseudogene"), 1]
+length(unprocessed_pseudogene)
+
+IG_C_gene = p_list_biotype[which(p_list_biotype$gene_biotype == "IG_C_gene"), 1]
+length(IG_C_gene)
+
+IG_V_gene = p_list_biotype[which(p_list_biotype$gene_biotype == "IG_V_gene"), 1]
+length(IG_V_gene)
+
+TR_V_gene = p_list_biotype[which(p_list_biotype$gene_biotype == "TR_V_gene"), 1]
+length(TR_V_gene)
+
+IG_C_pseudogene = p_list_biotype[which(p_list_biotype$gene_biotype == "IG_C_pseudogene"), 1]
+length(IG_C_pseudogene)
+
+TR_C_gene = p_list_biotype[which(p_list_biotype$gene_biotype == "TR_C_gene"), 1]
+length(TR_C_gene)
+
+transcribed_unitary_pseudogene = p_list_biotype[which(p_list_biotype$gene_biotype == "transcribed_unitary_pseudogene"), 1]
+length(transcribed_unitary_pseudogene)
+
+transcribed_unprocessed_pseudogene = p_list_biotype[which(p_list_biotype$gene_biotype == "transcribed_unprocessed_pseudogene"), 1]
+length(transcribed_unprocessed_pseudogene)
+
+transcribed_processed_pseudogene = p_list_biotype[which(p_list_biotype$gene_biotype == "transcribed_processed_pseudogene"), 1]
+length(transcribed_processed_pseudogene)
+```
+
+Let's combine and store them in the variable *non_coding_pathway_genes*
+
+```{r}
+non_coding_pathway_genes_ens = c(miRNA, polymorphic_pseudogene, Mt_rRNA, lncRNA, processed_pseudogene, unprocessed_pseudogene, IG_C_gene, IG_V_gene, TR_V_gene, IG_C_pseudogene, TR_C_gene, transcribed_unitary_pseudogene, transcribed_unprocessed_pseudogene, transcribed_processed_pseudogene)
+```
+
+Before disregarding any of these non coding genes, checking whether any of these genes can be found in our own dataset should be done
+
+```{r}
+matches = match(non_coding_pathway_genes_ens, genes_ensembl)
+length(matches)
+
+
+matched_non_coding_pathway_genes = non_coding_pathway_genes_ens[na.omit(matches)]
+length(matched_non_coding_pathway_genes) # we end up with 58 matched genes
+```
+
+In order to perform a PCA later on, reducing tcga_exp_cleaned by only looking at the matched non coding pathway genes, the protein coding pathway genes, and the genes of our expressed genes that couldn't be defined by a biotype might be helpful
+
+```{r}
+tcga_exp_cleaned_reduced = tcga_exp_cleaned[c(unmatched_genes, matched_non_coding_pathway_genes, protein_coding),]
+dim(tcga_exp_cleaned_reduced) # we end up with 14927 genes
+```
