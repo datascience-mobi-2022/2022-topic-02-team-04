@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 setwd('.')
 tcga_exp_cleaned <- readRDS("data/tcga_exp_cleaned.rds")
 genes <- rownames(tcga_exp_cleaned)
-saveRDS(genes, file = "genes.rds")
+#saveRDS(genes, file = "genes.rds")
 
 genes <- readRDS("data/genes.rds")
 ```
@@ -198,16 +198,14 @@ From 8,239 input genes, 7,797 could be matched with a corresponding biotype. But
 
 ```{r EnsDb.Hsapiens.v79}
 p_list_biotypes_EnsDb <- ensembldb::select(EnsDb.Hsapiens.v79, keys= p_genes, keytype = "GENEID", columns = c("GENEBIOTYPE"))
-
-length(intersect(p_list_biotype$ensembl_gene_id, p_list_biotypes_EnsDb$GENEID))
 ```
 From 8,239 input genes, 8,194 could be matched with a corresponding biotype.
 
 But what about the rest?
 ```{r}
-p_list_biotype_genes <- p_list_biotype[,1]
+p_list_biotypes_EnsDb_genes <- p_list_biotypes_EnsDb[,1]
 
-p_unmatched_genes <- setdiff(p_genes, p_list_biotype_genes)
+p_unmatched_genes <- setdiff(p_genes, p_list_biotypes_EnsDb_genes)
 length(p_unmatched_genes)
 ```
 
@@ -314,3 +312,9 @@ checking for duplicated genes (should be all unique though)
 ```{r}
 duplicates = duplicated(rownames(tcga_exp_cleaned_reduced))
 table(duplicates)
+```
+
+```{r}
+#saveRDS(tcga_exp_cleaned_reduced, file = "tcga_exp_cleaned_reduced.rds")
+```
+
