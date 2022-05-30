@@ -221,7 +221,7 @@ rownames(p_biotypes_counts) = p_biotypes[,1]
 colnames(p_biotypes_counts) = "counts"
 
 for (i in 1:nrow(p_biotypes)){
-  p_biotypes_counts[i,] <- length(which(p_list_biotype$GENEBIOTYPE == p_biotypes[i,]))
+  p_biotypes_counts[i,] <- length(which(p_list_biotypes_EnsDb$GENEBIOTYPE == p_biotypes[i,]))
 }
 
 p_biotypes_counts
@@ -231,56 +231,57 @@ p_biotypes_counts
 SORRY: "gene_biotype" must be changed to "GENEBIOTYPE"
 ##
 
-# What we can see is that the protein coding genes make up the majority of our pathway genes
+What we can see is that the protein coding genes make up the majority of our pathway genes
 
 Let's extract the protein coding genes of our pathways and store them in *protein_coding*
+
 ```{r}
-protein_coding = p_list_biotype[which(p_list_biotype$gene_biotype == "protein_coding"), 1]
+protein_coding = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "protein_coding"), 1]
 ```
 
 In order to check back on the non coding genes, storing them in an individual variable and combining these variables in *non_coding_pathway_genes* might be helpful
 
 ```{r}
-miRNA = p_list_biotype[which(p_list_biotype$gene_biotype == "miRNA"), 1]
+miRNA = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "miRNA"), 1]
 length(miRNA)
 
-polymorphic_pseudogene = p_list_biotype[which(p_list_biotype$gene_biotype == "polymorphic_pseudogene"), 1]
+polymorphic_pseudogene = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "polymorphic_pseudogene"), 1]
 length(polymorphic_pseudogene)
 
-Mt_rRNA = p_list_biotype[which(p_list_biotype$gene_biotype == "Mt_rRNA"), 1]
+Mt_rRNA = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "Mt_rRNA"), 1]
 length(Mt_rRNA)
 
-lncRNA = p_list_biotype[which(p_list_biotype$gene_biotype == "lncRNA"), 1]
+lncRNA = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "lncRNA"), 1]
 length(lncRNA)
 
-processed_pseudogene = p_list_biotype[which(p_list_biotype$gene_biotype == "processed_pseudogene"), 1]
+processed_pseudogene = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "processed_pseudogene"), 1]
 length(miRNA)
 
-unprocessed_pseudogene = p_list_biotype[which(p_list_biotype$gene_biotype == "unprocessed_pseudogene"), 1]
+unprocessed_pseudogene = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "unprocessed_pseudogene"), 1]
 length(unprocessed_pseudogene)
 
-IG_C_gene = p_list_biotype[which(p_list_biotype$gene_biotype == "IG_C_gene"), 1]
+IG_C_gene = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "IG_C_gene"), 1]
 length(IG_C_gene)
 
-IG_V_gene = p_list_biotype[which(p_list_biotype$gene_biotype == "IG_V_gene"), 1]
+IG_V_gene = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "IG_V_gene"), 1]
 length(IG_V_gene)
 
-TR_V_gene = p_list_biotype[which(p_list_biotype$gene_biotype == "TR_V_gene"), 1]
+TR_V_gene = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "TR_V_gene"), 1]
 length(TR_V_gene)
 
-IG_C_pseudogene = p_list_biotype[which(p_list_biotype$gene_biotype == "IG_C_pseudogene"), 1]
+IG_C_pseudogene = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "IG_C_pseudogene"), 1]
 length(IG_C_pseudogene)
 
-TR_C_gene = p_list_biotype[which(p_list_biotype$gene_biotype == "TR_C_gene"), 1]
+TR_C_gene = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "TR_C_gene"), 1]
 length(TR_C_gene)
 
-transcribed_unitary_pseudogene = p_list_biotype[which(p_list_biotype$gene_biotype == "transcribed_unitary_pseudogene"), 1]
+transcribed_unitary_pseudogene = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "transcribed_unitary_pseudogene"), 1]
 length(transcribed_unitary_pseudogene)
 
-transcribed_unprocessed_pseudogene = p_list_biotype[which(p_list_biotype$gene_biotype == "transcribed_unprocessed_pseudogene"), 1]
+transcribed_unprocessed_pseudogene = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "transcribed_unprocessed_pseudogene"), 1]
 length(transcribed_unprocessed_pseudogene)
 
-transcribed_processed_pseudogene = p_list_biotype[which(p_list_biotype$gene_biotype == "transcribed_processed_pseudogene"), 1]
+transcribed_processed_pseudogene = p_list_biotype[which(p_list_biotypes_EnsDb$GENEBIOTYPE == "transcribed_processed_pseudogene"), 1]
 length(transcribed_processed_pseudogene)
 ```
 
@@ -298,12 +299,18 @@ length(matches)
 
 
 matched_non_coding_pathway_genes = non_coding_pathway_genes_ens[na.omit(matches)]
-length(matched_non_coding_pathway_genes) # we end up with 58 matched genes
+length(matched_non_coding_pathway_genes) # we end up with 53 matched genes
 ```
 
 In order to perform a PCA later on, reducing tcga_exp_cleaned by only looking at the matched non coding pathway genes, the protein coding pathway genes, and the genes of our expressed genes that couldn't be defined by a biotype might be helpful
 
 ```{r}
 tcga_exp_cleaned_reduced = tcga_exp_cleaned[c(unmatched_genes, matched_non_coding_pathway_genes, protein_coding),]
-dim(tcga_exp_cleaned_reduced) # we end up with 14927 genes
+dim(tcga_exp_cleaned_reduced) # we end up with 8766 genes
 ```
+
+checking for duplicated genes (should be all unique though)
+
+```{r}
+duplicates = duplicated(rownames(tcga_exp_cleaned_reduced))
+table(duplicates)
