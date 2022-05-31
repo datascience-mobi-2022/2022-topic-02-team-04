@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r load data}
-setwd('.')
+setwd('../')
 directory = "data/total_pathways_ensID.rds"
 pathways <- readRDS(directory)
 ```

@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r load data}
 ## Set directory
-setwd('.')
+setwd('../')
 directory = "data/hallmarks_genesets_ensID.rds"
 giv_gene_sets <- readRDS(directory)
 
