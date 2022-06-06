@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r genes from expression matrix}
 setwd('../')
 
-tcga_exp_cleaned <- readRDS("data/tcga_exp_cleaned.rds")
+tcga_exp_cleaned <- readRDS("data/tcga_exp_variance_filtered.rds")
 genes <- rownames(tcga_exp_cleaned)
 #saveRDS(genes, file = "tcga_exp_variance_filtered_genes.rds")
 
@@ -47,16 +47,28 @@ genes_ensembl <- sapply(genes_ens_vn, FUN = function(genes_ens_vn){
 })
 ```
 
+```{r}
+rm(gene_identifier)
+rm(genes_ens_vn)
+rm(genes_ens)
+rm(genes_symbol)
+```
+
 ```{r library}
 library(biomaRt)
 ```
 
 ```{r Biotypes of genes}
-mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
+#mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
 
-list_biotype = getBM(attributes = c("ensembl_gene_id", "gene_biotype"), filters = "ensembl_gene_id", values = genes_ensembl, mart = mart, useCache = FALSE)
+#list_biotype = getBM(attributes = c("ensembl_gene_id", "gene_biotype"), filters = "ensembl_gene_id", values = genes_ensembl, mart = mart, useCache = FALSE)
 ```
-From 39324 input genes, 38268 could be matched with a corresponding biotype. But what about the rest?
+38268 matches -> not used
+
+```{r}
+list_biotype <- ensembldb::select(EnsDb.Hsapiens.v79, keys= genes_ensembl, keytype = "GENEID", columns = c("GENEBIOTYPE"))
+```
+From 39324 input genes, 39226 could be matched with a corresponding biotype. But what about the rest?
 
 ```{r}
 list_biotype_genes <- list_biotype[,1]
@@ -85,15 +97,17 @@ ggplot(mv, aes(x = means_umatched_genes, y = variance_unmatched_genes)) +
 biotypes <- unique(list_biotype[2])
 biotypes
 
-biotypes_counts <- data.frame(matrix(NA, nrow = 32))
+biotypes_counts <- data.frame(matrix(NA, nrow = 37))
 rownames(biotypes_counts) = biotypes[,1]
 colnames(biotypes_counts) = "counts"
 
 for (i in 1:nrow(biotypes)){
-  biotypes_counts[i,] <- length(which(list_biotype$gene_biotype == biotypes[i,]))
+  biotypes_counts[i,] <- length(which(list_biotype$GENEBIOTYPE == biotypes[i,]))
 }
 
 biotypes_counts
+
+TCGA_biotypes <- biotypes_counts
 ```
 
 
@@ -180,6 +194,7 @@ table(dupl)
 p_genes <- p_genes[dupl == "FALSE"]
 
 length(p_genes)
+rm(dupl)
 ```
 
 ```{r library}
@@ -221,6 +236,8 @@ for (i in 1:nrow(p_biotypes)){
 }
 
 p_biotypes_counts
+
+pathways_biotypes <- p_biotypes_counts
 ```
 
 
@@ -310,6 +327,14 @@ table(duplicates)
 ```
 
 ```{r}
-saveRDS(tcga_exp_cleaned_reduced, file = "tcga_exp_x_total_pathways.rds")
+#saveRDS(tcga_exp_cleaned_reduced, file = "tcga_exp_x_total_pathways.rds")
+```
+
+
+***
+
+```{r}
+TCGA_biotypes
+pathways_biotypes
 ```
 
