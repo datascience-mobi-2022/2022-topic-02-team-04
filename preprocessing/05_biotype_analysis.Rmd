@@ -333,8 +333,67 @@ table(duplicates)
 
 ***
 
+Explanation of biotypes: https://www.ensembl.org/info/genome/genebuild/biotypes.html
+- Protein coding: Gene/transcipt that contains an open reading frame (ORF)
+
 ```{r}
 TCGA_biotypes
 pathways_biotypes
 ```
 
+For pan-cancer analysis, we take the most interesting biotypes:
+- Short non-coding RNAs, of which some are already well researched and found in bibliographies (Grundvorlesung Biologie 1.FS)
+- Long non-coding RNA, which might have regulatory functions
+- Protein-coding genes (duh, obviously)
+```{r}
+## ncRNA: A non-coding gene
+TCGA_snRNA <- list_biotype[which(list_biotype$GENEBIOTYPE == "snRNA"), 1]
+length(TCGA_snRNA)
+TCGA_miRNA <- list_biotype[which(list_biotype$GENEBIOTYPE == "miRNA"), 1]
+length(TCGA_miRNA)
+TCGA_rRNA <- list_biotype[which(list_biotype$GENEBIOTYPE == "rRNA"), 1]
+length(TCGA_rRNA)
+TCGA_snoRNA <- list_biotype[which(list_biotype$GENEBIOTYPE == "snoRNA"), 1]
+length(TCGA_snoRNA)
+
+##Long non-coding RNA: A non-coding gene/transcript >200bp in length
+TCGA_lincRNA <- list_biotype[which(list_biotype$GENEBIOTYPE == "lincRNA"), 1]
+length(TCGA_lincRNA)
+
+## Protein coding: Gene/transcipt that contains an open reading frame (ORF) and antibody/Tcell rezeptors
+TCGA_protein_coding <-  list_biotype[which(list_biotype$GENEBIOTYPE == "protein_coding"), 1]
+length(TCGA_protein_coding)
+
+TCGA_IGVgene <- list_biotype[which(list_biotype$GENEBIOTYPE == "IG_V_gene"), 1]
+length(TCGA_IGVgene)
+
+TCGA_IGCgene <- list_biotype[which(list_biotype$GENEBIOTYPE == "IG_C_gene"), 1]
+length(TCGA_IGCgene)
+
+TCGA_IGJgene <- list_biotype[which(list_biotype$GENEBIOTYPE == "IG_J_gene"), 1]
+length(TCGA_IGJgene)
+
+TCGA_TRVgene <- list_biotype[which(list_biotype$GENEBIOTYPE == "TR_V_gene"), 1]
+length(TCGA_TRVgene)
+
+TCGA_TRCgene <- list_biotype[which(list_biotype$GENEBIOTYPE == "TR_C_gene"), 1]
+length(TCGA_TRCgene)
+```
+
+The genes are now fused into a final dataframe for pan-cancer analysis:
+```{r}
+TCGA_pancancer_genes <- c(TCGA_snRNA, TCGA_miRNA, TCGA_rRNA, TCGA_snoRNA, TCGA_lincRNA, TCGA_protein_coding, TCGA_IGCgene, TCGA_IGVgene, TCGA_IGJgene, TCGA_TRCgene, TCGA_TRVgene)
+
+length(TCGA_pancancer_genes)
+```
+
+
+```{r}
+tcga_pancancer <- tcga_exp_cleaned[TCGA_pancancer_genes,]
+table(duplicated(rownames(tcga_pancancer)))
+dim(tcga_pancancer)
+```
+
+```{r}
+#saveRDS(tcga_pancancer, file = "tcga_pancancer.rds")
+```
