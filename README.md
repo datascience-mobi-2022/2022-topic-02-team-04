@@ -1,5 +1,7 @@
 # 2022-topic-02-team-04
 
+## Structure (report)
+
 title
 
 abstract
@@ -14,6 +16,31 @@ discussion
 
 references
 
+***
+
+## data organisation (.rds files)
+
+### gene sets / pathways
+- hallmarks_genesets_ensID.rds: All given data sets with ensembl IDs
+- hallmarks_genesets.rds: All given data sets with gene symbols
+
+- add_data_sets_ens_ID.rds: Chosen additional data sets with ensembl IDs
+- add_data_sets.rds: Chosen additional data sets with gene symbols
+
+- total_pathways.rds: Combination of given and additional genesets with gene symbols (Former: "pathways")
+- total_pathways_ensID.rds: Combination of given and additional genesets with ensembl IDs
+
+### Pan-cancer analysis (TCGA matrix)
+- tcga_tumor_log2TPM.RDS: Original TCGA matrix (60498 rows)
+- tcga_tumor_annotations.rds: Clinical annotations to original TCGA matrix
+- tcga_exp_variance_filtered.rds: Variance filtered (var > q35) TCGA matrix (39324 rows) (Former: "tcga_exp_cleaned")
+- tcga_exp_variance_filtered_genes.rds: All genes of variance filtered TCGA Matrix (39324)
+- tcga_exp_x_total_pathways: variance filtered matrix containing all TCGA genes that are present in total pathways
+
+### Foccused analysis (PRAD)
+- tcga_tumor_normal_datascience_proj_2022.rds: Original PRAD matrix
+
+***
 
 ## /preprocessing/01_variance_filtering_tcga_exp.Rmd
 - Load original data (60,000x10,000 Matrix)
@@ -57,4 +84,4 @@ references
 - Load _total_pathways_ensID.rds_
 - Removal of duplicated genes
 - Identification of biotypes using _biomaRt_ and _EnsDb.Hsapiens.v79_
-- ??? _tcga_exp_cleaned_reduced_ ???
+- *Export:* _tcga_exp_x_total_pathways_
