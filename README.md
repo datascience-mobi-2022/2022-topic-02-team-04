@@ -49,7 +49,7 @@ references
 - *PLOT:* Distribution of means of all genes
 - *PLOT:* Variances for each row of tcga_exp and quantiles in 10 % steps
 - Removal of all genes with a variance < 35 % quantile of variance
-- *EXPORT:* _tcga_exp_cleaned_
+- *EXPORT:* _tcga_exp_variance_filtered_
 
 ## /preprocessing/02_variance_filtering_tcga_exp.Rmd
 - Import of additionally chosen gene sets using _msigdbr_
@@ -74,7 +74,7 @@ references
 
 ## /preprocessing/05_biotype_analysis.Rmd
 ### TCGA Matrix
-- Load _tcga_exp_cleaned.rds_
+- Load _tcga_exp_variance_filtered.rds_
 - Extract ensembl IDs
 - Identification of biotypes using _biomaRt_
 - Investigation of unmatched genes
