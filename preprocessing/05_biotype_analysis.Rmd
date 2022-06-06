@@ -16,12 +16,13 @@ knitr::opts_chunk$set(echo = TRUE)
 -----------------------------------------
 
 ```{r genes from expression matrix}
-setwd('.')
+setwd('../')
+
 tcga_exp_cleaned <- readRDS("data/tcga_exp_cleaned.rds")
 genes <- rownames(tcga_exp_cleaned)
-#saveRDS(genes, file = "genes.rds")
+#saveRDS(genes, file = "tcga_exp_variance_filtered_genes.rds")
 
-genes <- readRDS("data/genes.rds")
+genes <- readRDS("data/tcga_exp_variance_filtered_genes.rds")
 ```
 
 ```{r Split ENSG identifier from Gene Symbol}
@@ -64,9 +65,6 @@ unmatched_genes <- setdiff(genes_ensembl, list_biotype_genes)
 ```
 
 ```{r investigate unmatched data}
-setwd('.')
-readRDS("data/tcga_exp_cleaned")
-
 unmatched_genes_exp <- tcga_exp_cleaned[unmatched_genes,]
 
 ## Compute mean of every row/ for every gene
@@ -104,7 +102,7 @@ biotypes_counts
 ## Gene sets ##
 -----------------------------------------
 ```{r load gene sets}
-setwd('.')
+setwd('../')
 pathways <- readRDS("total_pathways_ensID.rds")
 
 p_genes <- c(pathways$Angio_AACR,
@@ -225,9 +223,6 @@ for (i in 1:nrow(p_biotypes)){
 p_biotypes_counts
 ```
 
-##
-SORRY: "gene_biotype" must be changed to "GENEBIOTYPE"
-##
 
 What we can see is that the protein coding genes make up the majority of our pathway genes
 
@@ -315,6 +310,6 @@ table(duplicates)
 ```
 
 ```{r}
-#saveRDS(tcga_exp_cleaned_reduced, file = "tcga_exp_cleaned_reduced.rds")
+saveRDS(tcga_exp_cleaned_reduced, file = "tcga_exp_x_total_pathways.rds")
 ```
 

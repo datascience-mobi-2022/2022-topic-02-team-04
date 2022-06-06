@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Load original data (60,000x10,000 Matrix)
 ```{r Load data}
 ## Set directory
-setwd('.')
+setwd('../')
 directory = "data/tcga_tumor_log2TPM.RDS"
 tcga_exp <- readRDS(directory)
 ```
@@ -72,6 +72,6 @@ min(var_cleaned)
 ```
 
 ```{r export}
-#saveRDS(tcga_exp_cleaned, file = "tcga_exp_cleaned")
+#saveRDS(tcga_exp_cleaned, file = "tcga_exp_variance_filtered")
 ```
 
