@@ -37,6 +37,7 @@ references
 - tcga_exp_variance_filtered_genes.rds: All genes of variance filtered TCGA Matrix (39324)
 - tcga_exp_x_total_pathways.rds: variance filtered matrix containing all TCGA genes that are present in total pathways
 - tcga_pancancer.rds: variance and biotype filtered genes, ready for further investigation
+- rcga_pancancer_excluded.rds: genes that were discarded from _tcga_pancancer.rds_ after biotype filtering
 
 ### Foccused analysis (PRAD)
 - tcga_tumor_normal_datascience_proj_2022.rds: Original PRAD matrix
