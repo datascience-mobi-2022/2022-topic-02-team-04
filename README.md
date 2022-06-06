@@ -35,7 +35,8 @@ references
 - tcga_tumor_annotations.rds: Clinical annotations to original TCGA matrix
 - tcga_exp_variance_filtered.rds: Variance filtered (var > q35) TCGA matrix (39324 rows) (Former: "tcga_exp_cleaned")
 - tcga_exp_variance_filtered_genes.rds: All genes of variance filtered TCGA Matrix (39324)
-- tcga_exp_x_total_pathways: variance filtered matrix containing all TCGA genes that are present in total pathways
+- tcga_exp_x_total_pathways.rds: variance filtered matrix containing all TCGA genes that are present in total pathways
+- tcga_pancancer.rds: variance and biotype filtered genes, ready for further investigation
 
 ### Foccused analysis (PRAD)
 - tcga_tumor_normal_datascience_proj_2022.rds: Original PRAD matrix
@@ -80,6 +81,8 @@ references
 - Investigation of unmatched genes
 - *PLOT:* Mean-variance plot for genes without known biotype
 - Count of all occuring biotypes
+- Reduction to protein-coding genes (including IG's and TCR's), important short non-coding RNAs and long intergenic non-coding RNAs
+- *EXPORT:* _tcga_pancancer_
 ### Gene sets
 - Load _total_pathways_ensID.rds_
 - Removal of duplicated genes
