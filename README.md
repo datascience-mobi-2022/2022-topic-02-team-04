@@ -37,6 +37,7 @@ references
 - tcga_exp_variance_filtered_genes.rds: All genes of variance filtered TCGA Matrix (39324)
 - tcga_exp_x_total_pathways.rds: variance filtered matrix containing all TCGA genes that are present in total pathways
 - tcga_pancancer.rds: variance and biotype filtered genes, ready for further investigation
+- rcga_pancancer_excluded.rds: genes that were discarded from _tcga_pancancer.rds_ after biotype filtering
 
 ### Foccused analysis (PRAD)
 - tcga_tumor_normal_datascience_proj_2022.rds: Original PRAD matrix
@@ -82,7 +83,8 @@ references
 - *PLOT:* Mean-variance plot for genes without known biotype
 - Count of all occuring biotypes
 - Reduction to protein-coding genes (including IG's and TCR's), important short non-coding RNAs and long intergenic non-coding RNAs
-- *EXPORT:* _tcga_pancancer_
+- *EXPORT:* _tcga_pancancer.rds_
+- *EXPORT:* _tcga_pancancer_excluded.rds_
 ### Gene sets
 - Load _total_pathways_ensID.rds_
 - Removal of duplicated genes
