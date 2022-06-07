@@ -1,0 +1,84 @@
+---
+title: "01_pancancer_principle_component_analysis"
+author: "Fabian Strobel"
+date: '2022-06-06'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+setwd('../2022-topic-02-team-04/')
+directory <- "date/tcga_pancancer"
+tcga_pancancer <- readRDS(directory)
+```
+
+Principal component analysis
+```{r}
+#pca <- prcomp(tcga_pancancer)
+```
+
+```{r}
+pca <- readRDS("data/tcga_pancancer_pca")
+```
+
+
+Each PC explains part of overall variance in tcga matrix, proportional to corresponding eigenvalue
+
+Analysis of variance
+```{r}
+variance = (pca$sdev)^2
+barplot(log(variance), main = "log(variance) after pca for pan-cancer dataset", xlab = "PC_i", ylab = "log(variance)")
+```
+
+Scaling on 1 gives proportion of variance in percent
+```{r}
+prop.var = variance/sum(variance)
+
+summary(prop.var)
+
+sum(which(prop.var > quantile(prop.var, 0.999))) ## 55 values
+
+head(prop.var, sum(which(prop.var > quantile(prop.var, 0.999))))
+
+## Visualization
+barplot(prop.var[1:sum(which(prop.var > quantile(prop.var, 0.999)))])
+barplot(prop.var[2:sum(which(prop.var > quantile(prop.var, 0.999)))])
+
+## The 55 first PCs explain 89.1 % of the total variance (PC1 -> 78.4 %!!!)
+sum(prop.var[1:sum(which(prop.var > quantile(prop.var, 0.999)))])
+```
+Let's look whether we find clusters when plotting different PCs against each other:
+```{r}
+new.coordinates = pca$x
+
+plot(new.coordinates[,1],new.coordinates[,2],pch=19,
+     xlab='PC1',ylab='PC2')
+
+plot(new.coordinates[,1],new.coordinates[,3],pch=19,
+     xlab='PC1',ylab='PC3')
+
+plot(new.coordinates[,1],new.coordinates[,4],pch=19,
+     xlab='PC1',ylab='PC4')
+
+plot(new.coordinates[,2],new.coordinates[,3],pch=19,
+     xlab='PC2',ylab='PC3')
+
+plot(new.coordinates[,2],new.coordinates[,4],pch=19,
+     xlab='PC2',ylab='PC4')
+
+plot(new.coordinates[,3],new.coordinates[,4],pch=19,
+     xlab='PC3',ylab='PC4')
+```
+
+
+How to chose the "right" amount of PCs without risking to loose much information?
+```{r}
+## Kaiser rule (keep PCs with eigenvalue >= mean eigenvalue)
+
+## Jottclife rule (keep PCs with eigenvalue >= 70% ofmean eigenvalue)
+
+```
+
