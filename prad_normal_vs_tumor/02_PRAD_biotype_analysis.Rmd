@@ -1,0 +1,108 @@
+---
+title: "01_PRAD_biotype_analysis"
+author: "Fabian Strobel"
+date: '2022-06-07'
+output: html_document
+---
+
+```{r}
+library(EnsDb.Hsapiens.v79)
+```
+
+
+```{r}
+setwd('../')
+PRAD_variance_filtered = readRDS("data/PRAD_variance_filtered.rds")
+```
+
+```{r}
+# get list PRAD data
+genes <- rownames(PRAD_variance_filtered[["normal"]])
+```
+
+```{r Split ENSG identifier from Gene Symbol}
+gene_identifier <- strsplit(genes, split = "|", fixed = TRUE)
+
+genes_ens<- sapply(gene_identifier, FUN = function(gene_identifier){
+  ens = gene_identifier[1]
+  return(ens)
+})
+
+genes_symbol<- sapply(gene_identifier, FUN = function(gene_identifier){
+  ens = gene_identifier[2]
+  return(ens)
+})
+```
+
+```{r Remove version number}
+genes_ens_vn <- strsplit(genes_ens, split = ".", fixed = TRUE)
+genes_ensembl <- sapply(genes_ens_vn, FUN = function(genes_ens_vn){
+  ens = genes_ens_vn[1]
+  return(ens)
+})
+```
+
+```{r}
+rm(gene_identifier)
+rm(genes_ens_vn)
+rm(genes_ens)
+rm(genes_symbol)
+```
+
+```{r}
+list_biotype <- ensembldb::select(EnsDb.Hsapiens.v79, keys= genes_ensembl, keytype = "GENEID", columns = c("GENEBIOTYPE"))
+```
+From 7850 genes were 7840 were matched with a biotype. The other 10 will be discarded.
+
+```{r unmatched genes}
+list_biotype_genes <- list_biotype[,1]
+unmatched_genes <- setdiff(genes_ensembl, list_biotype_genes)
+```
+
+```{r biotype counts}
+biotypes <- unique(list_biotype[2])
+biotypes
+
+biotypes_counts <- data.frame(matrix(NA, nrow = nrow(biotypes)))
+rownames(biotypes_counts) = biotypes[,1]
+colnames(biotypes_counts) = "counts"
+
+for (i in 1:nrow(biotypes)){
+  biotypes_counts[i,] <- length(which(list_biotype$GENEBIOTYPE == biotypes[i,]))
+}
+
+biotypes_counts
+```
+
+The same biotypes as in the pan-cancer analysis are kept when present. The others are discarded.
+```{r}
+## Protein coding: Gene/transcipt that contains an open reading frame (ORF)
+PRAD_protein_coding <-  list_biotype[which(list_biotype$GENEBIOTYPE == "protein_coding"), 1]
+length(PRAD_protein_coding)
+
+## Long non-coding RNA: A non-coding gene/transcript >200bp in length
+PRAD_lincRNA <- list_biotype[which(list_biotype$GENEBIOTYPE == "lincRNA"), 1]
+length(PRAD_lincRNA)
+```
+
+The genes are now fused into a final dataframe for pan-cancer analysis:
+```{r}
+PRAD_genes <- c(PRAD_protein_coding, PRAD_lincRNA)
+
+length(PRAD_genes)
+```
+
+## Update our PRAD list
+```{r}
+tumor <- PRAD_variance_filtered[["tumor"]]
+normal <- PRAD_variance_filtered[["normal"]]
+
+newtumor <- tumor[PRAD_genes,]
+newnormal <- normal[PRAD_genes,]
+
+PRAD_TvsN <- list("tumor" = newtumor, "normal" = newnormal, "clinical" = PRAD_variance_filtered[["clinical"]])
+```
+
+```{r}
+#saveRDS(PRAD_TvsN, file = "PRAD_TvsN.rds")
+```
