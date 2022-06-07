@@ -1,0 +1,51 @@
+---
+title: "01_PRAD_variance_filtering"
+author: "Fabian Strobel"
+date: '2022-06-07'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+tcga_tumor_normal <- readRDS("data/tcga_tumor_normal_datascience_proj_2022.RDS")
+
+PRAD_tumor <- tcga_tumor_normal[["PRAD"]][["tumor"]]
+PRAD_normal <- tcga_tumor_normal[["PRAD"]][["normal"]]
+PRAD_clinical <- tcga_tumor_normal[["PRAD"]][["clinical"]]
+
+rm(tcga_tumor_normal)
+
+# Combine normal and tumor expression to investigate variance
+PRAD_tumor_normal <- cbind(PRAD_tumor, PRAD_normal)
+
+# Compute variance for every gene
+PRAD_var <- apply(PRAD_tumor_normal, 1, var)
+
+# Let's have a look at the distribution of the variance
+hist(PRAD_var)
+summary(PRAD_var)
+quantile(PRAD_var, seq(0, 1, 0.1))
+```
+The distribution is extremly right skewed. This is also visible in the large difference between mean and median. For further investigation, all genes with a variance below the 60 % quantile are discarded (11774 genes)
+
+```{r}
+genes.remove = which(PRAD_var < quantile(PRAD_var, 0.6))
+length(genes.remove)
+
+PRAD_variance_filtered_genes = PRAD_tumor_normal[-genes.remove,]
+
+# Seperate data set again 
+PRAD_tumor <- PRAD_variance_filtered_genes[ ,1:52]
+PRAD_normal <- PRAD_variance_filtered_genes[ ,53:104]
+```
+7850 genes remain.
+
+Let's create a list like the original PRAD one
+```{r}
+PRAD_variance_filtered <- list("tumor" = PRAD_tumor, "normal" = PRAD_normal, "clinical" = PRAD_clinical)
+```
+
+```{r}
+#saveRDS(PRAD_variance_filtered, "PRAD_variance_filtered.rds")
+```
