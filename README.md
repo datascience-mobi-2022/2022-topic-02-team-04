@@ -37,10 +37,12 @@ references
 - tcga_exp_variance_filtered_genes.rds: All genes of variance filtered TCGA Matrix (39324)
 - tcga_exp_x_total_pathways.rds: variance filtered matrix containing all TCGA genes that are present in total pathways
 - tcga_pancancer.rds: variance and biotype filtered genes, ready for further investigation
-- rcga_pancancer_excluded.rds: genes that were discarded from _tcga_pancancer.rds_ after biotype filtering
+- tcga_pancancer_excluded.rds: genes that were discarded from _tcga_pancancer.rds_ after biotype filtering
 
 ### Foccused analysis (PRAD)
 - tcga_tumor_normal_datascience_proj_2022.rds: Original PRAD matrix
+- PRAD_variance_filtered.rds: Variance filtered (var > q60) PRAD list
+- PRAD_TvsN.rds: variance and biotype filtered PRAD list, ready for further investigation
 
 ***
 
@@ -90,3 +92,18 @@ references
 - Removal of duplicated genes
 - Identification of biotypes using _biomaRt_ and _EnsDb.Hsapiens.v79_
 - *Export:* _tcga_exp_x_total_pathways_
+
+***
+
+## /prad_normal_vs_tumor/01_PRAD_variance_filtering
+- Combination of normal and tumor samples into one data.frame
+- Computation of variance -> extremly right skewed
+- Removing every gene with a variance below the 60 % quantile (var < ~1)
+- Create original-like nested list
+- *EXPORT:* _PRAD_variance_filtered.rds_
+
+## /prad_normal_vs_tumor/02_PRAD_biotype analysis
+- Load _PRAD_variance_filtered.rds_
+- Perform biotype analysis similarly to pan-cancer preprocessing
+- only keep protein-coding and lincRNAs
+- *EXPORT:* _PRAD_TvsN.rds_
