@@ -28,18 +28,18 @@ references
 - add_data_sets_gene_symbols.rds: Chosen additional data sets with gene symbols
 
 - total_pathways_gene_symbols.rds: Combination of given and additional genesets with gene symbols (Former: "pathways")
-- *total_pathways_ensID.rds: Combination of given and additional genesets with ensembl IDs*
+- total_pathways_ensID.rds: Combination of given and additional genesets with ensembl IDs
 
 ### Pan-cancer analysis (TCGA matrix)
 - tcga_tumor_log2TPM.RDS: Original TCGA matrix (60498 rows)
 - tcga_tumor_annotations.rds: Clinical annotations to original TCGA matrix
 - tcga_exp_variance_filtered.rds: Variance filtered (var > q35) TCGA matrix (39324 rows) (Former: "tcga_exp_cleaned")
 - tcga_exp_x_total_pathways.rds: variance filtered matrix containing all TCGA genes that are present in total pathways
-*- tcga_pancancer.rds: variance and biotype filtered genes, ready for further investigation*
+- tcga_pancancer.rds: variance and biotype filtered genes, ready for further investigation
 
 ### Foccused analysis (PRAD)
 - tcga_tumor_normal_datascience_proj_2022.rds: Original PRAD matrix
-*- PRAD_TvsN.rds: variance and biotype filtered (var > q60) PRAD list, ready for further investigation*
+- PRAD_TvsN.rds: variance and biotype filtered (var > q60) PRAD list, ready for further investigation
 
 ***
 
