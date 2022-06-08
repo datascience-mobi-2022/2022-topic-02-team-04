@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 setwd('../')
 
 tcga_exp_cleaned <- readRDS("data/tcga_exp_variance_filtered.rds")
-genes <- rownames(tcga_exp_cleaned)
+genes <- rownames(tcga_pancancer)
 #saveRDS(genes, file = "tcga_exp_variance_filtered_genes.rds")
 
 genes <- readRDS("data/tcga_exp_variance_filtered_genes.rds")
@@ -392,14 +392,16 @@ length(TCGA_pancancer_genes)
 tcga_pancancer <- tcga_exp_cleaned[TCGA_pancancer_genes,]
 table(duplicated(rownames(tcga_pancancer)))
 dim(tcga_pancancer)
+
+rownames(tcga_pancancer) <- TCGA_pancancer_genes
 ```
 
 ```{r}
-#saveRDS(tcga_pancancer, file = "tcga_pancancer.rds")
+saveRDS(tcga_pancancer, file = "tcga_pancancer.rds")
 ```
 
 ```{r}
-# Other genes
+# Other genes (not exported)
 #all_genes <- rownames(tcga_exp_variance_filtered)
 #other_genes <- setdiff(all_genes, TCGA_pancancer_genes)
 

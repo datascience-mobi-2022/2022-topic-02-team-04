@@ -98,7 +98,12 @@ tumor <- PRAD_variance_filtered[["tumor"]]
 normal <- PRAD_variance_filtered[["normal"]]
 
 newtumor <- tumor[PRAD_genes,]
+rownames(newtumor) <- PRAD_genes
+
 newnormal <- normal[PRAD_genes,]
+rownames(newnormal) <- PRAD_genes
+
+
 
 PRAD_TvsN <- list("tumor" = newtumor, "normal" = newnormal, "clinical" = PRAD_variance_filtered[["clinical"]])
 ```
