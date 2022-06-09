@@ -1,0 +1,69 @@
+---
+title: "Rank p-values for GSEA (PRAD analysis)"
+author: "Laura Lange"
+date: '2022-06-09'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load data
+
+```{r}
+tcga_tumor_norm <- readRDS("~/GitHub/2022-topic-02-team-04/data/PRAD_TvsN.rds")
+
+# Fuse data frame PRAD normal with PRAD tumor
+PRAD_tumor_normal <- cbind(tcga_tumor_norm[["tumor"]], tcga_tumor_norm[["normal"]])
+```
+
+Create list of ranked genes 
+
+Calculate mean for each gene 
+```{r}
+mean_normal <- apply(PRAD_tumor_normal[ ,1:52], 1, mean)
+
+mean_tumor <- apply(PRAD_tumor_normal[ ,53:104], 1, mean)
+```
+
+Calculate Fold Change
+```{r}
+e_mean_tumor <- 2^mean_tumor
+e_mean_normal <- 2^mean_normal
+FoldChange <- e_mean_tumor / e_mean_normal
+
+# Scale Fold Change 
+log2_FoldChange <- log2(FoldChange)
+```
+
+Calculate significane of the fold change (paired wilcox-test)
+```{r}
+# calculate p-value with apply function 
+
+p_value <- apply(PRAD_tumor_normal, 1, function(x) wilcox.test(x[1:52], 
+                                                         x[53:104], 
+                                                         paired = TRUE,
+                                                         exact = FALSE)$p.value)
+
+# Scale p-values 
+neg_log10_p_value <- -log10(p_value)
+```
+
+Create data frame with gene number, Fold Change and p-value
+```{r}
+# get names of all genes 
+gene_number <- rownames(PRAD_tumor_normal)
+
+dat_for_ranking <- data.frame(gene_number, neg_log10_p_value, log2_FoldChange, FoldChange)
+```
+
+Calculate ranking score
+```{r}
+dat_for_ranking$ranking_score_p_value <- neg_log10_p_value * sign(log2_FoldChange)
+
+
+hist(dat_for_ranking$ranking_score_p_value)
+
+```
+
