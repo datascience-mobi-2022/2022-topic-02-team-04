@@ -60,10 +60,27 @@ dat_for_ranking <- data.frame(gene_number, neg_log10_p_value, log2_FoldChange, F
 
 Calculate ranking score
 ```{r}
-dat_for_ranking$ranking_score_p_value <- neg_log10_p_value * sign(log2_FoldChange)
+ranking_score_p_value <- neg_log10_p_value * sign(log2_FoldChange)
 
+duplicated <- duplicated(ranking_score_p_value)
 
-hist(dat_for_ranking$ranking_score_p_value)
+length(duplicated[duplicated == TRUE])
+```
+Rank genes 
+
+```{r}
+# ties.method = "random"
+dat_for_ranking$rank <- rank(ranking_score_p_value, ties.method = "random")
+
+duplicated_ranks <- duplicated(dat_for_ranking$rank)
+
+length(duplicated_ranks[duplicated_ranks == TRUE])
+
+library(dplyr)
+ranked_genes <- dat_for_ranking %>% arrange(desc(dat_for_ranking$rank))
+```
+
+```{r}
 
 ```
 
