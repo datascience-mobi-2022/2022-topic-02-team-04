@@ -55,32 +55,49 @@ Create data frame with gene number, Fold Change and p-value
 # get names of all genes 
 gene_number <- rownames(PRAD_tumor_normal)
 
-dat_for_ranking <- data.frame(gene_number, neg_log10_p_value, log2_FoldChange, FoldChange)
+dat_for_ranking <- data.frame(gene_number, neg_log10_p_value, FoldChange)
 ```
 
-Calculate ranking score
+Rank genes using fold change 
 ```{r}
+# Search for same Fold Change
+duplicated_FC <- duplicated(FoldChange)
+
+length(duplicated_FC[duplicated_FC == TRUE])
+
+# Rank Fold Change; for genes with same Fold Change: randomly decided which gets higher number 
+dat_for_ranking$rank_FC <- rank(FoldChange, ties.method = "random")
+
+# Check if there are no duplicates any more 
+duplicated_ranks_FC <- duplicated(dat_for_ranking$rank_FC)
+
+length(duplicated_ranks_FC[duplicated_ranks_FC == TRUE])
+
+# Arragne genes in new order 
+library(dplyr)
+ranked_genes_FC <- dat_for_ranking %>% arrange(desc(dat_for_ranking$rank_FC))
+```
+
+Rank genes using p-values 
+```{r}
+# Calculate Ranking Score
 ranking_score_p_value <- neg_log10_p_value * sign(log2_FoldChange)
 
-duplicated <- duplicated(ranking_score_p_value)
+# Search for same Ranking Score 
+duplicated_p <- duplicated(ranking_score_p_value)
 
-length(duplicated[duplicated == TRUE])
-```
-Rank genes 
+length(duplicated_p[duplicated_p == TRUE])
 
-```{r}
-# ties.method = "random"
-dat_for_ranking$rank <- rank(ranking_score_p_value, ties.method = "random")
+# Rank Fold Change; for genes with same Ranking Score: randomly decided which gets higher number 
+dat_for_ranking$rank_p <- rank(ranking_score_p_value, ties.method = "random")
 
-duplicated_ranks <- duplicated(dat_for_ranking$rank)
+# Check if there are no duplicates any more 
+duplicated_ranks_p <- duplicated(dat_for_ranking$rank)
 
-length(duplicated_ranks[duplicated_ranks == TRUE])
+length(duplicated_ranks_p[duplicated_ranks_p == TRUE])
 
+# Arragne genes in new order 
 library(dplyr)
-ranked_genes <- dat_for_ranking %>% arrange(desc(dat_for_ranking$rank))
-```
-
-```{r}
-
+ranked_genes_p <- dat_for_ranking %>% arrange(desc(dat_for_ranking$rank_p))
 ```
 
