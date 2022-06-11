@@ -45,7 +45,7 @@ single_tumortype <- data.frame(df.list[i])
     pvalue_temp <-c()
    
     for(h in 1:ncol(single_tumortype)){
-             pvalue_temp <-c( pvalue_temp,wilcox.test(single_tumortype_geneset[,h], single_tumortype_wo_geneset[,h])$p.value )
+             pvalue_temp[[h]] <-wilcox.test(single_tumortype_geneset[,h], single_tumortype_wo_geneset[,h])$p.value 
     }
     pvalue_matrix <- rbind(pvalue_matrix,pvalue_temp)
   }
@@ -55,9 +55,33 @@ names(pvalue_matrix_list) <- names(df.list)
 
 ```
 
-```{r}
-setwd('../')
 
-tcga_exp_cleaned <- readRDS("data/tcga_exp_variance_filtered.rds")
+
+Durchführen mit den pancancer daten
+```{r}
+setwd('..')
+
+tcga_pancancer <- readRDS("data/tcga_pancancer.rds")
+PRAD_TvsN <- readRDS("data/PRAD_TvsN.rds")
 ```
 
+```{r}
+
+single_tumortype <- data.frame(tcga_pancancer)
+   pvalue_matrix <- c()
+  for(p in 1:length(pw.list)){
+    include_list<-data.frame(pw.list[p])
+    single_tumortype_geneset <- subset(single_tumortype,rownames(single_tumortype) %in% include_list[,1] )
+    single_tumortype_wo_geneset <- subset(single_tumortype,!rownames(single_tumortype) %in% include_list[,1] )
+    
+    pvalue_temp <-c()
+   
+    for(h in 1:ncol(single_tumortype)){
+             pvalue_temp[[h]] <-wilcox.test(single_tumortype_geneset[,h], single_tumortype_wo_geneset[,h])$p.value 
+    }
+    pvalue_matrix <- rbind(pvalue_matrix,pvalue_temp)
+  }
+   #pvalue_matrix_list[[i]] <-  pvalue_matrix
+
+
+```
