@@ -62,15 +62,15 @@ Durchführen mit den pancancer daten
 setwd('..')
 
 tcga_pancancer <- readRDS("data/tcga_pancancer.rds")
-PRAD_TvsN <- readRDS("data/PRAD_TvsN.rds")
+pathways <- readRDS("data/total_pathways_ensID.rds")
 ```
 
 ```{r}
 
 single_tumortype <- data.frame(tcga_pancancer)
    pvalue_matrix <- c()
-  for(p in 1:length(pw.list)){
-    include_list<-data.frame(pw.list[p])
+  for(p in 1:length(pathways)){
+    include_list<-data.frame(pathways[p])
     single_tumortype_geneset <- subset(single_tumortype,rownames(single_tumortype) %in% include_list[,1] )
     single_tumortype_wo_geneset <- subset(single_tumortype,!rownames(single_tumortype) %in% include_list[,1] )
     
