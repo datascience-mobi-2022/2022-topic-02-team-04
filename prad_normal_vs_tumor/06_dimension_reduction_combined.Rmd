@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "06_dimension_reduction_combined"
 author: "Fabian Strobel"
 date: '2022-06-11'
 output: html_document
@@ -10,10 +10,11 @@ editor_options:
 ```{r}
 library(Seurat)
 library(babyplots)
+library(scatterplot3d)
 ```
 
 ```{r}
-PRAD_TvsN <- readRDS(data/PRAD_TvsN)
+PRAD_TvsN <- readRDS("data/PRAD_TvsN")
 ```
 
 Combine into on data.frame
@@ -38,45 +39,45 @@ prop.var = variance/pca_TandN@misc$total.variance
 
 summary(prop.var)
 
-barplot(prop.var)
+barplot(prop.var[1:10], main = "Proportion of variance for the first 10 PCs", xlab = "PCs", ylab = "Proportion of variance")
 ```
 
 ```{r}
 new.coordinates = pca_TandN@feature.loadings
 sampletype <- c(rep("firebrick3", 52), rep("springgreen4", 52))
 
-#par(mfrow = c(2,3))
+par(mfrow = c(2,3))
 
 plot(new.coordinates[,1],new.coordinates[,2],pch=19, col = sampletype,
      xlab='PC1',ylab='PC2')
-title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
+#title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
 
 plot(new.coordinates[,1],new.coordinates[,3],pch=19, col = sampletype,
      xlab='PC1',ylab='PC3')
-title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
+#title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
 
 plot(new.coordinates[,1],new.coordinates[,4],pch=19, col = sampletype,
      xlab='PC1',ylab='PC4')
-title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
+#title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
 
 plot(new.coordinates[,2],new.coordinates[,3],pch=19, col = sampletype,
      xlab='PC2',ylab='PC3')
-title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
+#title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
 
 plot(new.coordinates[,2],new.coordinates[,4],pch=19, col = sampletype,
      xlab='PC2',ylab='PC4')
-title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
+#title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
 
 plot(new.coordinates[,3],new.coordinates[,4],pch=19, col = sampletype,
      xlab='PC3',ylab='PC4')
-title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
+#title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
 
-#mtext("PC biplots for combined PRAD dataset",
-      #side = 3,
-      #line = - 2,
-      #outer = TRUE)
+mtext("PC biplots for combined PRAD dataset (green = normal, red = tumor)",
+      side = 3,
+      line = - 2,
+      outer = TRUE)
 
-#par(mfrow = c(1,1))
+par(mfrow = c(1,1))
 
 #legend(50, legend = c("tumor", "normal"), col = c("firebrick3", "springgreen4"), horiz = T, cex = 0.75)
 ```
@@ -89,9 +90,24 @@ pointCloud(PC123, colorBy = "categories", colorVar = rbind(PRAD_TvsN$clinical$ge
 ```
 
 ```{r}
+umap_TandN <- uwot::umap(pca_TandN@feature.loadings, n_neighbors = 2, n_components = 2)
+umap_2 <- as.data.frame(umap_TandN)
+
+sample <- c(rep("tumor", 52), rep("normal", 52))
+umap_2 <- cbind(umap_2, sample)
+
+pal = c("springgreen4", "firebrick3")
+ggplot(umap_2, aes(x = V1, y = V2, color = sample)) + 
+  geom_point(alpha = 0.3) +
+  scale_color_manual(values = pal) +
+  xlab("V1???") +
+  ylab("V2???") +
+  ggtitle("UMAP pancancer")
+```
+
+```{r}
 umap_TandN <- uwot::umap(pca_TandN@feature.loadings, n_neighbors = 2, n_components = 3)
 scatterplot3d(umap_TandN,
               type = "h",
-              main = "3D Scatter Plot after UMAP")
+              main = "3D Scatter Plot after UMAP for combined PRAD")
 ```
-

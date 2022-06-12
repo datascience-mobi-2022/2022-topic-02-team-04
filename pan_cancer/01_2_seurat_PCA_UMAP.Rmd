@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "01_2_seurat_PCA_UMAP"
 author: "Fabian Strobel"
 date: '2022-06-09'
 output: html_document
@@ -31,8 +31,9 @@ prop.var = variance/pca@misc$total.variance
 
 summary(prop.var)
 
-barplot(prop.var)
+barplot(prop.var[1:10], main = "Proportion of variance of the first 10 PCs", xlab = "PCs", ylab = "Proprtion of variance")
 ```
+
 
 ```{r}
 new.coordinates = pca@feature.loadings
@@ -57,5 +58,43 @@ plot(new.coordinates[,2],new.coordinates[,4],pch=19,
 plot(new.coordinates[,3],new.coordinates[,4],pch=19,
      xlab='PC3',ylab='PC4')
 
+mtext("PC biplots for pancancer analysis",
+      side = 3,
+      line = - 2,
+      outer = TRUE)
+
 par(mfrow = c(1,1))
 ```
+
+
+***
+#UMAP
+
+```{r}
+umap_pan <- uwot::umap(pca@feature.loadings)
+```
+
+```{r}
+library(ggplot2)
+library(randomcoloR)
+
+tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.rds")
+
+cancer_type <- tcga_tumor_annotation$cancer_type_abbreviation
+
+umap <- cbind(as.data.frame(umap_pan), cancer_type)
+
+
+# Basic scatter plot
+set.seed(123)
+
+pal <- c(randomColor(count = length(unique(cancer_type))))
+
+ggplot(umap, aes(x = V1, y = V2, color = cancer_type)) + 
+  geom_point() +
+  scale_color_manual(values = pal) +
+  xlab("V1???") +
+  ylab("V2???") +
+  ggtitle("UMAP pancancer")
+```
+

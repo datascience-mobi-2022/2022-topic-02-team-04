@@ -3,6 +3,8 @@ title: "Untitled"
 author: "Fabian Strobel"
 date: '2022-06-11'
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
@@ -35,7 +37,7 @@ prop.var = variance/pca_tumor@misc$total.variance
 
 summary(prop.var)
 
-barplot(prop.var)
+barplot(prop.var[1:10], main = "Proportion of variance for the first 10 PCs", xlab = "PCs", ylab = "Proportion of variance")
 ```
 
 ```{r}
@@ -79,14 +81,20 @@ pointCloud(PC123, colorBy = "categories", colorVar = rbind(PRAD_TvsN$clinical$ge
 ```
 
 ```{r}
-umap_TandN <- uwot::umap(pca_TandN@feature.loadings, n_neighbors = 2, n_components = 3)
-scatterplot3d(umap_TandN,
-              type = "h",
-              main = "3D Scatter Plot after UMAP")
+umap_tumor <- uwot::umap(pca_tumor@feature.loadings, n_neighbors = 2, n_components = 2)
+
+umap_tumor <- as.data.frame(umap_tumor)
+
+ggplot(umap_tumor, aes(x = V1, y = V2)) + 
+  geom_point(alpha = .5) +
+  xlab("V1???") +
+  ylab("V2???") +
+  ggtitle("UMAP tumor samples PRAD")
 ```
 
 ```{r}
-umap_tumor <- uwot::umap(pca_tumor@feature.loadings, n_neighbors = 2, n_components = 2)
-plot(umap_tumor)
+umap_tumor <- uwot::umap(pca_tumor@feature.loadings, n_neighbors = 2, n_components = 3)
+scatterplot3d(umap_tumor,
+              type = "h",
+              main = "3D Scatter Plot after UMAP")
 ```
-
