@@ -179,14 +179,14 @@ ggplot(data = dat_2, mapping = aes(x= log2_FoldChange,
 Create vulcano plot with genes of one pathway 
 
 ```{r}
-dat_2 <- data.frame(log2_FoldChange, log10_corrected_p_value)
+dat_all <- data.frame(log2_FoldChange, log10_corrected_p_value)
 
 # add a column of NAs
-dat_2$diffexpressed <- "NO"
+dat_all$diffexpressed <- "NO"
 # if log2Foldchange > 1 and pvalue < 0.05, set as "UP" 
-dat_2$diffexpressed[dat_2$log2_FoldChange > log2(2) & dat_2$log10_corrected_p_value < log10(0.05)] <- "UP"
+dat_all$diffexpressed[dat_all$log2_FoldChange > log2(2) & dat_all$log10_corrected_p_value < log10(0.05)] <- "UP"
 # if log2Foldchange < -1 and pvalue < 0.05, set as "DOWN"
-dat_2$diffexpressed[dat_2$log2_FoldChange < log2(0.5) & dat_2$log10_corrected_p_value < log10(0.05)] <- "DOWN"
+dat_all$diffexpressed[dat_all$log2_FoldChange < log2(0.5) & dat_all$log10_corrected_p_value < log10(0.05)] <- "DOWN"
 
 # character of all genes 
 all_genes <- rownames(PRAD_tumor_normal)
@@ -197,30 +197,42 @@ total_pathways_ensID <- readRDS("~/GitHub/2022-topic-02-team-04/data/total_pathw
 pathway_genes <- total_pathways_ensID$spermatogenesis
 class(pathway_genes)
 # add column: TRUE if gene is in pathway + FALSE if it is not
-dat_2$pathway_genes <- !is.na(match(all_genes, pathway_genes))
+dat_all$pathway_genes <- !is.na(match(all_genes, pathway_genes))
+
+# filter data frame to get TRUE genes in pathway
+library(dplyr)
+pathway_df <- dat_all %>% 
+  filter(pathway_genes == "TRUE")
 
 
 # Change appearance 
-color <- c("blue", "green", "black", "red")
-names(color) <- c("DOWN", "UP", "NO", "TRUE")
+color <- c("blue", "green", "black")
+names(color) <- c("DOWN", "UP", "NO")
 
 library(ggplot2)
 
-ggplot(data = dat_2, mapping = aes(x = log2_FoldChange, 
-                                   y = -log10_corrected_p_value))+
-  geom_point(aes(col = diffexpressed))+
-  geom_point(aes(alpha = pathway_genes,
-                 size = pathway_genes,
-                 shape = pathway_genes,
-                 col = pathway_genes))+
+ggplot(data = dat_all, mapping = aes(x = log2_FoldChange, 
+                                     y = -log10_corrected_p_value))+
+  geom_point(alpha=0.4,
+             size=0.8,
+             aes(col = diffexpressed))+
+  geom_point(data = pathway_df, mapping = aes(x = log2_FoldChange,
+                                              y = -log10_corrected_p_value,
+                                              size = pathway_genes),
+             color = "red",
+             shape = 18,
+             alpha = 4)+
   scale_color_manual(values = color)+
-  scale_alpha_manual(values = c("TRUE" = 1, "FALSE" = 0.1))+
-  scale_size_manual(values = c("TRUE" = 4, "FALSE" = 0.1))+
-  scale_shape_manual(values = c("TRUE" = 18, "FALSE" = 20))+
   geom_vline(xintercept = c(log2(0.5), log2(2)), linetype = "dashed", col = "darkgreen")+
   geom_hline(yintercept = -log10(0.05), linetype = "dashed", col = "darkgreen")+
   scale_x_continuous(breaks = c(seq(-7, 7, 2)),
                      limits = c(-7, 7))+
-  labs(title = "Vulcano plot")
+  labs(
+    title = "Vulcano plot",
+    subtitle = "Genes in pathway",
+    x = "log2 Fold Change",
+    y = "- log10 corrected p-value",
+    colour = "differentially expressed genes",
+    size = "genes in pathway")
 ```
 
