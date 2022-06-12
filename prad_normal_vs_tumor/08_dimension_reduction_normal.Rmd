@@ -1,0 +1,102 @@
+---
+title: "Untitled"
+author: "Fabian Strobel"
+date: '2022-06-11'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(Seurat)
+library(ggplot2)
+library(scatterplot3d)
+```
+
+```{r}
+PRAD_TvsN <- readRDS(data/PRAD_TvsN)
+```
+
+Combine into on data.frame
+```{r}
+normal <- PRAD_TvsN$normal
+```
+
+```{r}
+pca_normal <- Seurat::RunPCA(t(normal))
+```
+
+Analysis of variance
+```{r}
+variance = (pca_normal@stdev)^2 ##Eigenvalues
+
+barplot(log(variance), main = "log(variance) after pca for normal samples of PRAD dataset", xlab = "PC_i", ylab = "log(variance)")
+```
+
+Scaling on 1 gives proportion of variance in percent
+```{r}
+prop.var = variance/pca_normal@misc$total.variance
+
+summary(prop.var)
+
+barplot(prop.var[1:10], main = "Proportion of variance for the first 10 PCs", xlab = "PCs", ylab = "Proportion of variance")
+```
+
+```{r}
+new.coordinates = pca_normal@feature.loadings
+
+par(mfrow = c(2,3))
+
+plot(new.coordinates[,1],new.coordinates[,2],pch=19,
+     xlab='PC1',ylab='PC2')
+
+plot(new.coordinates[,1],new.coordinates[,3],pch=19,
+     xlab='PC1',ylab='PC3')
+
+plot(new.coordinates[,1],new.coordinates[,4],pch=19,
+     xlab='PC1',ylab='PC4')
+
+plot(new.coordinates[,2],new.coordinates[,3],pch=19,
+     xlab='PC2',ylab='PC3')
+
+plot(new.coordinates[,2],new.coordinates[,4],pch=19,
+     xlab='PC2',ylab='PC4')
+
+plot(new.coordinates[,3],new.coordinates[,4],pch=19,
+     xlab='PC3',ylab='PC4')
+
+mtext("PC biplots for normal samples of PRAD dataset",
+      side = 3,
+      line = - 2,
+      outer = TRUE)
+
+par(mfrow = c(1,1))
+
+#legend(50, legend = c("normal", "normal"), col = c("firebrick3", "springgreen4"), horiz = T, cex = 0.75)
+```
+
+does not work
+```{r}
+PC123 <- cbind("PC1" = new.coordinates[,1], "PC2" = new.coordinates[,2], "PC3" = new.coordinates[,3])
+
+pointCloud(PC123, colorBy = "categories", colorVar = rbind(PRAD_TvsN$clinical$gender, PRAD_TvsN$clinical$gender))
+```
+
+```{r}
+umap_normal <- uwot::umap(pca_normal@feature.loadings, n_neighbors = 2, n_components = 2)
+
+umap_normal <- as.data.frame(umap_normal)
+
+ggplot(umap_normal, aes(x = V1, y = V2)) + 
+  geom_point(alpha = .5) +
+  xlab("V1???") +
+  ylab("V2???") +
+  ggtitle("UMAP normal samples PRAD")
+```
+
+```{r}
+umap_normal <- uwot::umap(pca_normal@feature.loadings, n_neighbors = 2, n_components = 3)
+scatterplot3d(umap_normal,
+              type = "h",
+              main = "3D Scatter Plot after UMAP")
+```
