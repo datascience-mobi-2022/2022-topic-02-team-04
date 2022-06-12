@@ -85,3 +85,23 @@ single_tumortype <- data.frame(tcga_pancancer)
 
 
 ```
+
+```{r}
+
+single_tumortype <- data.frame(tcga_pancancer)
+   pvalue_matrix <- c()
+  for(p in 1:2){
+    include_list<-data.frame(pathways[p])
+    single_tumortype_geneset <- subset(single_tumortype,rownames(single_tumortype) %in% include_list[,1] )
+    single_tumortype_wo_geneset <- subset(single_tumortype,!rownames(single_tumortype) %in% include_list[,1] )
+    
+    pvalue_temp <-c()
+   
+    for(h in 1:ncol(single_tumortype)){
+             pvalue_temp[[h]] <-wilcox.test(single_tumortype_geneset[,h], single_tumortype_wo_geneset[,h])$p.value
+             if(h%%100 == 0){print(h)}
+    }
+    pvalue_matrix <- rbind(pvalue_matrix,pvalue_temp)
+  }
+   #pvalue_matrix_list[[i]] <-  pvalue_matrix
+```
