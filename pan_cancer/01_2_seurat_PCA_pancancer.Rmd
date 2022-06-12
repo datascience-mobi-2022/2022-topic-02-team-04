@@ -1,0 +1,61 @@
+---
+title: "Untitled"
+author: "Fabian Strobel"
+date: '2022-06-09'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+setwd('../')
+tcga_pancancer <- readRDS(data/tcga_pancancer.rds)
+```
+
+```{r}
+pca <- Seurat::RunPCA(t(tcga_pancancer))
+```
+
+Each PC explains part of overall variance in tcga matrix, proportional to corresponding eigenvalue
+
+Analysis of variance
+```{r}
+variance = (pca@stdev)^2 ##Eigenvalues
+
+barplot(log(variance), main = "log(variance) after pca for pan-cancer dataset", xlab = "PC_i", ylab = "log(variance)")
+```
+
+Scaling on 1 gives proportion of variance in percent
+```{r}
+prop.var = variance/pca@misc$total.variance
+
+summary(prop.var)
+
+barplot(prop.var)
+```
+
+```{r}
+new.coordinates = pca@feature.loadings
+
+par(mfrow = c(2,3))
+
+plot(new.coordinates[,1],new.coordinates[,2],pch=19,
+     xlab='PC1',ylab='PC2')
+
+plot(new.coordinates[,1],new.coordinates[,3],pch=19,
+     xlab='PC1',ylab='PC3')
+
+plot(new.coordinates[,1],new.coordinates[,4],pch=19,
+     xlab='PC1',ylab='PC4')
+
+plot(new.coordinates[,2],new.coordinates[,3],pch=19,
+     xlab='PC2',ylab='PC3')
+
+plot(new.coordinates[,2],new.coordinates[,4],pch=19,
+     xlab='PC2',ylab='PC4')
+
+plot(new.coordinates[,3],new.coordinates[,4],pch=19,
+     xlab='PC3',ylab='PC4')
+
+par(mfrow = c(1,1))
+```

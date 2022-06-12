@@ -1,0 +1,92 @@
+---
+title: "Untitled"
+author: "Fabian Strobel"
+date: '2022-06-11'
+output: html_document
+---
+
+```{r}
+library(Seurat)
+```
+
+```{r}
+PRAD_TvsN <- readRDS(data/PRAD_TvsN)
+```
+
+Combine into on data.frame
+```{r}
+tumor <- PRAD_TvsN$tumor
+```
+
+```{r}
+pca_tumor <- Seurat::RunPCA(t(tumor))
+```
+
+Analysis of variance
+```{r}
+variance = (pca_tumor@stdev)^2 ##Eigenvalues
+
+barplot(log(variance), main = "log(variance) after pca for tumor samples of PRAD dataset", xlab = "PC_i", ylab = "log(variance)")
+```
+
+Scaling on 1 gives proportion of variance in percent
+```{r}
+prop.var = variance/pca_tumor@misc$total.variance
+
+summary(prop.var)
+
+barplot(prop.var)
+```
+
+```{r}
+new.coordinates = pca_tumor@feature.loadings
+
+par(mfrow = c(2,3))
+
+plot(new.coordinates[,1],new.coordinates[,2],pch=19,
+     xlab='PC1',ylab='PC2')
+
+plot(new.coordinates[,1],new.coordinates[,3],pch=19,
+     xlab='PC1',ylab='PC3')
+
+plot(new.coordinates[,1],new.coordinates[,4],pch=19,
+     xlab='PC1',ylab='PC4')
+
+plot(new.coordinates[,2],new.coordinates[,3],pch=19,
+     xlab='PC2',ylab='PC3')
+
+plot(new.coordinates[,2],new.coordinates[,4],pch=19,
+     xlab='PC2',ylab='PC4')
+
+plot(new.coordinates[,3],new.coordinates[,4],pch=19,
+     xlab='PC3',ylab='PC4')
+
+mtext("PC biplots for tumor samples of PRAD dataset",
+      side = 3,
+      line = - 2,
+      outer = TRUE)
+
+par(mfrow = c(1,1))
+
+#legend(50, legend = c("tumor", "normal"), col = c("firebrick3", "springgreen4"), horiz = T, cex = 0.75)
+```
+
+does not work
+```{r}
+PC123 <- cbind("PC1" = new.coordinates[,1], "PC2" = new.coordinates[,2], "PC3" = new.coordinates[,3])
+
+pointCloud(PC123, colorBy = "categories", colorVar = rbind(PRAD_TvsN$clinical$gender, PRAD_TvsN$clinical$gender))
+```
+
+```{r}
+umap_TandN <- uwot::umap(pca_TandN@feature.loadings, n_neighbors = 2, n_components = 3)
+scatterplot3d(umap_TandN,
+              type = "h",
+              main = "3D Scatter Plot after UMAP")
+```
+
+```{r}
+umap_tumor <- uwot::umap(pca_tumor@feature.loadings, n_neighbors = 2, n_components = 2)
+plot(umap_tumor)
+```
+

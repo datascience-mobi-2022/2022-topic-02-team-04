@@ -125,7 +125,7 @@ barplot(prop.var[2:sum(which(prop.var > quantile(prop.var, 0.999)))])
 ## The 55 first PCs explain 52.2 % of the total variance
 sum(prop.var[1:sum(which(prop.var > quantile(prop.var, 0.999)))])
 ```
-Let's look whether we find clusters when plotting different PCs against each other:
+Let's look whether we find clusters when plotting different PCs against each other (on the patients):
 ```{r}
 new.coordinates = t_pca$x
 
