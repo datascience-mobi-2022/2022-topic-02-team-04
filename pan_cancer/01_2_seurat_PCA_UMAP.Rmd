@@ -9,7 +9,7 @@ editor_options:
 
 ```{r}
 setwd('../')
-tcga_pancancer <- readRDS(data/tcga_pancancer.rds)
+tcga_pancancer <- readRDS("data/tcga_pancancer.rds")
 ```
 
 ```{r}
@@ -20,10 +20,17 @@ Each PC explains part of overall variance in tcga matrix, proportional to corres
 
 Analysis of variance
 ```{r}
-variance = (pca@stdev)^2 ##Eigenvalues
+variance = (pca@stdev) ##Eigenvalues
 
 barplot(log(variance), main = "log(variance) after pca for pan-cancer dataset", xlab = "PC_i", ylab = "log(variance)")
 ```
+
+###
+```{r}
+# Get the standard deviations for each PC from the Seurat object
+Seurat::Stdev(object = pca, reduction = "pca")
+```
+###
 
 Scaling on 1 gives proportion of variance in percent
 ```{r}
