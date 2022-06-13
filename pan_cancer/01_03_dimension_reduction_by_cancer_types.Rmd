@@ -1,0 +1,118 @@
+---
+title: "01_03_dimension_reduction_by_cancer_types"
+author: "Fabian Strobel"
+date: '2022-06-13'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+setwd('../')
+tcga_pancancer <- readRDS("data/tcga_pancancer.rds")
+tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation")
+library(ggplot2)
+```
+
+```{r}
+#createn einer liste mit allen patienten in dfs sortiert nach krebs
+cancers = list();cancers = vector('list',length(table(tcga_tumor_annotation$cancer_type_abbreviation)))
+names(cancers) = names(table(tcga_tumor_annotation$cancer_type_abbreviation))
+for (i in 1:length(cancers)){
+  cancers[[i]] = tcga_pancancer[,tcga_tumor_annotation$cancer_type_abbreviation == names(cancers)[i]]
+}
+```
+
+```{r}
+dimred = function(dataset){
+  df <- as.data.frame(dataset)
+  
+  ## PCA
+  pca <- Seurat::RunPCA(t(df))
+  
+  new.coordinates = pca@feature.loadings
+  
+  filename = paste("PCA_biplots_", names(dataset), ".png", sep = "")
+  
+  png(file=filename, width=1000, height=600)
+    par(mfrow = c(2,3))
+    
+    plot(new.coordinates[,1],new.coordinates[,2],pch=19,
+         xlab='PC1',ylab='PC2')
+    
+    plot(new.coordinates[,1],new.coordinates[,3],pch=19,
+         xlab='PC1',ylab='PC3')
+    
+    plot(new.coordinates[,1],new.coordinates[,4],pch=19,
+         xlab='PC1',ylab='PC4')
+    
+    plot(new.coordinates[,2],new.coordinates[,3],pch=19,
+         xlab='PC2',ylab='PC3')
+    
+    plot(new.coordinates[,2],new.coordinates[,4],pch=19,
+         xlab='PC2',ylab='PC4')
+    
+    plot(new.coordinates[,3],new.coordinates[,4],pch=19,
+         xlab='PC3',ylab='PC4')
+    
+    mtext(names(dataset),
+          side = 3,
+          line = - 2,
+          outer = TRUE)
+    
+    par(mfrow = c(1,1))
+  dev.off()
+  
+  ## UMAP
+  umap <- uwot::umap(pca@feature.loadings, n_neighbors = 2)
+  umap.df <- as.data.frame(umap)
+  umap.plot <- ggplot(umap.df, aes(x = V1, y = V2)) + 
+                 geom_point() +
+                 xlab("V1") +
+                 ylab("V2") +
+                 ggtitle("UMAP pancancer") +
+                 labs(subtitle = names(dataset))
+  #return(umap.plot)
+  filename = paste("UMAP_", names(dataset), ".png", sep = "")
+  png(file=filename, width=1000, height=600)
+  print(umap.plot)
+  dev.off()
+}
+```
+
+```{r}
+dimred(cancers[1])
+dimred(cancers[2])
+dimred(cancers[3])
+dimred(cancers[4])
+dimred(cancers[5])
+dimred(cancers[6])
+dimred(cancers[7])
+dimred(cancers[8])
+dimred(cancers[9])
+dimred(cancers[10])
+dimred(cancers[11])
+dimred(cancers[12])
+dimred(cancers[13])
+dimred(cancers[14])
+dimred(cancers[15])
+dimred(cancers[16])
+dimred(cancers[17])
+dimred(cancers[18])
+dimred(cancers[19])
+dimred(cancers[20])
+dimred(cancers[21])
+dimred(cancers[22])
+dimred(cancers[23])
+dimred(cancers[24])
+dimred(cancers[25])
+dimred(cancers[26])
+dimred(cancers[27])
+dimred(cancers[28])
+dimred(cancers[29])
+dimred(cancers[30])
+dimred(cancers[31])
+dimred(cancers[32])
+dimred(cancers[33])
+```
+
