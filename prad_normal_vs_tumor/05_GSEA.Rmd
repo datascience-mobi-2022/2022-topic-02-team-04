@@ -56,27 +56,7 @@ Create data frame with gene number, Fold Change and p-value
 # get names of all genes 
 gene_number <- rownames(PRAD_tumor_normal)
 
-dat_for_ranking <- data.frame(gene_number, neg_log10_p_value, FoldChange)
-```
-
-Rank genes using fold change 
-```{r}
-# Search for same Fold Change
-duplicated_FC <- duplicated(FoldChange)
-
-length(duplicated_FC[duplicated_FC == TRUE])
-
-# Rank Fold Change; for genes with same Fold Change: randomly decided which gets higher number 
-dat_for_ranking$rank_FC <- rank(FoldChange, ties.method = "random")
-
-# Check if there are no duplicates any more 
-duplicated_ranks_FC <- duplicated(dat_for_ranking$rank_FC)
-
-length(duplicated_ranks_FC[duplicated_ranks_FC == TRUE])
-
-# Arragne genes in new order 
-library(dplyr)
-ranked_genes_FC <- dat_for_ranking %>% arrange(desc(dat_for_ranking$rank_FC))
+dat_for_ranking <- data.frame(gene_number, neg_log10_p_value, log2_FoldChange)
 ```
 
 Rank genes using p-values 
@@ -101,4 +81,25 @@ length(duplicated_ranks_p[duplicated_ranks_p == TRUE])
 library(dplyr)
 ranked_genes_p <- dat_for_ranking %>% arrange(desc(dat_for_ranking$rank_p))
 ```
+
+Rank genes using fold change 
+```{r}
+# Search for same Fold Change
+duplicated_FC <- duplicated(log2_FoldChange)
+
+length(duplicated_FC[duplicated_FC == TRUE])
+
+# Rank Fold Change; for genes with same Fold Change: randomly decided which gets higher number 
+dat_for_ranking$rank_FC <- rank(log2_FoldChange, ties.method = "random")
+
+# Check if there are no duplicates any more 
+duplicated_ranks_FC <- duplicated(dat_for_ranking$rank_FC)
+
+length(duplicated_ranks_FC[duplicated_ranks_FC == TRUE])
+
+# Arragne genes in new order 
+library(dplyr)
+ranked_genes_FC <- dat_for_ranking %>% arrange(desc(dat_for_ranking$rank_FC))
+```
+
 
