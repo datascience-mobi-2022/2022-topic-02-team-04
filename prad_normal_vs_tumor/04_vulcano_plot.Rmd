@@ -277,7 +277,7 @@ volcano_pathway = function(pathway){
   
   library(ggplot2)
   
-  ggplot(data = dat_all, mapping = aes(x = log2_FoldChange, 
+  p <- ggplot(data = dat_all, mapping = aes(x = log2_FoldChange, 
                                        y = -log10_corrected_p_value))+
     geom_point(alpha=0.4,
                size=0.8,
@@ -295,18 +295,26 @@ volcano_pathway = function(pathway){
                        limits = c(-7, 7))+
     labs(
       title = "Volcano plot",
-      subtitle = names(total_pathways_ensID)[pathway],
+      subtitle = pathway,
       x = "log2 Fold Change",
       y = "- log10 corrected p-value",
       colour = "differentially expressed genes",
-      shape = names(total_pathways_ensID)[pathway])
-}
+      shape = pathway)
   
+  
+  
+  filename = paste("volcanoplot_", pathway, ".png", sep = "")
+  png(file=filename, width=1000, height=600)
+  print(p)
+  dev.off()
+}
+
+
 ```
 
 ```{r}
-all_positions <- c(1:65)
+pathways <- names(total_pathways_ensID)
 
-lapply(all_positions, volcano_pathway)
+lapply(pathways, volcano_pathway)
 ```
 
