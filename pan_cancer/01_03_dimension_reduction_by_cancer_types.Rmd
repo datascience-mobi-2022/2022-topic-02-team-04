@@ -8,9 +8,9 @@ editor_options:
 ---
 
 ```{r}
-setwd('../')
+setwd('..')
 tcga_pancancer <- readRDS("data/tcga_pancancer.rds")
-tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation")
+tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.RDS")
 library(ggplot2)
 ```
 
@@ -32,9 +32,9 @@ dimred = function(dataset){
   
   new.coordinates = pca@feature.loadings
   
-  filename = paste("PCA_biplots_", names(dataset), ".png", sep = "")
+  #filename = paste("PCA_biplots_", names(dataset), ".png", sep = "")
   
-  png(file=filename, width=1000, height=600)
+  #png(file=filename, width=1000, height=600)
     par(mfrow = c(2,3))
     
     plot(new.coordinates[,1],new.coordinates[,2],pch=19,
@@ -61,10 +61,10 @@ dimred = function(dataset){
           outer = TRUE)
     
     par(mfrow = c(1,1))
-  dev.off()
+  #dev.off()
   
   ## UMAP
-  umap <- uwot::umap(pca@feature.loadings, n_neighbors = 2)
+  umap <- uwot::umap(pca@feature.loadings, n_neighbors = 6)
   umap.df <- as.data.frame(umap)
   umap.plot <- ggplot(umap.df, aes(x = V1, y = V2)) + 
                  geom_point() +
@@ -72,11 +72,11 @@ dimred = function(dataset){
                  ylab("V2") +
                  ggtitle("UMAP pancancer") +
                  labs(subtitle = names(dataset))
-  #return(umap.plot)
-  filename = paste("UMAP_", names(dataset), ".png", sep = "")
-  png(file=filename, width=1000, height=600)
-  print(umap.plot)
-  dev.off()
+  return(umap.plot)
+  #filename = paste("UMAP_", names(dataset), ".png", sep = "")
+  #png(file=filename, width=1000, height=600)
+  #print(umap.plot)
+  #dev.off()
 }
 ```
 
