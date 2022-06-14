@@ -117,7 +117,7 @@ hist(corrected_p_value, breaks = 20)
 log10_corrected_p_value <- log10(corrected_p_value)
 
 ```
-Create vulcano plot with not correced p-values 
+Create volcano plot with not correced p-values 
 
 ```{r}
 dat <- data.frame(log2_FoldChange, log10_p_value)
@@ -144,10 +144,10 @@ ggplot(data = dat, mapping = aes(x=log2_FoldChange,
   geom_hline(yintercept=-log10(0.05), linetype="dashed", col="black")+
   scale_x_continuous(breaks = c(seq(-7, 7, 2)),
                      limits = c(-7, 7))+
-  labs(title = "Vulcano plot")
+  labs(title = "Volcano plot")
 ```
 
-Create vulcano plot with corrected p-values 
+Create volcano plot with corrected p-values 
 
 ```{r}
 dat_2 <- data.frame(log2_FoldChange, log10_corrected_p_value)
@@ -174,10 +174,10 @@ ggplot(data = dat_2, mapping = aes(x= log2_FoldChange,
   geom_hline(yintercept=-log10(0.05), linetype="dashed", col="darkgreen")+
   scale_x_continuous(breaks = c(seq(-7, 7, 2)),
                      limits = c(-7, 7))+
-  labs(title = "Vulcano plot")
+  labs(title = "Volcano plot")
 ```
 
-Create vulcano plot with genes of one pathway 
+Create volcano plot with genes of one pathway 
 
 ```{r}
 # Create Function to do volcano plot for all pathways
@@ -232,11 +232,81 @@ ggplot(data = dat_all, mapping = aes(x = log2_FoldChange,
   scale_x_continuous(breaks = c(seq(-7, 7, 2)),
                      limits = c(-7, 7))+
   labs(
-    title = "Vulcano plot",
+    title = "Volcano plot",
     subtitle = "Genes in pathway",
     x = "log2 Fold Change",
     y = "- log10 corrected p-value",
     colour = "differentially expressed genes",
     shape = "genes in pathway")
+```
+
+Create function to do volcano plot for all data sets 
+
+```{r}
+volcano_pathway = function(pathway){
+  
+  dat_all <- data.frame(log2_FoldChange, log10_corrected_p_value)
+
+  # add a column of NAs
+  dat_all$diffexpressed <- "NO"
+  # if log2Foldchange > 1 and pvalue < 0.05, set as "UP" 
+  dat_all$diffexpressed[dat_all$log2_FoldChange > log2(2) & 
+                          dat_all$log10_corrected_p_value <log10(0.05)] <- "UP"
+  # if log2Foldchange < -1 and pvalue < 0.05, set as "DOWN"
+  dat_all$diffexpressed[dat_all$log2_FoldChange < log2(0.5) & 
+                          dat_all$log10_corrected_p_value < log10(0.05)] <- "DOWN"
+  
+  # character of all genes 
+  all_genes <- rownames(PRAD_tumor_normal)
+  # character of all genes in pathway
+  total_pathways_ensID <- readRDS("~/GitHub/2022-topic-02-team-04/data/total_pathways_ensID.rds")
+  
+  pathway_genes <- total_pathways_ensID[[pathway]]
+  # add column: TRUE if gene is in pathway + FALSE if it is not
+  dat_all$pathway_genes <- !is.na(match(all_genes, pathway_genes))
+  
+  # filter data frame to get TRUE genes in pathway
+  library(dplyr)
+  pathway_df <- dat_all %>% 
+    filter(pathway_genes == "TRUE")
+  
+  
+  # Change appearance 
+  color <- c("blue", "green", "black")
+  names(color) <- c("DOWN", "UP", "NO")
+  
+  library(ggplot2)
+  
+  ggplot(data = dat_all, mapping = aes(x = log2_FoldChange, 
+                                       y = -log10_corrected_p_value))+
+    geom_point(alpha=0.4,
+               size=0.8,
+               aes(col = diffexpressed))+
+    geom_point(data = pathway_df, mapping = aes(x = log2_FoldChange,
+                                                y = -log10_corrected_p_value,
+                                                shape = pathway_genes),
+               color = "red",
+               size = 3,
+               alpha = 4)+
+    scale_color_manual(values = color)+
+    geom_vline(xintercept = c(log2(0.5), log2(2)), linetype = "dashed", col = "darkgreen")+
+    geom_hline(yintercept = -log10(0.05), linetype = "dashed", col = "darkgreen")+
+    scale_x_continuous(breaks = c(seq(-7, 7, 2)),
+                       limits = c(-7, 7))+
+    labs(
+      title = "Volcano plot",
+      subtitle = names(total_pathways_ensID)[pathway],
+      x = "log2 Fold Change",
+      y = "- log10 corrected p-value",
+      colour = "differentially expressed genes",
+      shape = names(total_pathways_ensID)[pathway])
+}
+  
+```
+
+```{r}
+all_positions <- c(1:65)
+
+lapply(all_positions, volcano_pathway)
 ```
 
