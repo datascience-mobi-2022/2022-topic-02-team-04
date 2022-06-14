@@ -55,6 +55,30 @@ names(pvalue_matrix_list) <- names(df.list)
 
 ```
 
+mit apply
+```{r}
+pvalue_matrix_list2<-list()
+for(i in 1:length(df.list)){
+single_tumortype <- data.frame(df.list[i])
+   pvalue_matrix <- c()
+  for(p in 1:length(pw.list)){
+    include_list<-data.frame(pw.list[p])
+    #single_tumortype_geneset <- subset(single_tumortype,rownames(single_tumortype) %in% include_list[,1] )
+    #single_tumortype_wo_geneset <- subset(single_tumortype,!rownames(single_tumortype) %in% include_list[,1] )
+    
+    pvalue_temp <-c()
+   
+    pvalue_temp <-apply(single_tumortype, 2, function(x) wilcox.test(
+      x[subset(single_tumortype,rownames(single_tumortype) %in% include_list[,1])],
+      x[subset(single_tumortype,!rownames(single_tumortype) %in% include_list[,1])])$p.value)
+    
+    pvalue_matrix <- rbind(pvalue_matrix,pvalue_temp)
+  }
+   pvalue_matrix_list2[[i]] <-  pvalue_matrix
+}
+names(pvalue_matrix_list) <- names(df.list)
+
+```
 
 
 Durchführen mit den pancancer daten
@@ -105,3 +129,23 @@ single_tumortype <- data.frame(tcga_pancancer)
   }
    #pvalue_matrix_list[[i]] <-  pvalue_matrix
 ```
+
+```{r}
+single_tumortype <- data.frame(tcga_pancancer)
+   pvalue_matrix <- c()
+  for(p in 1:2){
+    include_list<-data.frame(pathways[p])
+    single_tumortype_geneset <- subset(single_tumortype,rownames(single_tumortype) %in% include_list[,1] )
+    single_tumortype_wo_geneset <- subset(single_tumortype,!rownames(single_tumortype) %in% include_list[,1] )
+    single_tumortype_combined <- cbind(single_tumortype_geneset, single_tumortype_wo_geneset)
+    
+    pvalue_temp <-c()
+   
+
+   pvalue_temp <-apply(single_tumortype_combined, 2, function(x) wilcox.test(x[1:52],x[53:104])$p.value)
+   print(p)
+    
+    pvalue_matrix <- rbind(pvalue_matrix,pvalue_temp)
+  }
+```
+
