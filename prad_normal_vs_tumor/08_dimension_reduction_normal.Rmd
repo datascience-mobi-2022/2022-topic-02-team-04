@@ -28,7 +28,7 @@ pca_normal <- Seurat::RunPCA(t(normal))
 
 Analysis of variance
 ```{r}
-variance = (pca_normal@stdev)^2 ##Eigenvalues
+variance = (pca_normal@stdev) ##Eigenvalues
 
 barplot(log(variance), main = "log(variance) after pca for normal samples of PRAD dataset", xlab = "PC_i", ylab = "log(variance)")
 ```

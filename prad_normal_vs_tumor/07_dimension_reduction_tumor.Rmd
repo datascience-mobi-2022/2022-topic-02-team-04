@@ -12,7 +12,7 @@ library(Seurat)
 ```
 
 ```{r}
-PRAD_TvsN <- readRDS(data/PRAD_TvsN)
+PRAD_TvsN <- readRDS('2022-topic-02-team-04/data/PRAD_TvsN')
 ```
 
 Combine into on data.frame
@@ -26,7 +26,7 @@ pca_tumor <- Seurat::RunPCA(t(tumor))
 
 Analysis of variance
 ```{r}
-variance = (pca_tumor@stdev)^2 ##Eigenvalues
+variance = (pca_tumor@stdev) ##Eigenvalues
 
 barplot(log(variance), main = "log(variance) after pca for tumor samples of PRAD dataset", xlab = "PC_i", ylab = "log(variance)")
 ```
