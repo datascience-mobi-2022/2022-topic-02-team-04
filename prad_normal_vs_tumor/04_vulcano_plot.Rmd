@@ -218,9 +218,9 @@ ggplot(data = dat_all, mapping = aes(x = log2_FoldChange,
              aes(col = diffexpressed))+
   geom_point(data = pathway_df, mapping = aes(x = log2_FoldChange,
                                               y = -log10_corrected_p_value,
-                                              size = pathway_genes),
+                                              shape = pathway_genes),
              color = "red",
-             shape = 18,
+             size = 3,
              alpha = 4)+
   scale_color_manual(values = color)+
   geom_vline(xintercept = c(log2(0.5), log2(2)), linetype = "dashed", col = "darkgreen")+
@@ -233,6 +233,6 @@ ggplot(data = dat_all, mapping = aes(x = log2_FoldChange,
     x = "log2 Fold Change",
     y = "- log10 corrected p-value",
     colour = "differentially expressed genes",
-    size = "genes in pathway")
+    shape = "genes in pathway")
 ```
 
