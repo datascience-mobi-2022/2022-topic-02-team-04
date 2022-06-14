@@ -12,7 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 Load data
 
 ```{r}
-tcga_tumor_norm <- readRDS("~/GitHub/2022-topic-02-team-04/data/PRAD_TvsN.rds")
+setwd('..')
+tcga_tumor_norm <- readRDS("data/PRAD_TvsN.rds")
 ```
 Load data
 ```{r}
@@ -179,6 +180,9 @@ ggplot(data = dat_2, mapping = aes(x= log2_FoldChange,
 Create vulcano plot with genes of one pathway 
 
 ```{r}
+# Create Function to do volcano plot for all pathways
+
+
 dat_all <- data.frame(log2_FoldChange, log10_corrected_p_value)
 
 # add a column of NAs

@@ -12,7 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 Load data
 
 ```{r}
-tcga_tumor_norm <- readRDS("~/GitHub/2022-topic-02-team-04/data/PRAD_TvsN.rds")
+setwd('..')
+tcga_tumor_norm <- readRDS("data/PRAD_TvsN.rds")
 
 # Fuse data frame PRAD normal with PRAD tumor
 PRAD_tumor_normal <- cbind(tcga_tumor_norm[["tumor"]], tcga_tumor_norm[["normal"]])
