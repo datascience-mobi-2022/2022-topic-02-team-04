@@ -72,6 +72,7 @@ dimred = function(dataset){
   
   ## UMAP
   print("UMAP")
+  set.seed(123)
   umap <- uwot::umap(pca@cell.embeddings, n_neighbors = 2)
   umap.df <- as.data.frame(umap)
   ggplot(umap.df, aes(x = V1, y = V2)) + 
