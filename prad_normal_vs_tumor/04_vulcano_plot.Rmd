@@ -87,11 +87,11 @@ colnames(p_value_2) <- c("p-value")
 ```{r}
 # calculate p-value with for loop; stored in matrix
 
-p_value_3 <- matrix(nrow = 8159, ncol = 116)
+p_value_3 <- matrix(nrow = 8159, ncol = 1)
 
 for(index in 1:nrow(PRAD_tumor_normal)) {
-  p_value_3[index, ] <- wilcox.test(PRAD_tumor_normal[index,1:52], 
-                                    PRAD_tumor_normal[index,53:104],
+  p_value_3[index, ] <- wilcox.test(as.numeric(PRAD_tumor_normal[index,1:52]), 
+                                    as.numeric(PRAD_tumor_normal[index,53:104]),
                                     paired = TRUE,
                                     exact = FALSE)$p.value
   }
@@ -304,7 +304,7 @@ volcano_pathway = function(pathway){
   
   
   filename = paste("volcanoplot_", pathway, ".png", sep = "")
-  png(file=filename, width=1000, height=600)
+  pdf(file=filename, width=1000, height=600)
   print(p)
   dev.off()
 }
