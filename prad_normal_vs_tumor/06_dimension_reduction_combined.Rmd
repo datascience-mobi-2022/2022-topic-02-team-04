@@ -8,9 +8,10 @@ editor_options:
 ---
 
 ```{r}
-library(Seurat)
-library(babyplots)
+library(ggplot2)
+library(gridExtra)
 library(scatterplot3d)
+set.seed(123)
 ```
 
 ```{r}
@@ -21,11 +22,11 @@ PRAD_TvsN <- readRDS("/data/PRAD_TvsN")
 
 Combine into on data.frame
 ```{r}
-TandN <- cbind(PRAD_TvsN$tumor, PRAD_TvsN$normal)
+TandN <- as.matrix(cbind(PRAD_TvsN$tumor, PRAD_TvsN$normal))
 ```
 
 ```{r}
-pca_TandN <- Seurat::RunPCA(t(TandN))
+pca_TandN <- Seurat::RunPCA(TandN)
 ```
 
 Analysis of variance
@@ -45,70 +46,78 @@ barplot(prop.var[1:10], main = "Proportion of variance for the first 10 PCs", xl
 ```
 
 ```{r}
-new.coordinates = pca_TandN@feature.loadings
-sampletype <- c(rep("firebrick3", 52), rep("springgreen4", 52))
+sample <- c(rep("tumor", 52), rep("normal", 52))
+new.c = as.data.frame(pca_TandN@cell.embeddings)
+new.coordinates = cbind(new.c, sample)
 
-par(mfrow = c(2,3))
+PCbiplot <- function(coords){
+  require(ggplot2)
+  require(gridExtra)
+  
+  a <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_2, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+  b <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_3, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+  c <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_4, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+  d <- ggplot(data = coords, mapping = aes(x = PC_2, y = PC_3, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+          
+  e <- ggplot(data = coords, mapping = aes(x = PC_2, y = PC_4, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+  f <- ggplot(data = coords, mapping = aes(x = PC_3, y = PC_4, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+   ## Export
+  filename = paste("PCA_biplots_PRAD_combined.pdf", sep = "")
+  pdf(file = filename, height = 8.27, width = 11.69)
+  grid.arrange(a,b,c,d,e,f, ncol = 3, top = "PC biplots for pancancer analysis")
+  dev.off()
+}
 
-plot(new.coordinates[,1],new.coordinates[,2],pch=19, col = sampletype,
-     xlab='PC1',ylab='PC2')
-#title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
-
-plot(new.coordinates[,1],new.coordinates[,3],pch=19, col = sampletype,
-     xlab='PC1',ylab='PC3')
-#title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
-
-plot(new.coordinates[,1],new.coordinates[,4],pch=19, col = sampletype,
-     xlab='PC1',ylab='PC4')
-#title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
-
-plot(new.coordinates[,2],new.coordinates[,3],pch=19, col = sampletype,
-     xlab='PC2',ylab='PC3')
-#title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
-
-plot(new.coordinates[,2],new.coordinates[,4],pch=19, col = sampletype,
-     xlab='PC2',ylab='PC4')
-#title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
-
-plot(new.coordinates[,3],new.coordinates[,4],pch=19, col = sampletype,
-     xlab='PC3',ylab='PC4')
-#title("PC biplot for combined PRAD dataset\n with tumor = red, normal = green")
-
-mtext("PC biplots for combined PRAD dataset (green = normal, red = tumor)",
-      side = 3,
-      line = - 2,
-      outer = TRUE)
-
-par(mfrow = c(1,1))
-
-#legend(50, legend = c("tumor", "normal"), col = c("firebrick3", "springgreen4"), horiz = T, cex = 0.75)
+PCbiplot(new.coordinates)
 ```
 
-does not work
-```{r}
-PC123 <- cbind("PC1" = new.coordinates[,1], "PC2" = new.coordinates[,2], "PC3" = new.coordinates[,3])
-
-pointCloud(PC123, colorBy = "categories", colorVar = rbind(PRAD_TvsN$clinical$gender, PRAD_TvsN$clinical$gender))
-```
 
 ```{r}
-umap_TandN <- uwot::umap(pca_TandN@feature.loadings, n_neighbors = 2, n_components = 2)
+# n_neighbors
+x <- 2
+
+umap_TandN <- uwot::umap(pca_TandN@cell.embeddings, n_neighbors = x, n_components = 2)
 umap_2 <- as.data.frame(umap_TandN)
 
 sample <- c(rep("tumor", 52), rep("normal", 52))
 umap_2 <- cbind(umap_2, sample)
 
 pal = c("springgreen4", "firebrick3")
+
+## Export
+filename = paste("UMAP_PRAD_combined.pdf", sep = "")
+pdf(file = filename, height = 8.27, width = 11.69)
+
 ggplot(umap_2, aes(x = V1, y = V2, color = sample)) + 
   geom_point(alpha = 0.3) +
   scale_color_manual(values = pal) +
-  xlab("V1???") +
-  ylab("V2???") +
-  ggtitle("UMAP tumor/normal combined")
+  xlab("UMAP1") +
+  ylab("UMAP2") +
+  ggtitle(paste("UMAP tumor/normal combined with n_neighbors =", x))
+
+dev.off()
+
 ```
 
 ```{r}
-umap_TandN <- uwot::umap(pca_TandN@feature.loadings, n_neighbors = 2, n_components = 3)
+umap_TandN <- uwot::umap(pca_TandN@cell.embeddings, n_neighbors = 2, n_components = 3)
 scatterplot3d(umap_TandN,
               type = "h",
               main = "3D Scatter Plot after UMAP for combined PRAD")
