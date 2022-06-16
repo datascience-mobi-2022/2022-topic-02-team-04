@@ -81,7 +81,7 @@ PCbiplot <- function(coords){
    ## Export
   filename = paste("PCA_biplots_PRAD_combined.pdf", sep = "")
   pdf(file = filename, height = 8.27, width = 11.69)
-  grid.arrange(a,b,c,d,e,f, ncol = 3, top = "PC biplots for pancancer analysis")
+  grid.arrange(a,b,c,d,e,f, ncol = 3, top = "PC biplots for focussed analysis (tumor and normal combined)")
   dev.off()
 }
 
@@ -93,6 +93,7 @@ PCbiplot(new.coordinates)
 # n_neighbors
 x <- 2
 
+set.seed(123)
 umap_TandN <- uwot::umap(pca_TandN@cell.embeddings, n_neighbors = x, n_components = 2)
 umap_2 <- as.data.frame(umap_TandN)
 
@@ -113,7 +114,6 @@ ggplot(umap_2, aes(x = V1, y = V2, color = sample)) +
   ggtitle(paste("UMAP tumor/normal combined with n_neighbors =", x))
 
 dev.off()
-
 ```
 
 ```{r}

@@ -8,22 +8,23 @@ editor_options:
 ---
 
 ```{r}
-library(Seurat)
 library(ggplot2)
+library(gridExtra)
 library(scatterplot3d)
+set.seed(123)
 ```
 
 ```{r}
-PRAD_TvsN <- readRDS(data/PRAD_TvsN)
+PRAD_TvsN <- readRDS("data/PRAD_TvsN")
 ```
 
 Combine into on data.frame
 ```{r}
-normal <- PRAD_TvsN$normal
+normal <- as.matrix(PRAD_TvsN$normal)
 ```
 
 ```{r}
-pca_normal <- Seurat::RunPCA(t(normal))
+pca_normal <- Seurat::RunPCA(normal)
 ```
 
 Analysis of variance
@@ -43,60 +44,66 @@ barplot(prop.var[1:10], main = "Proportion of variance for the first 10 PCs", xl
 ```
 
 ```{r}
-new.coordinates = pca_normal@feature.loadings
+new.coordinates = as.data.frame(pca_normal@cell.embeddings)
 
-par(mfrow = c(2,3))
+PCbiplot <- function(coords){
+  require(ggplot2)
+  require(gridExtra)
+  
+  a <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_2)) +
+  geom_point()
+  
+  b <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_3)) +
+  geom_point()
+  
+  c <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_4)) +
+  geom_point()
+  
+  d <- ggplot(data = coords, mapping = aes(x = PC_2, y = PC_3)) +
+  geom_point()
+          
+  e <- ggplot(data = coords, mapping = aes(x = PC_2, y = PC_4)) +
+  geom_point()
+  
+  f <- ggplot(data = coords, mapping = aes(x = PC_3, y = PC_4)) +
+  geom_point()
+  
+   ## Export
+  filename = paste("PCA_biplots_PRAD_normal.pdf", sep = "")
+  pdf(file = filename, height = 8.27, width = 11.69)
+  grid.arrange(a,b,c,d,e,f, ncol = 3, top = "PC biplots for focussed analysis (normal)")
+  dev.off()
+}
 
-plot(new.coordinates[,1],new.coordinates[,2],pch=19,
-     xlab='PC1',ylab='PC2')
-
-plot(new.coordinates[,1],new.coordinates[,3],pch=19,
-     xlab='PC1',ylab='PC3')
-
-plot(new.coordinates[,1],new.coordinates[,4],pch=19,
-     xlab='PC1',ylab='PC4')
-
-plot(new.coordinates[,2],new.coordinates[,3],pch=19,
-     xlab='PC2',ylab='PC3')
-
-plot(new.coordinates[,2],new.coordinates[,4],pch=19,
-     xlab='PC2',ylab='PC4')
-
-plot(new.coordinates[,3],new.coordinates[,4],pch=19,
-     xlab='PC3',ylab='PC4')
-
-mtext("PC biplots for normal samples of PRAD dataset",
-      side = 3,
-      line = - 2,
-      outer = TRUE)
-
-par(mfrow = c(1,1))
-
-#legend(50, legend = c("normal", "normal"), col = c("firebrick3", "springgreen4"), horiz = T, cex = 0.75)
-```
-
-does not work
-```{r}
-PC123 <- cbind("PC1" = new.coordinates[,1], "PC2" = new.coordinates[,2], "PC3" = new.coordinates[,3])
-
-pointCloud(PC123, colorBy = "categories", colorVar = rbind(PRAD_TvsN$clinical$gender, PRAD_TvsN$clinical$gender))
+PCbiplot(new.coordinates)
 ```
 
 ```{r}
-umap_normal <- uwot::umap(pca_normal@feature.loadings, n_neighbors = 2, n_components = 2)
+# n_neighbors
+x <- 2
 
-umap_normal <- as.data.frame(umap_normal)
+set.seed(123)
+umap_tumor <- uwot::umap(pca_normal@cell.embeddings, n_neighbors = x, n_components = 2)
 
-ggplot(umap_normal, aes(x = V1, y = V2)) + 
-  geom_point(alpha = .5) +
-  xlab("V1???") +
-  ylab("V2???") +
-  ggtitle("UMAP normal samples PRAD")
+umap_tumor <- as.data.frame(umap_tumor)
+
+## Export
+filename = paste("UMAP_PRAD_normal.pdf", sep = "")
+pdf(file = filename, height = 8.27, width = 11.69)
+
+ggplot(umap_tumor, aes(x = V1, y = V2)) + 
+  geom_point(alpha = 0.5) +
+  xlab("UMAP1") +
+  ylab("UMAP2") +
+  ggtitle(paste("UMAP PRAD normal with n_neighbors =", x))
+
+dev.off()
 ```
 
 ```{r}
-umap_normal <- uwot::umap(pca_normal@feature.loadings, n_neighbors = 2, n_components = 3)
-scatterplot3d(umap_normal,
+set.seed(123)
+umap_tumor <- uwot::umap(pca_tumor@cell.embeddings, n_neighbors = 2, n_components = 3)
+scatterplot3d(umap_tumor,
               type = "h",
               main = "3D Scatter Plot after UMAP")
 ```
