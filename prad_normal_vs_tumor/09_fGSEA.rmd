@@ -12,7 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 First load the data
 
 ```{r}
-tcga_tumor_norm <- readRDS("~/GitHub/2022-topic-02-team-04/data/PRAD_TvsN.rds")
+setwd('..')
+tcga_tumor_norm <- readRDS("data/PRAD_TvsN.rds")
 
 # Fuse data frame PRAD normal with PRAD tumor
 PRAD_tumor_normal <- cbind(tcga_tumor_norm[["tumor"]], tcga_tumor_norm[["normal"]])
@@ -94,8 +95,8 @@ head(ranks)
 total_pathways_ensID <- readRDS("~/GitHub/2022-topic-02-team-04/data/total_pathways_ensID.rds")
 fgsea_dat = fgsea(total_pathways_ensID,
                   stats = ranks,
-                  minSize =15, 
-                  maxSize = 500, scoreType = "pos")
+                  minSize =1, 
+                  maxSize = 1000, scoreType = "pos")
 
 ```
 
@@ -106,9 +107,11 @@ fgsea_dat
 ```{r}
 plotEnrichment(total_pathways_ensID[["spermatogenesis"]], ranks)
 ```
+
 ```{r}
 plotEnrichment(total_pathways_ensID[["apoptosis"]], ranks)
 ```
+
 ```{r}
 library("BiocManager")
 library("fgsea")
