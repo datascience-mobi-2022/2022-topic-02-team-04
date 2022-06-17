@@ -1,0 +1,137 @@
+---
+title: "fGSEA with Fold Change as ranks"
+author: "Lottida Phondeth"
+date: '2022-06-11'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+First load the data
+
+```{r}
+tcga_tumor_norm <- readRDS("~/GitHub/2022-topic-02-team-04/data/PRAD_TvsN.rds")
+
+# Fuse data frame PRAD normal with PRAD tumor
+PRAD_tumor_normal <- cbind(tcga_tumor_norm[["tumor"]], tcga_tumor_norm[["normal"]])
+```
+
+First calculate the mean to be able to determine the fold change
+
+```{r}
+mean_n <- apply(PRAD_tumor_normal[ ,1:52], 1, mean)
+
+mean_t <- apply(PRAD_tumor_normal[ ,53:104], 1, mean)
+```
+
+Calculate the Fold Change and the log2FoldChange
+
+```{r}
+e_mean_t <- 2^mean_t
+e_mean_n <- 2^mean_n
+FC <- e_mean_t / e_mean_n
+
+# Scale Fold Change 
+log2FC <- log2(FC)
+```
+
+The paired Wilcox-test is used to determine the significance of the FC
+
+```{r}
+p_value <- apply(PRAD_tumor_normal, 1, function(x) wilcox.test(x[1:52], 
+                                                         x[53:104], 
+                                                         paired = TRUE,
+                                                         exact = FALSE)$p.value)
+
+# Scale p-values 
+neg_log10_p_value <- -log10(p_value)
+```
+
+Create a data frame with the scaled p value, FC and the gene ensID
+
+```{r}
+gene_ens_ID <- rownames(PRAD_tumor_normal)
+
+dat_for_ranking <- data.frame(gene_ens_ID, neg_log10_p_value, log2FC, FC)
+```
+
+Let's check whether there are any duplicates in our FCs
+
+```{r}
+duplicates_of_log2FCs = duplicated(log2FC)
+length(duplicates_of_log2FCs[duplicates_of_log2FCs == TRUE]) # we have 10 out of 7801 duplicates
+```
+
+load the fGSEA package
+
+```{r}
+library(fgsea)
+```
+
+
+```{r}
+rank_dat = dat_for_ranking$log2FC
+names(rank_dat) = dat_for_ranking$gene_ens_ID
+head(rank_dat)
+rank_dat = data.frame(rank_dat)
+dim(rank_dat)
+colnames(rank_dat) = c("log2FC")
+```
+rank the fold change while randomly ranking the ties
+
+```{r}
+rank_dat$untied = rank(rank_dat$log2FC, ties.method = "random")
+rank_dat = rank_dat %>% arrange(desc(untied))
+ranks = rank_dat$untied
+names(ranks) = dat_for_ranking$gene_ens_ID
+head(ranks)
+
+```
+
+```{r}
+total_pathways_ensID <- readRDS("~/GitHub/2022-topic-02-team-04/data/total_pathways_ensID.rds")
+fgsea_dat = fgsea(total_pathways_ensID,
+                  stats = ranks,
+                  minSize =15, 
+                  maxSize = 500, scoreType = "pos")
+
+```
+
+```{r}
+fgsea_dat
+```
+
+```{r}
+plotEnrichment(total_pathways_ensID[["spermatogenesis"]], ranks)
+```
+```{r}
+plotEnrichment(total_pathways_ensID[["apoptosis"]], ranks)
+```
+```{r}
+library("BiocManager")
+library("fgsea")
+library("data.table")
+library("ggplot2")
+library("dplyr")
+topUp <- fgsea_dat %>% 
+    filter(ES > 0) %>% 
+    top_n(10, wt=-padj)
+topDown <- fgsea_dat %>% 
+    filter(ES < 0) %>% 
+    top_n(10, wt=-padj)
+topPathways <- bind_rows(topUp, topDown) %>% 
+    arrange(-ES)
+
+plotGseaTable(total_pathways_ensID[topPathways$pathway], 
+              ranks, 
+              fgsea_dat, 
+              gseaParam = 0.5)
+```
+
+What kind of significant pathways do we have?
+
+```{r}
+sig_pathways_Gsea = fgsea_dat[which(fgsea_dat$ES > 0 & fgsea_dat$pval < 0.05),] # only two pathways "Meta_Chol" and "cholesterol homeostasis"
+```
