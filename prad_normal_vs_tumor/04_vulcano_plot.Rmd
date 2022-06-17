@@ -303,8 +303,8 @@ volcano_pathway = function(pathway){
   
   
   
-  filename = paste("volcanoplot_", pathway, ".png", sep = "")
-  png(file=filename, width=1000, height=600)
+  filename = paste("volcanoplot_", pathway, ".pdf", sep = "")
+  pdf(file=filename)
   print(p)
   dev.off()
 }
