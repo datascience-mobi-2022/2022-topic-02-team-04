@@ -1,0 +1,37 @@
+---
+title: "pathway activity matrix"
+output: html_document
+date: '2022-06-18'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Daten laden:
+```{r}
+setwd('..')
+
+tcga_pvalues <- readRDS("data/tcga_pvalues.rds")
+tcga_pvalues_wo_names <- readRDS("data/tcga_pvalues_wo_names.rds")
+```
+
+```{r}
+tcga_pvalues_wo_namesdf <- as.data.frame(tcga_pvalues_wo_names)
+colnames(tcga_pvalues_wo_namesdf)<-colnames(tcga_pancancer)
+```
+
+```{r}
+apply(tcga_pvalues_wo_namesdf,FUN=log10)
+```
+
+```{r}
+tcga_pvalues_log10 <- -log10(tcga_pvalues_wo_namesdf)
+    
+  #mean_patheay <- as.data.frame(apply(df_p_values_log10, 1, mean))
+  #rownames(mean_patheay) <- rownames(df_p_values_log10)
+  
+  #ordered_score <- mean_patheay[order(-mean_patheay[ ,1]), 1]
+```
+
+
