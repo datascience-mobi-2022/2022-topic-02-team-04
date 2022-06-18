@@ -1,0 +1,121 @@
+---
+title: "GO_terms_analysis"
+author: "Fabian Strobel"
+date: '2022-06-18'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r library}
+library(biomaRt)
+library(GO.db)
+```
+
+```{r}
+genes <- rownames(tcga_pancancer[1:1000,])
+```
+
+```{r}
+## Retrieve GO terms for input genes
+mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
+list_goterms = getBM(attributes = c("ensembl_gene_id", "go_id"), filters = "ensembl_gene_id", values = genes, mart = mart, useCache = FALSE)
+
+## only take rows with matched GO term, discard unmatched genes
+clist_goterms = list_goterms[!(is.na(list_goterms$go_id) | list_goterms$go_id==""), ]
+
+## number of genes matched with GO term
+mgenes <- unique(clist_goterms[1])
+lengths(mgenes)
+
+# Counting the GO term frequency
+
+## Number of different GO terms
+goterms <- unique(clist_goterms[2])
+
+## Set up of df for counting
+goterms_counts <- data.frame(matrix(NA, nrow = nrow(goterms)))
+rownames(goterms_counts) = goterms[,1]
+colnames(goterms_counts) = "counts"
+
+#ä Counting of go term frequency
+for (i in 1:nrow(goterms)){
+  goterms_counts[i,] <- length(which(clist_goterms$go_id == goterms[i,]))
+}
+
+goterms_counts
+
+# sorting by column counts
+attach(goterms_counts)
+goterms_counts_sorted <- goterms_counts[order(-counts),]
+detach(goterms_counts)
+```
+
+```{r}
+goids <- rownames(goterms_counts)
+
+## Getting the GO terms for every GO ID
+goTerms_list <- lapply(goids, Term)
+
+go_matrix <- t(rbind(goTerms_list))
+
+rownames(go_matrix) = go_matrix
+
+x <- as.data.frame(rownames(go_matrix))
+```
+
+```{r}
+GO <- cbind(x, goterms_counts)
+```
+
+## Function
+```{r}
+go.terms <- function(genes){
+  require(biomaRt)
+  require(GO.db)
+  
+  ## Retrieve GO terms for input genes
+  mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
+  list_goterms = getBM(attributes = c("ensembl_gene_id", "go_id"), filters = "ensembl_gene_id", values = genes, mart = mart, useCache = FALSE)
+  
+  ## only take rows with matched GO term, discard unmatched genes
+  clist_goterms = list_goterms[!(is.na(list_goterms$go_id) | list_goterms$go_id==""), ]
+  
+  ## number of genes matched with GO term
+  mgenes <- unique(clist_goterms[1])
+  
+  # Counting the GO term frequency
+  
+  ## Number of different GO terms
+  goterms <- unique(clist_goterms[2])
+  
+  ## Set up of df for counting
+  goterms_counts <- data.frame(matrix(NA, nrow = nrow(goterms)))
+  rownames(goterms_counts) = goterms[,1]
+  colnames(goterms_counts) = "counts"
+  
+  #ä Counting of go term frequency
+  for (i in 1:nrow(goterms)){
+    goterms_counts[i,] <- length(which(clist_goterms$go_id == goterms[i,]))
+  }
+  
+  
+  goids <- rownames(goterms_counts)
+
+  ## Getting the GO terms for every GO ID
+  goTerms_list <- lapply(goids, Term)
+  
+  go_matrix <- t(rbind(goTerms_list))
+  
+  rownames(go_matrix) = go_matrix
+  
+  x <- as.data.frame(rownames(go_matrix))
+  
+  GO <- cbind(x, goterms_counts)
+  
+  View(GO)
+  result <- paste("Genes with matched GO term(s):", nrow(mgenes), "/", length(genes)) 
+  return(result)
+}
+```
+
