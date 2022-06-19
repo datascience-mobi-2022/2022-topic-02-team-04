@@ -1,0 +1,163 @@
+---
+title: "Differentially expressed gene list"
+date: '2022-06-18'
+author: "Lottida Phondeth"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+First load the data
+```{r}
+setwd('..')
+tcga_tumor_norm <- readRDS("data/PRAD_TvsN.rds")
+
+```
+
+To visually grasp where the differentially expressed genes are coming from, the code for the volcano plot was applied a again 
+create a data frame that contains the gene expression values for tumor and normal cell data
+```{r}
+PRAD_tumor_normal <- cbind(tcga_tumor_norm[["tumor"]], tcga_tumor_norm[["normal"]])
+
+```
+calculate the mean and the FC
+```{r}
+mean_t = apply(PRAD_tumor_normal[,1:52], 1, mean)
+mean_n = apply(PRAD_tumor_normal[53:104], 1, mean)
+e_mean_tumor <- 2^mean_t
+e_mean_normal <- 2^mean_n
+FoldChange <- e_mean_tumor / e_mean_normal
+log2_FoldChange <- log2(FoldChange)
+```
+
+The wilcox test is used to determine the significance of our FC
+```{r}
+p_value <- apply(PRAD_tumor_normal, 1, function(x) wilcox.test(x[1:52], 
+                                                         x[53:104], 
+                                                         paired = TRUE,
+                                                         exact = FALSE)$p.value)
+log10_p_value <- log10(p_value)
+```
+
+
+Plot not corrected p-values
+```{r}
+hist(p_value, breaks = 20)
+```
+
+
+correct the p-values for multiple testing
+```{r}
+corrected_p_value <- p.adjust(p_value, method = "bonferroni")
+hist(corrected_p_value, breaks = 20)
+log10_corrected_p_value <- log10(corrected_p_value)
+```
+create a volcano plot with not corrected p-values
+```{r}
+dat <- data.frame(log2_FoldChange, log10_p_value)
+
+# add a column of NAs
+dat$diffexpressed <- "NO"
+# if log2Foldchange > 0.6 and pvalue < 0.05, set as "UP" 
+dat$diffexpressed[dat$log2_FoldChange > log2(2) & dat$log10_p_value < log10(0.05)] <- "UP"
+# if log2Foldchange < -0.6 and pvalue < 0.05, set as "DOWN"
+dat$diffexpressed[dat$log2_FoldChange < log2(0.5) & dat$log10_p_value < log10(0.05)] <- "DOWN"
+
+# Change point appearance 
+color <- c("blue", "red", "black")
+names(color) <- c("DOWN", "UP", "NO")
+
+library(ggplot2)
+
+ggplot(data = dat, mapping = aes(x=log2_FoldChange, 
+                                 y= -log10_p_value, 
+                                 col = diffexpressed))+
+  geom_point()+
+  scale_color_manual(values = color)+
+  geom_vline(xintercept=c(log2(0.5), log2(2)), linetype="dashed", col="black")+
+  geom_hline(yintercept=-log10(0.05), linetype="dashed", col="black")+
+  scale_x_continuous(breaks = c(seq(-7, 7, 2)),
+                     limits = c(-7, 7))+
+  labs(title = "Volcano plot")
+```
+
+plot volcano plot with corrected p-values
+```{r}
+dat_corrected <- data.frame(log2_FoldChange, log10_corrected_p_value)
+
+# add a column of NAs
+dat_corrected$diffexpressed <- "NO"
+# if log2Foldchange > 0.6 and pvalue < 0.05, set as "UP" 
+dat_corrected$diffexpressed[dat_corrected$log2_FoldChange > log2(2) & dat_corrected$log10_corrected_p_value < log10(0.05)] <- "UP"
+# if log2Foldchange < -0.6 and pvalue < 0.05, set as "DOWN"
+dat_corrected$diffexpressed[dat_corrected$log2_FoldChange < log2(0.5) & dat_corrected$log10_corrected_p_value < log10(0.05)] <- "DOWN"
+
+# Change point appearance 
+color <- c("blue", "red", "black")
+names(color) <- c("DOWN", "UP", "NO")
+
+library(ggplot2)
+
+ggplot(data = dat_corrected, mapping = aes(x= log2_FoldChange, 
+                                   y= -log10_corrected_p_value, 
+                                   col= diffexpressed))+
+  geom_point()+
+  scale_color_manual(values = color)+
+  geom_vline(xintercept=c(log2(0.5), log2(2)), linetype="dashed", col="darkgreen")+
+  geom_hline(yintercept=-log10(0.05), linetype="dashed", col="darkgreen")+
+  scale_x_continuous(breaks = c(seq(-7, 7, 2)),
+                     limits = c(-7, 7))+
+  labs(title = "Volcano plot")
+```
+
+create a gene list with differentially expressed genes
+
+```{r}
+n_df = which(dat_corrected$diffexpressed == "NO")
+length(n_df) #6456 genes are not differentially expressed 
+dat_df = dat_corrected[-n_df,] #we are left with 1345 genes
+```
+
+extract the names
+```{r}
+dat_df_names = as.list(rownames(dat_df))
+```
+
+reduce the PRAD_tumor_normal data frame
+```{r}
+PRAD_tumor_normal_df = subset(PRAD_tumor_normal,rownames(PRAD_tumor_normal) %in% dat_df_names)
+```
+
+Choose a heatmap color palette
+```{r}
+library(RColorBrewer)
+heat_colors <- brewer.pal(n = 6, name = "YlOrRd")
+```
+
+generate a Heatmap
+```{r}
+library(pheatmap)
+pheatmap(PRAD_tumor_normal_df,
+         cluster_rows = T,
+         show_rownames = F,
+         show_colnames = F,
+         fontsize = 8)
+```
+
+What is the correlation between the genes?
+```{r}
+PRAD_tumor_normal_df_cor = cor(t(PRAD_tumor_normal_df))
+```
+
+plot a heatmap of the correlation matrix of the genes
+```{r}
+library(pheatmap)
+pheatmap(PRAD_tumor_normal_df_cor,
+         cluster_rows = T,
+         show_rownames = F,
+         show_colnames = F,
+         fontsize = 8)
+```
+
