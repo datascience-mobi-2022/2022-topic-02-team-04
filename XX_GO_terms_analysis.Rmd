@@ -10,6 +10,7 @@ editor_options:
 ```{r library}
 library(biomaRt)
 library(GO.db)
+library(ggplot2)
 ```
 
 ```{r}
@@ -61,12 +62,24 @@ go_matrix <- t(rbind(goTerms_list))
 
 rownames(go_matrix) = go_matrix
 
-x <- as.data.frame(rownames(go_matrix))
+GO_term <- as.data.frame(rownames(go_matrix))
 ```
 
 ```{r}
-GO <- cbind(x, goterms_counts)
+GO <- cbind(GO_term, goterms_counts)
+colnames(GO)[1] <- "GO_term"
 ```
+
+```{r}
+ggplot(data = GO, aes(x = reorder(GO_term, counts), y = counts)) +
+  geom_bar(stat = "identity") + 
+  coord_flip() +
+  xlab("GO term")
+```
+
+
+
+***
 
 ## Function
 ```{r}
@@ -109,13 +122,21 @@ go.terms <- function(genes){
   
   rownames(go_matrix) = go_matrix
   
-  x <- as.data.frame(rownames(go_matrix))
+  GO_term <- as.data.frame(rownames(go_matrix))
   
-  GO <- cbind(x, goterms_counts)
+  GO <- cbind(GO_term, goterms_counts)
+  
+  colnames(GO)[1] <- "GO_term"
   
   View(GO)
-  result <- paste("Genes with matched GO term(s):", nrow(mgenes), "/", length(genes)) 
-  return(result)
+  print(paste("Genes with matched GO term(s):", nrow(mgenes), "/", length(genes))) 
+  
+  plot <- ggplot(data = GO, aes(x = reorder(GO_term, counts), y = counts)) + 
+  geom_bar(stat = "identity") + 
+  coord_flip() +
+  xlab("GO term")
+  
+  return(plot)
 }
 ```
 
