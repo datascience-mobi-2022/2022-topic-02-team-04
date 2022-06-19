@@ -54,6 +54,8 @@ return a list("name1" = top10_df, "name2"= barplot, "name3" = dotplot)
 ```{r}
 get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
   
+  require(ggplot2)
+  
   results <- list()
     
   df_p_values_log10 <- -log10(as.data.frame(df_p_values))
