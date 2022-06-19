@@ -31,6 +31,21 @@ names(len.genesets) <- paste("pathway", 1:20, sep = "_")
 head(len.genesets)
 ```
 
+
+```{r}
+test  = function(Tumor){
+  
+  
+}
+
+lapply(df.p.value.list,test)
+
+```
+
+
+
+
+
 Crate function: get_top10pathways_from_pvalues()
 
 function is useable for lapply(df_pvalues_list, function)
@@ -43,16 +58,16 @@ get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
     
   df_p_values_log10 <- -log10(as.data.frame(df_p_values))
     
-  mean_patheay <- as.data.frame(apply(df_p_values_log10, 1, mean))
-  rownames(mean_patheay) <- rownames(df_p_values_log10)
+  mean_pathway <- as.data.frame(apply(df_p_values_log10, 1, mean))
+  rownames(mean_pathway) <- rownames(df_p_values_log10)
   
-  ordered_score <- mean_patheay[order(-mean_patheay[ ,1]), 1]
+  ordered_score <- mean_pathway[order(-mean_pathway[ ,1]), 1]
   top_10 <- data.frame(ordered_score[1:10])
   colnames(top_10) <- "mean_pathway"
   
-  ordered_names <- order(-mean_patheay[ ,1])
+  ordered_names <- order(-mean_pathway[ ,1])
   top_10_names <- ordered_names[1:10]
-  top_10$pathway_names <- row.names(mean_patheay)[top_10_names]
+  top_10$pathway_names <- row.names(mean_pathway)[top_10_names]
   
   results[[1]] <- top_10
   
@@ -60,7 +75,7 @@ get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
     geom_bar(stat = "identity")+
     labs(title = names(df_p_values))
   
-  pathway_size <- order(-mean_patheay[ ,1])
+  pathway_size <- order(-mean_pathway[ ,1])
   top_10_size <- pathway_size[1:10]
   top_10$pathway_size <- length_genesets[top_10_size]
   
@@ -78,15 +93,34 @@ get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
 ```
 
 ```{r}
+#deparse(substitute(df.p.value.list[[1]]))
+
+names(df.p.value.list[1][1])
+```
+
+
+```{r}
 get_top10pathways_from_pvalues(df.p.value.list[1], len.genesets)
                                
 ```
 
 ```{r}
-get_top10pathways <- function(x) {
-  get_top10pathways_from_pvalues(x, len.genesets)
+best_function = function(df_p_values, length_genesets) {
+  
+  names(df_p_values[12])
+  
 }
 
-sapply(df.p.value.list, get_top10pathways)
+
+
+```
+
+
+
+
+```{r}
+
+#lapply(df.p.value.list, get_top10pathways_from_pvalues, length_genesets = len.genesets)
+lapply(df.p.value.list, best_function, length_genesets = len.genesets)
 ```
 
