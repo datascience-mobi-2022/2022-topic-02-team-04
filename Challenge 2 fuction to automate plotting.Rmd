@@ -54,7 +54,7 @@ return a list("name1" = top10_df, "name2"= barplot, "name3" = dotplot)
 ```{r}
 get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
   
-  require(ggplot2)
+  library(ggplot2)
   
   results <- list()
     
@@ -122,7 +122,18 @@ best_function = function(df_p_values, length_genesets) {
 
 ```{r}
 
-#lapply(df.p.value.list, get_top10pathways_from_pvalues, length_genesets = len.genesets)
-lapply(df.p.value.list, best_function, length_genesets = len.genesets)
+lapply(df.p.value.list, get_top10pathways_from_pvalues, length_genesets = len.genesets)
+# lapply(df.p.value.list, best_function, length_genesets = len.genesets)
+
+
+
+
+
+lapply(df.p.value.list, get_top10pathways_from_pvalues, length_genesets = len.genesets)
+
+
+dfs <- df.p.value.list
+
+lapply(dfs, FUN= function(df){return(get_top10pathways_from_pvalues(df, len.genesets))})
 ```
 

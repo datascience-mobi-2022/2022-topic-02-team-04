@@ -18,7 +18,7 @@ tcga_tumor_norm <- readRDS("data/PRAD_TvsN.rds")
 Load data
 ```{r}
 # Fuse data frame PRAD normal with PRAD tumor
-PRAD_tumor_normal <- cbind(tcga_tumor_norm[["tumor"]], tcga_tumor_norm[["normal"]])
+PRAD_tumor_normal <- cbind(tcga_tumor_norm[["normal"]], tcga_tumor_norm[["tumor"]])
 
 class(PRAD_tumor_normal)
 ```
