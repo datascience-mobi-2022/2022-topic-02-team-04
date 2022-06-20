@@ -1,0 +1,171 @@
+---
+title: "06_dimension_reduction_of_pvalue_matrix_by_cancertype"
+author: "Fabian Strobel"
+date: '2022-06-20'
+output: html_document
+---
+
+```{r}
+setwd('..')
+tcga_pvalues <- readRDS("data/tcga_pvalues.rds")
+tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.rds")
+library(ggplot2)
+library(gridExtra)
+library(randomcoloR)
+set.seed(123)
+```
+
+I dunno why but each entry of the p value matrix is of class "list"
+```{r}
+class(tcga_pvalues[1,1])
+```
+This needs to be changed to numeric if we want to use it in mathematical functions
+```{r}
+pathways <- rownames(tcga_pvalues)
+pvalues <- apply(tcga_pvalues, 2, as.numeric)
+rownames(pvalues) = pathways
+class(pvalues[1,1])
+```
+
+Also, data.frames are cooler than matrices
+```{r}
+pvalues <- as.data.frame(pvalues)
+```
+
+Lets perform a -log10 transformation
+```{r}
+pvalues_log10 <- -log10(pvalues)
+```
+
+```{r}
+rm(tcga_pvalues)
+rm(pathways)
+rm(pvalues)
+```
+
+***
+
+## Dimension reduction
+
+```{r}
+#createn einer liste mit allen patienten in dfs sortiert nach krebs
+cancers = list();cancers = vector('list',length(table(tcga_tumor_annotation$cancer_type_abbreviation)))
+names(cancers) = names(table(tcga_tumor_annotation$cancer_type_abbreviation))
+for (i in 1:length(cancers)){
+  cancers[[i]] = pvalues_log10[,tcga_tumor_annotation$cancer_type_abbreviation == names(cancers)[i]]
+}
+```
+
+```{r}
+dimred = function(dataset){
+  df <- as.data.frame(dataset)
+  matrix <- as.matrix(df)
+  
+  ## PCA
+  print("PCA")
+  pca <- Seurat::RunPCA(matrix, npcs = 35)
+  
+  new.coordinates = as.data.frame(pca@cell.embeddings)
+
+  ## Packages
+  require(ggplot2)
+  require(gridExtra)
+  
+  ## Biplots
+  print("Biplots")
+  
+  a <- ggplot(data = new.coordinates, mapping = aes(x = PC_1, y = PC_2)) +
+  geom_point()
+  
+  b <- ggplot(data = new.coordinates, mapping = aes(x = PC_1, y = PC_3)) +
+  geom_point()
+  
+  c <- ggplot(data = new.coordinates, mapping = aes(x = PC_1, y = PC_4)) +
+  geom_point()
+  
+  d <- ggplot(data = new.coordinates, mapping = aes(x = PC_2, y = PC_3)) +
+  geom_point()
+          
+  e <- ggplot(data = new.coordinates, mapping = aes(x = PC_2, y = PC_4)) +
+  geom_point()
+  
+  f <- ggplot(data = new.coordinates, mapping = aes(x = PC_3, y = PC_4)) +
+  geom_point()
+  
+  title <- paste("PC biplots for pathway activity matrix of", names(dataset))
+  
+  ## Export
+  filename = paste("PCA_biplots_for_pathyway_activity_matrix_", names(dataset), ".pdf", sep = "")
+  pdf(file = filename, height = 8.27, width = 11.69)
+  grid.arrange(a,b,c,d,e,f, ncol = 3, top = title)
+  dev.off()
+  
+  ## UMAP
+  print("UMAP")
+  set.seed(123)
+  umap <- uwot::umap(pca@cell.embeddings, n_neighbors = 2)
+  umap.df <- as.data.frame(umap)
+  ggplot(umap.df, aes(x = V1, y = V2)) + 
+                 geom_point() +
+                 xlab("UMAP1") +
+                 ylab("UMAP2") +
+                 ggtitle(paste("UMAP for pathway activity matrix of", names(dataset)))
+  
+  ## Export
+  #filename = paste("UMAP_for_pathyway_activity_matrix_", names(dataset), ".pdf", sep = "")
+  #ggsave(filename, height = 8.27, width = 11.69, units = "in")
+}
+```
+
+```{r}
+for (i in 1:33){
+  dimred(cancers[i])
+}
+```
+
+###
+one plot
+###
+```{r}
+## n_neighbours
+x = 2
+
+for(i in 1:33) { 
+  nam <- paste("A", i, sep = "")
+  
+  df <- as.data.frame(cancers[i])
+  matrix <- as.matrix(df)
+  
+  ## cancer type
+  ct <- names(cancers[i])
+  print(ct)
+  
+  ## PCA
+  print("PCA")
+  pca <- Seurat::RunPCA(matrix, npcs = 35)
+  
+   ## UMAP
+  print("UMAP")
+  umap <- uwot::umap(pca@cell.embeddings, n_neighbors = x)
+  umap.df <- as.data.frame(umap)
+  plots_i <- ggplot(umap.df, aes(x = V1, y = V2)) + 
+                 geom_point() +
+                 xlab("UMAP1") +
+                 ylab("UMAP2") +
+                 ggtitle(paste(names(cancers[i])))
+
+  assign(nam, plots_i)
+}
+
+## Export
+  filename = ("UMAP_for_pathway_activity_matrix_by_cancertype.pdf")
+  pdf(file = filename, height = 2*11.69, width = 8.27)
+  grid.arrange(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
+             A11, A12, A13, A14, A15, A16, A17, A18, A19, A20,
+             A21, A22, A23, A24, A25, A26, A27, A28, A29, A30,
+             A31, A32, A33, 
+             ncol = 3, 
+             top = paste("UMAP for pathway activity matrix by cancertype with n_neighbors =", x))
+             dev.off()
+```
+

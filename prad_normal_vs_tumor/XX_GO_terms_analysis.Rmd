@@ -83,12 +83,12 @@ ggplot(data = GO, aes(x = reorder(GO_term, counts), y = counts)) +
 
 ## Function
 ```{r}
+mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
 go.terms <- function(genes){
   require(biomaRt)
   require(GO.db)
   
   ## Retrieve GO terms for input genes
-  mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
   list_goterms = getBM(attributes = c("ensembl_gene_id", "go_id"), filters = "ensembl_gene_id", values = genes, mart = mart, useCache = FALSE)
   
   ## only take rows with matched GO term, discard unmatched genes
