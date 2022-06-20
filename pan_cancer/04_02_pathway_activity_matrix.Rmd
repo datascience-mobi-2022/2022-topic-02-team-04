@@ -26,7 +26,7 @@ class(pvalues[1,1])
 
 Also, data.frames are cooler than matrices
 ```{r}
-pvalues <- as.data.frame(tcga_pvalues)
+pvalues <- as.data.frame(pvalues)
 ```
 
 Lets perform a -log10 transformation
@@ -39,7 +39,7 @@ pvalues_log10 <- -log10(pvalues)
 ```{r}
 library(pheatmap)
 setwd('..')
-tcga_annot <- readRDS("data/tcga_tumor_annotation")
+tcga_annot <- readRDS("data/tcga_tumor_annotation.rds")
 ```
 
 Annotations
