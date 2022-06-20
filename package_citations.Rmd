@@ -1,0 +1,35 @@
+---
+title: "package_citations"
+author: "Fabian Strobel"
+date: '2022-06-20'
+output: html_document
+---
+
+```{r}
+## Plotting
+citation("ggplot2")
+citation("gridExtra")
+citation("randomcoloR")
+citation("pheatmap")
+citation("RColorBrewer")
+
+## Data bases
+citation("msigdbr")
+citation("EnsDb.Hsapiens.v79")
+citation("biomaRt")
+citation("GO.db")
+
+## Dimension reduction
+citation("Seurat")
+citation("uwot")
+
+## Various
+citation("dplyr")
+citation("fgsea")
+citation("BiocManager")
+citation("data.table")
+
+## not used
+#citation("scatterplot3d")
+```
+
