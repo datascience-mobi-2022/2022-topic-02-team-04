@@ -21,7 +21,7 @@ This needs to be changed to numeric if we want to use it in mathematical functio
 pathways <- rownames(tcga_pvalues)
 pvalues <- apply(tcga_pvalues, 2, as.numeric)
 rownames(pvalues) = pathways
-class(tcga_pvalues[1,1])
+class(pvalues[1,1])
 ```
 
 Also, data.frames are cooler than matrices

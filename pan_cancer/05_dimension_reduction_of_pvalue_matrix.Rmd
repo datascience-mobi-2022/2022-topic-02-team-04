@@ -1,0 +1,109 @@
+---
+title: "05_dimension_reduction_of_pvalue_matrix"
+author: "Fabian Strobel"
+date: '2022-06-20'
+output: html_document
+---
+
+```{r}
+setwd('..')
+tcga_pvalues <- readRDS("data/tcga_pvalues.rds")
+tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.rds")
+library(ggplot2)
+library(gridExtra)
+library(randomcoloR)
+set.seed(123)
+```
+
+I dunno why but each entry of the p value matrix is of class "list"
+```{r}
+class(tcga_pvalues[1,1])
+```
+This needs to be changed to numeric if we want to use it in mathematical functions
+```{r}
+pathways <- rownames(tcga_pvalues)
+pvalues <- apply(tcga_pvalues, 2, as.numeric)
+rownames(pvalues) = pathways
+class(pvalues[1,1])
+```
+
+Also, data.frames are cooler than matrices
+```{r}
+pvalues <- as.data.frame(pvalues)
+```
+
+Lets perform a -log10 transformation
+```{r}
+pvalues_log10 <- -log10(pvalues)
+```
+
+```{r}
+rm(tcga_pvalues)
+rm(pathways)
+rm(pvalues)
+```
+
+***
+
+## Dimension reduction
+
+### PCA
+```{r}
+pca <- Seurat::RunPCA(as.matrix(pvalues_log10))
+```
+
+```{r}
+new.coordinates = as.data.frame(pca@cell.embeddings)
+
+PCbiplot <- function(coords){
+  require(ggplot2)
+  require(gridExtra)
+  
+  a <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_2)) +
+  geom_point()
+  
+  b <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_3)) +
+  geom_point()
+  
+  c <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_4)) +
+  geom_point()
+  
+  d <- ggplot(data = coords, mapping = aes(x = PC_2, y = PC_3)) +
+  geom_point()
+          
+  e <- ggplot(data = coords, mapping = aes(x = PC_2, y = PC_4)) +
+  geom_point()
+  
+  f <- ggplot(data = coords, mapping = aes(x = PC_3, y = PC_4)) +
+  geom_point()
+  
+  grid.arrange(a,b,c,d,e,f, ncol = 3, top = "PC biplots for pathway activity matrix")
+}
+
+PCbiplot(new.coordinates)
+```
+
+### UMAP
+
+```{r}
+set.seed(123)
+umap_pan <- uwot::umap(pca@cell.embeddings)
+```
+
+```{r}
+cancer_type <- tcga_tumor_annotation$cancer_type_abbreviation
+
+umap <- cbind(as.data.frame(umap_pan), cancer_type)
+
+# Basic scatter plot
+set.seed(123)
+pal <- c(randomColor(count = length(unique(cancer_type))))
+
+set.seed(123)
+ggplot(umap, aes(x = V1, y = V2, color = cancer_type)) + 
+  geom_point(alpha = .5) +
+  scale_color_manual(values = pal) +
+  xlab("UMAP1") +
+  ylab("UMAP2") +
+  ggtitle("UMAP pathway activity matrix")
+```
