@@ -31,21 +31,6 @@ names(len.genesets) <- paste("pathway", 1:20, sep = "_")
 head(len.genesets)
 ```
 
-
-```{r}
-test  = function(Tumor){
-  
-  
-}
-
-lapply(df.p.value.list,test)
-
-```
-
-
-
-
-
 Crate function: get_top10pathways_from_pvalues()
 
 function is useable for lapply(df_pvalues_list, function)
@@ -54,7 +39,7 @@ return a list("name1" = top10_df, "name2"= barplot, "name3" = dotplot)
 ```{r}
 get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
   
-  library(ggplot2)
+  require(ggplot2)
   
   results <- list()
     
@@ -95,30 +80,9 @@ get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
 ```
 
 ```{r}
-#deparse(substitute(df.p.value.list[[1]]))
-
-names(df.p.value.list[1][1])
-```
-
-
-```{r}
 get_top10pathways_from_pvalues(df.p.value.list[1], len.genesets)
                                
 ```
-
-```{r}
-best_function = function(df_p_values, length_genesets) {
-  
-  names(df_p_values[12])
-  
-}
-
-
-
-```
-
-
-
 
 ```{r}
 
