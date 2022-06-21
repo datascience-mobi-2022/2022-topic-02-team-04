@@ -58,9 +58,12 @@ get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
   
   results[[1]] <- top_10
   
-  results[[2]] <- ggplot(data = top_10, aes(x = mean_pathway, pathway_names))+
+  results[[2]] <- ggplot(data = top_10, aes(x = mean_pathway, y = reorder(pathway_names, mean_pathway)))+
     geom_bar(stat = "identity")+
-    labs(title = names(df_p_values))
+    coord_cartesian(xlim =c(3, 3.75))+
+    labs(title = names(df_p_values),
+         x = "mean p-value pathway",
+         y = "pathway name")
   
   pathway_size <- order(-mean_pathway[ ,1])
   top_10_size <- pathway_size[1:10]
@@ -68,12 +71,14 @@ get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
   
   top_10$pathway_names <- as.factor(top_10$pathway_names)
   
-  results[[3]] <- ggplot(data = top_10, aes(x = mean_pathway, y = pathway_names,
+  results[[3]] <- ggplot(data = top_10, aes(x = mean_pathway, y = reorder(pathway_names, mean_pathway),
                                             fill = pathway_size))+
     geom_dotplot(position = "identity",
                  binwidth = 0.5,
                  binaxis = "y")+
-    labs(title = names(df_p_values))
+    labs(title = names(df_p_values),
+         x = "mean p-value pathway",
+         y = "pathway name")
   
   print(results)
 }
