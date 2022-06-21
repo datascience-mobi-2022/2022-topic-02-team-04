@@ -1,0 +1,12 @@
+---
+title: "Split pathway activity matrix due to cancer type"
+author: "Laura Lange"
+date: '2022-06-21'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
