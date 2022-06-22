@@ -89,18 +89,18 @@ get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
          x = "mean p-value pathway",
          y = "pathway name")
   
-  print(results)
+  return(results)
 }
 ```
 
 ```{r}
-get_top10pathways_from_pvalues(df.p.value.list[1], len.genesets)
+t <- get_top10pathways_from_pvalues(df.p.value.list[1], len.genesets)
                                
 ```
 
 ```{r}
 
-lapply(df.p.value.list, get_top10pathways_from_pvalues, length_genesets = len.genesets)
+t2 <- lapply(df.p.value.list, get_top10pathways_from_pvalues, length_genesets = len.genesets)
 # lapply(df.p.value.list, best_function, length_genesets = len.genesets)
 
 
