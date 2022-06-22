@@ -139,11 +139,17 @@ heat_colors <- brewer.pal(n = 6, name = "YlOrRd")
 generate a Heatmap
 ```{r}
 library(pheatmap)
+
+sample_type <- as.data.frame(c(rep("tumor", 52), rep("normal", 52)))
+colnames(sample_type) = "sample"
+rownames(sample_type) = colnames(PRAD_tumor_normal_df)
+
 pheatmap(PRAD_tumor_normal_df,
          cluster_rows = T,
          show_rownames = F,
          show_colnames = F,
-         fontsize = 8)
+         fontsize = 8,
+         annotation_col = sample_type)
 ```
 
 What is the correlation between the genes?
