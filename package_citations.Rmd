@@ -8,6 +8,8 @@ output: html_document
 ```{r}
 ## Plotting
 citation("ggplot2")
+#citation("ggvenn")
+citation("ggVennDiagram")
 citation("gridExtra")
 citation("randomcoloR")
 citation("pheatmap")
@@ -28,6 +30,7 @@ citation("dplyr")
 citation("fgsea")
 citation("BiocManager")
 citation("data.table")
+citation("GSVA")
 
 ## not used
 #citation("scatterplot3d")
