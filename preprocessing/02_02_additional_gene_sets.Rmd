@@ -1,0 +1,110 @@
+---
+title: "02_02_additional_genesets"
+author: "Fabian Strobel"
+date: '2022-06-22'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r Load packages}
+library(msigdbr)
+```
+
+	hallmark gene sets
+```{r}
+H_gene_sets <- msigdbr(species = "human", category = "H")
+
+H_pathways <- lapply(as.list(unique(H_gene_sets$gs_name)), FUN = function(pw){
+  genes.indices <- which(H_gene_sets$gs_name == pw)
+  genes <- H_gene_sets[genes.indices, ]$human_ensembl_gene
+  return(genes)
+})
+
+names(H_pathways) <- unique(H_gene_sets$gs_name)
+```
+
+	curated gene sets: KEGG
+```{r}
+KEGG_gene_sets <- msigdbr(species = "human", category = "C2", subcategory = "CP:KEGG")
+
+KEGG_pathways <- lapply(as.list(unique(KEGG_gene_sets$gs_name)), FUN = function(pw){
+  genes.indices <- which(KEGG_gene_sets$gs_name == pw)
+  genes <- KEGG_gene_sets[genes.indices, ]$human_ensembl_gene
+  return(genes)
+})
+
+names(KEGG_pathways) <- unique(KEGG_gene_sets$gs_name)
+```
+
+	oncogenic signature gene sets
+```{r}
+oncsig_gene_sets <- msigdbr(species = "human", category = "C6")
+
+oncsig_pathways <- lapply(as.list(unique(oncsig_gene_sets$gs_name)), FUN = function(pw){
+  genes.indices <- which(oncsig_gene_sets$gs_name == pw)
+  genes <- oncsig_gene_sets[genes.indices, ]$human_ensembl_gene
+  return(genes)
+})
+
+names(oncsig_pathways) <- unique(oncsig_gene_sets$gs_name)
+```
+
+
+	ontology gene sets
+```{r}
+ont_gene_sets <- msigdbr(species = "human", category = "C5")
+
+ont_pathways <- lapply(as.list(unique(ont_gene_sets$gs_name)), FUN = function(pw){
+  genes.indices <- which(ont_gene_sets$gs_name == pw)
+  genes <- ont_gene_sets[genes.indices, ]$human_ensembl_gene
+  return(genes)
+})
+
+names(ont_pathways) <- unique(ont_gene_sets$gs_name)
+```
+
+  selection of ontology gene sets
+```{r}
+len <- sapply(ont_pathways, length)
+ontology <- ont_pathways[order(-len)]
+
+ontology_pathways <- ontology[1:84]
+```
+
+
+***
+
+
+```{r}
+given_sets <- readRDS("data/hallmarks_genesets_ensID")
+
+## Combine into one list
+all_pw <- c(given_sets, H_pathways, KEGG_pathways, oncsig_pathways, ontology_pathways)
+```
+
+```{r}
+## Vector of all unique genes
+new_pw <- unique(unlist(all_pw, use.names = F))
+
+## tcga genes
+tcga_pancancer <- readRDS("data/tcga_pancancer.rds")
+tcga_genes <- rownames(tcga_pancancer)
+
+## Preparation for Venn diagram
+x <- list(RNAseq = tcga_genes, Pathways = new_pw)
+
+## Venn diagramm
+ggVennDiagram::ggVennDiagram(x) +
+  ggtitle("Venn diagram of TCGA RNAseq genes and pathway genes") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggplot2::scale_fill_gradient(low="lightsalmon",high = "lightblue2")
+```
+
+```{r}
+#saveRDS(all_pw, "total_pathways_ensID.rds")
+```

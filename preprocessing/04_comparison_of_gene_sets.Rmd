@@ -50,7 +50,7 @@ class(pathways[1]) # list
 ```
 
 ```{r Jaccard matrix}
-jaccard_matrix <- data.frame(matrix(NA, nrow = 65, ncol = 65))
+jaccard_matrix <- data.frame(matrix(NA, nrow = length(pathways), ncol = length(pathways)))
 rownames(jaccard_matrix) = names(pathways)
 colnames(jaccard_matrix) = names(pathways)
 
@@ -61,14 +61,42 @@ for (i in 1:length(pathways)) {
   }
 }
 
-#diag(jaccard_matrix) = NA
+diag(jaccard_matrix) = NA
+```
+
+```{r}
+g <- rep("Given Sets", 46)
+h <- rep("MSigDB Hallmarks", 50)
+k <- rep("KEGG", 186)
+o <- rep("Oncogenic Sigantures", 189)
+t <- rep("Ontology", 84)
+
+annot <- as.data.frame(c(g, h, k, o, t))
+
+colnames(annot) <- "Gene sets"
+rownames(annot) <- names(pathways)
 ```
 
 ```{r heatmap}
-library("pheatmap")
+library(pheatmap)
+library(randomcoloR)
+
 pheatmap(jaccard_matrix, 
-         cluster_rows = TRUE, 
-         cluster_cols = TRUE,
-         fontsize = 8,
-         main = "Jaccard Indices to compare similarity between different pathways")
+         cluster_rows = F, 
+         cluster_cols = F,
+         main = "Jaccard Indices to compare similarity between different pathways",
+         show_rownames = F,
+         show_colnames = F,
+         annotation_col = annot)
 ```
+
+```{r}
+pheatmap(jaccard_matrix, 
+         cluster_rows = T, 
+         cluster_cols = T,
+         main = "Jaccard Indices to compare similarity between different pathways",
+         show_rownames = F,
+         show_colnames = F,
+         annotation_row = annot)
+```
+

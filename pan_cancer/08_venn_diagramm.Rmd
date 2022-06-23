@@ -1,0 +1,50 @@
+---
+title: "Untitled"
+author: "Fabian Strobel"
+date: '2022-06-22'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+setwd('..')
+pathways <- readRDS("data/total_pathways_ensID.rds")
+tcga_pancancer <- readRDS("data/tcga_pancancer")
+library(ggvenn)
+library(ggVennDiagram)
+library(ggplot2)
+```
+
+Pathway genes
+```{r}
+## Combine all pathway genes into one character
+pathway_genes <- unlist(pathways, use.names = F)
+
+## Remove duplicates
+pathway_genes_uni <- unique(pathway_genes)
+```
+
+TCGA genes
+```{r}
+tcga_genes <- rownames(tcga_pancancer)
+```
+
+Compute the intersection
+```{r}
+length(intersect(tcga_genes, pathway_genes_uni))
+```
+Venn Diagram
+```{r}
+x <- list(RNAseq = tcga_genes, Pathways = pathway_genes_uni)
+
+ggvenn(x) + 
+  ggtitle("Venn diagram of TCGA RNAseq genes and pathway genes") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggVennDiagram(x) +
+  ggtitle("Venn diagram of TCGA RNAseq genes and pathway genes") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggplot2::scale_fill_gradient(low="lightsalmon",high = "lightblue2")
+```
+
