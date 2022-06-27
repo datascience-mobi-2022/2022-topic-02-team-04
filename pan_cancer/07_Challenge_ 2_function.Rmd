@@ -29,6 +29,8 @@ len.genesets <- sample(10:50, 20)
 names(len.genesets) <- paste("pathway", 1:20, sep = "_")
 
 head(len.genesets)
+
+class(len.genesets)
 ```
 
 Crate function: get_top10pathways_from_pvalues()
@@ -91,10 +93,6 @@ t
 
 t2 <- lapply(df.p.value.list, get_top10pathways_from_pvalues, length_genesets = len.genesets)
 # lapply(df.p.value.list, best_function, length_genesets = len.genesets)
-
-
-
-
 
 lapply(df.p.value.list, get_top10pathways_from_pvalues, length_genesets = len.genesets)
 
