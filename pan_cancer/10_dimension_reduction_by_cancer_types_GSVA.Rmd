@@ -1,0 +1,132 @@
+---
+title: "10_dimension_reduction_by_cancer_types"
+author: "Fabian Strobel"
+date: '2022-06-13'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+setwd('..')
+tcga_pw_activity_list <- readRDS("data/tcga_tcga_pw_activity_list.rds")
+tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.RDS")
+library(ggplot2)
+library(gridExtra)
+library(randomcoloR)
+set.seed(123)
+```
+
+```{r}
+dimred = function(dataset){
+  df <- as.data.frame(dataset)
+  matrix <- as.matrix(df)
+  
+  ## PCA
+  print("PCA")
+  pca <- Seurat::RunPCA(matrix, npcs = 35)
+  
+  new.coordinates = as.data.frame(pca@cell.embeddings)
+
+  ## Packages
+  require(ggplot2)
+  require(gridExtra)
+  
+  ## Biplots
+  print("Biplots")
+  
+  a <- ggplot(data = new.coordinates, mapping = aes(x = PC_1, y = PC_2)) +
+  geom_point()
+  
+  b <- ggplot(data = new.coordinates, mapping = aes(x = PC_1, y = PC_3)) +
+  geom_point()
+  
+  c <- ggplot(data = new.coordinates, mapping = aes(x = PC_1, y = PC_4)) +
+  geom_point()
+  
+  d <- ggplot(data = new.coordinates, mapping = aes(x = PC_2, y = PC_3)) +
+  geom_point()
+          
+  e <- ggplot(data = new.coordinates, mapping = aes(x = PC_2, y = PC_4)) +
+  geom_point()
+  
+  f <- ggplot(data = new.coordinates, mapping = aes(x = PC_3, y = PC_4)) +
+  geom_point()
+  
+  title <- paste("PC biplots for", names(dataset))
+  
+  ## Export
+  filename = paste("PCA_biplots_", names(dataset), ".pdf", sep = "")
+  pdf(file = filename, height = 8.27, width = 11.69)
+  grid.arrange(a,b,c,d,e,f, ncol = 3, top = title)
+  dev.off()
+  
+  ## UMAP
+  print("UMAP")
+  set.seed(123)
+  umap <- uwot::umap(pca@cell.embeddings, n_neighbors = 2)
+  umap.df <- as.data.frame(umap)
+  ggplot(umap.df, aes(x = V1, y = V2)) + 
+                 geom_point() +
+                 xlab("umap1") +
+                 ylab("umap2") +
+                 ggtitle(paste("UMAP", names(dataset)))
+  
+  ## Export
+  filename = paste("UMAP_", names(dataset), ".pdf", sep = "")
+  ggsave(filename, height = 8.27, width = 11.69, units = "in")
+}
+```
+
+```{r}
+for (i in 1:33){
+  dimred(list_pw_activity[i])
+}
+```
+
+###
+one plot
+###
+```{r}
+## n_neighbours
+x = 15
+
+for(i in 1:33) { 
+  nam <- paste("A", i, sep = "")
+  
+  df <- as.data.frame(list_pw_activity[i])
+  matrix <- as.matrix(df)
+  
+  ## cancer type
+  ct <- names(list_pw_activity[i])
+  print(ct)
+  
+  ## PCA
+  print("PCA")
+  pca <- Seurat::RunPCA(matrix, npcs = 35)
+  
+   ## UMAP
+  print("UMAP")
+  set.seed(123); umap <- uwot::umap(pca@cell.embeddings, n_neighbors = x, metric = "cosine")
+  umap.df <- as.data.frame(umap)
+  plots_i <- ggplot(umap.df, aes(x = V1, y = V2)) + 
+                 geom_point() +
+                 xlab("UMAP1") +
+                 ylab("UMAP2") +
+                 ggtitle(paste(names(list_pw_activity[i])))
+
+  assign(nam, plots_i)
+}
+
+## Export
+  filename = ("UMAP by cancertype GSVA n15 cosine.pdf")
+  pdf(file = filename, height = 2*11.69, width = 8.27)
+  grid.arrange(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
+             A11, A12, A13, A14, A15, A16, A17, A18, A19, A20,
+             A21, A22, A23, A24, A25, A26, A27, A28, A29, A30,
+             A31, A32, A33, 
+             ncol = 3, 
+             top = paste("UMAP by cancertype GSVA with n_neighbors =", x))
+             dev.off()
+```
+

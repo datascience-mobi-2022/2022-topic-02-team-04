@@ -23,7 +23,6 @@ knitr::opts_chunk$set(echo = TRUE)
 #BiocManager::install("BiocParallel")
 
 library(GSVA)
-library(BiocParallel)
 library(msigdbr)
 library(ggplot2)
 library(uwot)
@@ -35,9 +34,6 @@ total_pathways_ensID <- readRDS("data/total_pathways_ensID.rds")
 
 
 ```{r}
-# params for multiprocessing
-params <- MulticoreParam(workers = multicoreWorkers())
-
 #createn einer liste mit allen patienten in dfs sortiert nach krebs
 cancers = list();cancers = vector('list',length(table(tcga_anno$cancer_type_abbreviation)))
 names(cancers) = names(table(tcga_anno$cancer_type_abbreviation))
@@ -47,15 +43,26 @@ for (i in 1:length(cancers)){
 
 new_tcga <- lapply(cancers, as.matrix)
 
-system.time(list_pw_activity <- bplapply(new_tcga, function(tumor){
+system.time(list_pw_activity <- lapply(new_tcga, function(tumor){
   pw_activity <- gsva(expr = tumor,
                       gset.idx.list = total_pathways_ensID,
                       kcdf = "Gaussian",
-                      min.sz = 3,
-                      BPPARAM = params)
+                      min.sz = 3)
 }))
 ```
 
+```{r}
+pw_activity <- do.call(cbind.data.frame, list_pw_activity)
+
+#saveRDS(pw_activity, "tcga_pw_activity.rds")
+```
+
+```{r}
+total <- names(total_pathways_ensID)
+pw_a <- rownames(pw_activity)
+
+setdiff(total, pw_a)
+```
 
 
 

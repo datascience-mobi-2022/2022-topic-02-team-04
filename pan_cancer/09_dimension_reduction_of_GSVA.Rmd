@@ -1,0 +1,76 @@
+---
+title: "05_dimension_reduction_of_pvalue_matrix"
+author: "Fabian Strobel"
+date: '2022-06-20'
+output: html_document
+---
+
+```{r}
+setwd('..')
+tcga_pw_activity <- readRDS("data/tcga_pw_activity.rds")
+tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.rds")
+library(ggplot2)
+library(gridExtra)
+library(randomcoloR)
+set.seed(123)
+```
+
+
+## Dimension reduction
+
+### PCA
+```{r}
+pca <- Seurat::RunPCA(as.matrix(tcga_pw_activity))
+```
+
+```{r}
+new.coordinates = as.data.frame(pca@cell.embeddings)
+
+PCbiplot <- function(coords){
+  require(ggplot2)
+  require(gridExtra)
+  
+  a <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_2)) +
+  geom_point()
+  
+  b <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_3)) +
+  geom_point()
+  
+  c <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_4)) +
+  geom_point()
+  
+  d <- ggplot(data = coords, mapping = aes(x = PC_2, y = PC_3)) +
+  geom_point()
+          
+  e <- ggplot(data = coords, mapping = aes(x = PC_2, y = PC_4)) +
+  geom_point()
+  
+  f <- ggplot(data = coords, mapping = aes(x = PC_3, y = PC_4)) +
+  geom_point()
+  
+  grid.arrange(a,b,c,d,e,f, ncol = 3, top = "PC biplots for pathway activity matrix")
+}
+
+PCbiplot(new.coordinates)
+```
+
+### UMAP
+
+```{r}
+set.seed(123); umap_pan <- uwot::umap(pca@cell.embeddings, n_neighbors = 100)
+
+set.seed(123); umap_pan_cosine <- uwot::umap(pca@cell.embeddings, metric = "cosine", n_neighbors = 15)
+```
+
+```{r}
+# Basic scatter plot
+#n <- length(unique(cancer_type))
+
+#set.seed(123); pal <- c(distinctColorPalette(k = n))
+
+ggplot(as.data.frame(umap_pan_cosine), aes(x = V1, y = V2)) + 
+  geom_point(alpha = .5) +
+  xlab("UMAP1") +
+  ylab("UMAP2") +
+  ggtitle("UMAP GSVA cosine n_neighbors = 15")
+```
