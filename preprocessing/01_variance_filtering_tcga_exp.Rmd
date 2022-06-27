@@ -62,13 +62,14 @@ genes.remove = which(var < quantile(var, 0.35))
 tcga_exp_cleaned = tcga_exp[var > quantile(var, 0.35),]
 
 ## Amount and share of removed genes
-length(genes.remove)
+length(genes.remove) ## 21174
 share <- length(genes.remove)/nrow(tcga_exp)
 quantile(var, share)
 
 ## controll
 var_cleaned <- apply(tcga_exp_cleaned, 1, var)
 min(var_cleaned)
+nrow(tcga_exp_cleaned) ## 39324
 ```
 
 ```{r export}
