@@ -66,6 +66,7 @@ library(biomaRt)
 38268 matches -> not used
 
 ```{r}
+library(EnsDb.Hsapiens.v79)
 list_biotype <- ensembldb::select(EnsDb.Hsapiens.v79, keys= genes_ensembl, keytype = "GENEID", columns = c("GENEBIOTYPE"))
 ```
 From 39324 input genes, 39226 could be matched with a corresponding biotype. But what about the rest?
@@ -97,7 +98,7 @@ ggplot(mv, aes(x = means_umatched_genes, y = variance_unmatched_genes)) +
 biotypes <- unique(list_biotype[2])
 biotypes
 
-biotypes_counts <- data.frame(matrix(NA, nrow = 37))
+biotypes_counts <- data.frame(matrix(NA, nrow = nrow(biotypes)))
 rownames(biotypes_counts) = biotypes[,1]
 colnames(biotypes_counts) = "counts"
 
@@ -117,76 +118,10 @@ TCGA_biotypes <- biotypes_counts
 -----------------------------------------
 ```{r load gene sets}
 setwd('../')
-pathways <- readRDS("total_pathways_ensID.rds")
+total_pathways_ensID <- readRDS("total_pathways_ensID.rds")
 
-p_genes <- c(pathways$Angio_AACR,
-             pathways$Angio_ALL, 
-             pathways$Angio_VEGF, 
-             pathways$Angio_N_Reg, 
-             pathways$Angio_P_Reg, 
-             pathways$Apop_AACR, 
-             pathways$Apop_ALL, 
-             pathways$Apop_SURVIVAL, 
-             pathways$Genome_AACR, 
-             pathways$Genome_DN_Reg, 
-             pathways$Genome_REPAIR, 
-             pathways$Growth_AACR, 
-             pathways$Growth_ALL, 
-             pathways$Growth_CONTACT_Inh, 
-             pathways$Growth_Tumor_Supp, 
-             pathways$Immune_AACR, 
-             pathways$Immune_ALL, 
-             pathways$Immune_UP,
-             pathways$Immune_DN, 
-             pathways$Immune_Ils,
-             pathways$Inflam_AACR, 
-             pathways$Inflam_PRO, 
-             pathways$Inflam_NEG, 
-             pathways$Meta_AACR, 
-             pathways$Meta_Glc,
-             pathways$Meta_Gln, 
-             pathways$Meta_Chol, 
-             pathways$Meta_FA, 
-             pathways$Meta_HIF1,
-             pathways$Metas_AACR,
-             pathways$Metas_ALL, 
-             pathways$Metas_EMT_MMP, 
-             pathways$Metas_NEG, 
-             pathways$Metas_EMT, 
-             pathways$Prol_AACR, 
-             pathways$Prol_EGFR, 
-             pathways$Prol_MAPK, 
-             pathways$Prol_PI3CK, 
-             pathways$Prol_NOTCH, 
-             pathways$Prol_ERK, 
-             pathways$Prol_RAS, 
-             pathways$Prol_JAK_STAT, 
-             pathways$Prol_MTOR, 
-             pathways$Prol_WNT, 
-             pathways$Replication_AACR, 
-             pathways$Replication_Telomerase, 
-             pathways$angiogenesis, 
-             pathways$apical_junction, 
-             pathways$apical_surface, 
-             pathways$apoptosis, 
-             pathways$bile_acid_metabolism, 
-             pathways$cholesterol_homeostasis, 
-             pathways$complement, 
-             pathways$dna_repair, 
-             pathways$epithelial_mesenchymal_transition, 
-             pathways$fatty_acid_metabolism, 
-             pathways$g2m_checkpoint, 
-             pathways$glycolysis, 
-             pathways$hypoxia, 
-             pathways$inflammatory_response, 
-             pathways$oxidative_phosphorylation, 
-             pathways$peroxisome, 
-             pathways$reactive_oxygen_species, 
-             pathways$spermatogenesis, 
-             pathways$xenobiotic_metabolism)
+p_genes <- unlist(total_pathways_ensID, use.names = F)
 
-lengths(pathways)
-sum(lengths(pathways))
 length(p_genes)
 
 dupl <- duplicated(p_genes)
@@ -198,21 +133,20 @@ rm(dupl)
 ```
 
 ```{r library}
-library(biomaRt)
 library(EnsDb.Hsapiens.v79)
 ```
 
 ```{r Biotypes of genes biomart}
-mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
+#mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
 
-p_list_biotype = getBM(attributes = c("ensembl_gene_id", "gene_biotype"), filters = "ensembl_gene_id", values = p_genes, mart = mart, useCache = FALSE)
+#p_list_biotype = getBM(attributes = c("ensembl_gene_id", "gene_biotype"), filters = "ensembl_gene_id", values = p_genes, mart = mart, useCache = FALSE)
 ```
 From 8,239 input genes, 7,797 could be matched with a corresponding biotype. But what about the rest?
 
 ```{r EnsDb.Hsapiens.v79}
 p_list_biotypes_EnsDb <- ensembldb::select(EnsDb.Hsapiens.v79, keys= p_genes, keytype = "GENEID", columns = c("GENEBIOTYPE"))
 ```
-From 8,239 input genes, 8,194 could be matched with a corresponding biotype.
+From 23.216 input genes, 22,085 could be matched with a corresponding biotype.
 
 But what about the rest?
 ```{r}
@@ -224,7 +158,7 @@ length(p_unmatched_genes)
 
 
 ```{r}
-p_biotypes <- unique(p_list_biotype[2])
+p_biotypes <- unique(p_list_biotypes_EnsDb[2])
 p_biotypes
 
 p_biotypes_counts <- data.frame(matrix(NA, nrow = nrow(p_biotypes)))
@@ -333,7 +267,7 @@ table(duplicates)
 
 ***
 
-Explanation of biotypes: https://www.ensembl.org/info/genome/genebuild/biotypes.html
+Explanation of biotypes:    
 - Protein coding: Gene/transcipt that contains an open reading frame (ORF)
 
 ```{r}
