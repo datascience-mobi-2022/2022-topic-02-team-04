@@ -18,10 +18,14 @@ tcga_pvalues <- readRDS("data/tcga_pw_activity_list")
 
 # which/how many genes are in with pathway?
 total_pathways_ensID <- readRDS("data/total_pathways_ensID")
+
+# when *** is not working 
+
+tcga_pw_activity_list <- readRDS("~/GitHub/2022-topic-02-team-04/data/tcga_pw_activity_list.rds")
+total_pathways_ensID <- readRDS("~/GitHub/2022-topic-02-team-04/data/total_pathways_ensID.rds")
 ```
 
-
-3. Get Vector with gene set length 
+2. Get Vector with gene set length 
 
 ```{r}
 # length(total_pathways_ensID[[1]])
@@ -36,7 +40,7 @@ for (i in 1:length(total_pathways_ensID)){
 names(size_pathway) <- names(total_pathways_ensID)
 ```
 
-4. apply funciton form challange 2
+3. apply funciton form challange 2
 
 ```{r}
 get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
@@ -84,17 +88,16 @@ get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
 }
 ```
 
-```{r}
-# apply function for p-value matrix = weird 
-# top_10_pathways <- lapply(p_values_cancer, get_top10pathways_from_pvalues, length_genesets = size_pathway)
+4. apply function 
 
-# rather use for loop :)
+```{r}
+# rather use for loop than apply function :)
 
 top_10_pathways <- list()
   
-for (i in 1:length(p_values_cancer)){
-  top_10_pathways[[i]] <- get_top10pathways_from_pvalues(p_values_cancer[i], size_pathway)
-  names(top_10_pathways)[[i]] <- names(p_values_cancer[i])
+for (i in 1:length(tcga_pw_activity_list)){
+  top_10_pathways[[i]] <- get_top10pathways_from_pvalues(tcga_pw_activity_list[i], size_pathway)
+  names(top_10_pathways)[[i]] <- names(tcga_pw_activity_list[i])
 }
 
 print(top_10_pathways["PRAD"])
