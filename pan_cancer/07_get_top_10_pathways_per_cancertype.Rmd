@@ -12,46 +12,19 @@ knitr::opts_chunk$set(echo = TRUE)
 1. Load data
 
 ```{r}
+# list with pathway activities for each cancer type 
 setwd('..')
-tcga_pvalues <- readRDS("data/tcga_pvalues.rds")
-tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.rds")
+tcga_pvalues <- readRDS("data/tcga_pw_activity_list")
 
-
-# each entry of the p value matrix is of class "list
-class(tcga_pvalues[1,1])
-
-# changed class of p value matrix to numeric to use it in mathematical functions
-pathways <- rownames(tcga_pvalues)
-pvalues <- apply(tcga_pvalues, 2, as.numeric)
-rownames(pvalues) <- pathways
-class(pvalues[1,1])
-
-# transform p value matrix into data frame 
-pvalues <- as.data.frame(pvalues)
+# which/how many genes are in with pathway?
+total_pathways_ensID <- readRDS("data/total_pathways_ensID")
 ```
 
-2. Devide pathway activity matrix according to tumor type (Result = List of data types)
-
-```{r}
-# createn einer liste mit allen patienten in dfs sortiert nach krebs
-p_values_cancer <- list();
-
-p_values_cancer <- vector('list',length(table(tcga_tumor_annotation$cancer_type_abbreviation)))
-names(p_values_cancer) <- names(table(tcga_tumor_annotation$cancer_type_abbreviation))
-
-for (i in 1:length(p_values_cancer)){
-  p_values_cancer[[i]] <- pvalues[ ,tcga_tumor_annotation$cancer_type_abbreviation ==
-                                     names(p_values_cancer)[i]]
-}
-```
 
 3. Get Vector with gene set length 
 
 ```{r}
-# load data 
-total_pathways_ensID <- readRDS("~/GitHub/2022-topic-02-team-04/data/total_pathways_ensID.rds")
-
-length(total_pathways_ensID[[1]])
+# length(total_pathways_ensID[[1]])
 
 # get size of gene sets 
 size_pathway <- vector()
