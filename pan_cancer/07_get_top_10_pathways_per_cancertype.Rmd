@@ -13,35 +13,34 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 setwd('..')
-tcga_pw_activity <- readRDS("data/tcga_pw_activity")
-tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation")
+tcga_pvalues <- readRDS("data/tcga_pvalues.rds")
+tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.rds")
 
-# When **** is not working 
-tcga_pw_activity <- readRDS("~/GitHub/2022-topic-02-team-04/data/tcga_pw_activity.rds")
-tcga_tumor_annotation <- readRDS("~/GitHub/2022-topic-02-team-04/data/tcga_tumor_annotation.RDS")
+# each entry of the p value matrix is of class "list
+class(tcga_pvalues[1,1])
 
+# changed class of p value matrix to numeric to use it in mathematical functions
+pathways <- rownames(tcga_pvalues)
+pvalues <- apply(tcga_pvalues, 2, as.numeric)
+rownames(pvalues) <- pathways
+class(pvalues[1,1])
 
-# use pathway activity function in mathematical functions
-
-pathways <- rownames(tcga_pw_activity)
-pvalues <- apply(tcga_pw_activity, 2, as.numeric)
-rownames(pvalues) = pathways
-
+# transform p value matrix into data frame 
 pvalues <- as.data.frame(pvalues)
 ```
 
-2. Liste mit Pathway activity matrix per cancer Types
+2. Devide pathway activity matrix according to tumor type (Result = List of data types)
 
 ```{r}
-#createn einer liste mit allen patienten in dfs sortiert nach krebs
+# createn einer liste mit allen patienten in dfs sortiert nach krebs
+p_values_cancer <- list();
 
-pathway_activ_cancer = list();
+p_values_cancer <- vector('list',length(table(tcga_tumor_annotation$cancer_type_abbreviation)))
+names(p_values_cancer) <- names(table(tcga_tumor_annotation$cancer_type_abbreviation))
 
-pathway_activ_cancer = vector('list',length(table(tcga_tumor_annotation$cancer_type_abbreviation)))
-names(pathway_activ_cancer) = names(table(tcga_tumor_annotation$cancer_type_abbreviation))
-
-for (i in 1:length(pathway_activ_cancer)){
-  pathway_activ_cancer[[i]] = pvalues[,tcga_tumor_annotation$cancer_type_abbreviation == names(pathway_activ_cancer)[i]]
+for (i in 1:length(p_values_cancer)){
+  p_values_cancer[[i]] <- pvalues[ ,tcga_tumor_annotation$cancer_type_abbreviation ==
+                                     names(p_values_cancer)[i]]
 }
 ```
 
@@ -49,17 +48,17 @@ for (i in 1:length(pathway_activ_cancer)){
 
 ```{r}
 # load data 
-total_pathways_ensID <- readRDS("data/total_pathways_ensID")
-
 total_pathways_ensID <- readRDS("~/GitHub/2022-topic-02-team-04/data/total_pathways_ensID.rds")
 
-# length(total_pathways_ensID[[1]])
+length(total_pathways_ensID[[1]])
 
 # get size of gene sets 
 size_pathway <- vector()
+
 for (i in 1:length(total_pathways_ensID)){
   size_pathway[i] <- length(total_pathways_ensID[[i]])
 }
+
 names(size_pathway) <- names(total_pathways_ensID)
 ```
 
@@ -74,7 +73,7 @@ get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
     
   df_p_values_log10 <- -log10(as.data.frame(df_p_values))
     
-  mean_pathway <- apply(as.data.frame(pathway_activ_cancer[1]), 1, mean)
+  mean_pathway <- as.data.frame(apply(df_p_values_log10, 1, mean))
   rownames(mean_pathway) <- rownames(df_p_values_log10)
   
   ordered_score <- mean_pathway[order(-mean_pathway[ ,1]), 1]
@@ -113,25 +112,16 @@ get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
 
 ```{r}
 # apply function for p-value matrix = weird 
-# top_10_pathways <- lapply(pathway_activ_cancer, get_top10pathways_from_pvalues, length_genesets = size_pathway)
+# top_10_pathways <- lapply(p_values_cancer, get_top10pathways_from_pvalues, length_genesets = size_pathway)
+
 # rather use for loop :)
-
-pathway_activ_cancer[1]
-
-apply(pathway_activ_cancer[[1]], 1, mean)
-
-apply(as.data.frame(pathway_activ_cancer[1]), 1, mean)
-
-
-
-get_top10pathways_from_pvalues(pathway_activ_cancer[1], size_pathway)
 
 top_10_pathways <- list()
   
-for (i in 1:length(pathway_activ_cancer)){
-  top_10_pathways[[i]] <- get_top10pathways_from_pvalues(pathway_activ_cancer[i], size_pathway)
-  names(top_10_pathways)[[i]] <- names(pathway_activ_cancer[i])
+for (i in 1:length(p_values_cancer)){
+  top_10_pathways[[i]] <- get_top10pathways_from_pvalues(p_values_cancer[i], size_pathway)
+  names(top_10_pathways)[[i]] <- names(p_values_cancer[i])
 }
+
 print(top_10_pathways["PRAD"])
 ```
-
