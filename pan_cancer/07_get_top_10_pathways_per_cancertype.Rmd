@@ -60,6 +60,17 @@ for (i in 1:length(total_pathways_ensID)){
 }
 
 names(size_pathway) <- names(total_pathways_ensID)
+
+size_pathway <- size_pathway[! (size_pathway %in% c('Angio_AACR', 
+                                                   'Apop_AACR',
+                                                   'Genome_AACR',
+                                                   'Growth_AACR',
+                                                   'Immune_AACR',
+                                                   'Inflam_AACR',
+                                                   'Meta_AACR',
+                                                   'Prol_AACR',
+                                                   'Replication_AACR'))]
+head(size_pathway)
 ```
 
 4. apply funciton form challange 2
@@ -119,7 +130,7 @@ get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
 top_10_pathways <- list()
   
 for (i in 1:length(p_values_cancer)){
-  top_10_pathways[[i]] <- get_top10pathways_from_pvalues(p_values_cancer[i], size_pathway)
+  top_10_pathways[[i]] <- get_top10pathways_from_pvalues(p_values_cancer[i], size_pathway_reduced)
   names(top_10_pathways)[[i]] <- names(p_values_cancer[i])
 }
 
