@@ -141,3 +141,45 @@ pheatmap(topVar,
          main = "Heatmap GSVA, 40 Pathways with highest variance, mean cancer type")
 ```
 
+***
+
+Pathway Correlation
+```{r}
+cor_samples <- cor(tcga_pw_activity)
+diag(cor_samples) = NA
+cor_pw <- cor(t(tcga_pw_activity))
+diag(cor_pw) = NA
+
+## dauert ewig
+pheatmap(cor_samples,
+         show_colnames = F,
+         show_rownames = F,
+         cluster_cols = T,
+         cluster_rows = T,
+         main = "Correlation Heatmap of samples after GSVA")
+
+## pathway annotation
+g <- rep("Given Sets", 46)
+h <- rep("MSigDB Hallmarks", 50)
+k <- rep("KEGG", 186-3)
+o <- rep("Oncogenic Sigantures", 189)
+t <- rep("Ontology", 84)
+
+pw_annot <- as.data.frame(c(g, h, k, o, t))
+
+colnames(pw_annot) <- "Gene sets"
+rownames(pw_annot) <- rownames(tcga_pw_activity)
+
+pheatmap(cor_pw,
+         show_colnames = F,
+         show_rownames = F,
+         treeheight_row = 0,
+         cluster_cols = T,
+         cluster_rows = T,
+         main = "Correlation Heatmap of pathways after GSVA",
+         cutree_cols = 2,
+         cutree_rows = 2,
+         annotation_col = pw_annot)
+
+```
+
