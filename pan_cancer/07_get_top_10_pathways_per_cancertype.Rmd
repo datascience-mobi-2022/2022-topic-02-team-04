@@ -16,7 +16,6 @@ setwd('..')
 tcga_pvalues <- readRDS("data/tcga_pvalues.rds")
 tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.rds")
 
-
 # each entry of the p value matrix is of class "list
 class(tcga_pvalues[1,1])
 
@@ -126,4 +125,3 @@ for (i in 1:length(p_values_cancer)){
 
 print(top_10_pathways["PRAD"])
 ```
-
