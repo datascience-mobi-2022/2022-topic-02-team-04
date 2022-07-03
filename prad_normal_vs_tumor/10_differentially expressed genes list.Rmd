@@ -172,6 +172,8 @@ pheatmap(PRAD_tumor_normal_df_cor,
 GO terms
 ## Function
 ```{r}
+library(biomaRt)
+
 mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
 go.terms <- function(genes, quant){
   require(biomaRt)
