@@ -23,6 +23,7 @@ pathway_genes <- unlist(pathways, use.names = F)
 
 ## Remove duplicates
 pathway_genes_uni <- unique(pathway_genes)
+rm(pathway_genes)
 ```
 
 TCGA genes
