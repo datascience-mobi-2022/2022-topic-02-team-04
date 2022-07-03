@@ -13,6 +13,9 @@ output:
 # Introduction
 ## vfbdjns
 ## jutzhgrfedw
+```{r}
+tinytex:: install_tinytex()
+```
 
 
 ***
