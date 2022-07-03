@@ -1,5 +1,5 @@
 ---
-title: "01_2_seurat_PCA_UMAP"
+title: "01_seurat_PCA_UMAP"
 author: "Fabian Strobel"
 date: '2022-06-09'
 output: html_document
