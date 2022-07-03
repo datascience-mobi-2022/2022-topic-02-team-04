@@ -1,0 +1,173 @@
+---
+title: "GSEA"
+author: "Laura Lange"
+date: '2022-06-28'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load the Data
+
+```{r}
+setwd('..')
+tcga_tumor_norm <- readRDS("data/PRAD_TvsN.rds")
+
+tcga_tumor_norm <- readRDS("~/GitHub/2022-topic-02-team-04/data/PRAD_TvsN.rds")
+
+# Fuse data frame PRAD normal with PRAD tumor
+PRAD_tumor_normal <- cbind(tcga_tumor_norm[["tumor"]], tcga_tumor_norm[["normal"]])
+
+# Extract data for tumor and normal 
+PRAD_tumor <- tcga_tumor_norm[["tumor"]]
+PRAD_normal <- tcga_tumor_norm[["normal"]]
+```
+
+Calculate Fold Change between Tumor and Normal for each sample
+
+```{r}
+
+e_PRAD_tumor_normal <- 2^PRAD_tumor_normal
+
+fold_change <- data.frame(NA_col = rep(NA, nrow(PRAD_tumor_normal)))
+
+for(col in 1:(ncol(PRAD_tumor_normal)/2)) {
+  for(row in 1:nrow(PRAD_tumor_normal)) {
+    fold_change[row,col] <- (e_PRAD_tumor_normal[row,col]) / (e_PRAD_tumor_normal[row,(col+52)])
+    row.names(fold_change) <- row.names(e_PRAD_tumor_normal)
+    colnames(fold_change) <- colnames(e_PRAD_tumor_normal[1:52])
+  }
+}
+
+# faster and easier way
+
+e_PRAD_tumor <- 2^PRAD_tumor
+
+e_PRAD_normal <- 2^PRAD_normal
+
+Fold_Change <- e_PRAD_tumor/e_PRAD_normal
+
+log2_Fold_Change <- log2(Fold_Change)
+
+# check for duplicates = 2837 ties only in first column 
+
+duplicates_log2FC = duplicated(log2_Fold_Change[ ,1])
+
+length(duplicates_log2FC[duplicates_log2FC == TRUE])
+
+# donot use fold change 
+
+```
+Calculate Z-score instead of FC (cannot calculate p-value with n=1)
+
+Z-score = standard deviations from mean.
+If Z-score = 0 -> data point score identical to mean score
+If Z-score = 1 -> value is one standard deviation from mean
+
+```{r}
+# Data: Fuse data frame PRAD normal with PRAD tumor
+PRAD_tumor_normal <- cbind(tcga_tumor_norm[["tumor"]], tcga_tumor_norm[["normal"]])
+
+Z_score <- data.frame(NA_col = rep(NA, ncol(PRAD_tumor_normal)))
+
+for(col in 1:ncol(PRAD_tumor_normal)) {
+  for(row in 1:nrow(PRAD_tumor_normal)) {
+     Z_score[row, col] <- (PRAD_tumor_normal[row, col] - mean(PRAD_tumor_normal[ ,col])) /
+    sd(PRAD_tumor_normal[ ,col])
+  }
+}
+
+rownames(Z_score) <- rownames(PRAD_tumor_normal)
+colnames(Z_score) <- colnames(PRAD_tumor_normal)
+
+duplicates_Z = duplicated(as.numeric(Z_score[[1]]))
+
+length(duplicates_Z[duplicates_Z == TRUE]) 
+
+```
+
+
+```{r}
+# list with ordered data 
+
+ordered_Z_score <- list()
+
+for(index in 1:ncol(Z_score)) {
+  
+  score_Z_score <- Z_score[order(-Z_score[ ,index]), index]
+  ordered_Z_score[[index]] <- score_Z_score
+  
+  ordered_names <- order(-Z_score[ ,index])
+  pathway_names <- row.names(Z_score)[ordered_names]
+  names(ordered_Z_score[[index]]) <- pathway_names
+  
+  names(ordered_Z_score)[[index]] <- colnames(Z_score[index])
+}
+
+# Check for duplicates 
+duplicates_Z = duplicated(ordered_Z_score[[2]])
+
+length(duplicates_Z[duplicates_Z == TRUE]) 
+
+a <- ordered_Z_score[duplicated(ordered_Z_score$`TCGA-EJ-7792-01`)]
+
+class(ordered_Z_score[[1]])
+head(ordered_Z_score[[1]])
+```
+
+
+```{r}
+total_pathways_ensID <- readRDS("~/GitHub/2022-topic-02-team-04/data/total_pathways_ensID.rds")
+library(fgsea)
+fgsea_dat = fgsea(pathways = total_pathways_ensID,
+                        stats = ordered_log2FC[[1]],
+                        minSize =1, 
+                        maxSize = 2214, 
+                        scoreType = "pos")
+```
+
+
+```{r}
+fgsea_dat
+```
+
+
+```{r}
+plotEnrichment(total_pathways_ensID[["spermatogenesis"]], ordered_log2FC[[1]])
+```
+
+
+```{r}
+plotEnrichment(total_pathways_ensID[["apoptosis"]], ranks)
+```
+
+
+```{r}
+library("BiocManager")
+library("fgsea")
+library("data.table")
+library("ggplot2")
+library("dplyr")
+topUp <- fgsea_dat %>% 
+    filter(ES > 0) %>% 
+    top_n(10, wt=-padj)
+topDown <- fgsea_dat %>% 
+    filter(ES < 0) %>% 
+    top_n(10, wt=-padj)
+topPathways <- bind_rows(topUp, topDown) %>% 
+    arrange(-ES)
+
+plotGseaTable(total_pathways_ensID[topPathways$pathway], 
+              ranks, 
+              fgsea_dat, 
+              gseaParam = 0.5)
+```
+
+What kind of significant pathways do we have?
+
+```{r}
+sig_pathways_Gsea = fgsea_dat[which(fgsea_dat$ES > 0 & fgsea_dat$pval < 0.05),] # only two pathways "Meta_Chol" and "cholesterol homeostasis"
+```
+
