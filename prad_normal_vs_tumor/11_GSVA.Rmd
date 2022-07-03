@@ -43,6 +43,7 @@ pw_activity <- gsva(expr = PRAD_tumor_normal,
                     min.sz = 3)
 ```
 
+
 ```{r}
 total <- names(total_pathways_ensID)
 pw_a <- rownames(pw_activity)
