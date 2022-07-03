@@ -27,14 +27,6 @@ PRAD_anno <- tcga_tumor_norm[["clinical"]]
 Geneset Variation Analysis (GSVA) Demo [Hänzelmann et al., 2013]
 
 ```{r}
-if (!require("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install("GSVA")
-
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install("BiocParallel")
-
 library(GSVA)
 library(msigdbr)
 library(ggplot2)
@@ -43,29 +35,13 @@ library(uwot)
 
 
 ```{r}
-#createn einer liste mit allen patienten in dfs sortiert nach krebs
-cancers = list();cancers = vector('list',length(table(PRAD_anno$cancer_type_abbreviation)))
-names(cancers) = names(table(PRAD_anno$cancer_type_abbreviation))
-for (i in 1:length(cancers)){
-  cancers[[i]] = PRAD_tumor_normal[,PRAD_anno$cancer_type_abbreviation == names(cancers)[i]]
-}
+PRAD_tumor_normal <- as.matrix(PRAD_tumor_normal)
 
-new_tcga <- lapply(cancers, as.matrix)
-
-system.time(list_pw_activity <- lapply(new_tcga, function(tumor){
-  pw_activity <- gsva(expr = tumor,
-                      gset.idx.list = total_pathways_ensID,
-                      kcdf = "Gaussian",
-                      min.sz = 3)
-}))
+pw_activity <- gsva(expr = PRAD_tumor_normal,
+                    gset.idx.list = total_pathways_ensID,
+                    kcdf = "Gaussian",
+                    min.sz = 3)
 ```
-
-```{r}
-pw_activity <- do.call(cbind.data.frame, list_pw_activity)
-
-#saveRDS(pw_activity, "tcga_pw_activity.rds")
-```
-
 
 ```{r}
 total <- names(total_pathways_ensID)
@@ -98,11 +74,11 @@ N = normal
 e_mean_tumor <- 2^mean_tumor
 e_mean_normal <- 2^mean_normal
 FoldChange <- e_mean_tumor / e_mean_normal
-
-FoldChange_Diff <- (mean_tumor - mean_normal)
-
 # Scale Fold Change 
 log2_FoldChange <- log2(FoldChange)
+
+# durch mathematische Umformung kommt man auch auf:
+FoldChange_Diff <- (mean_tumor - mean_normal)
 
 
 head(log2_FoldChange)
@@ -153,10 +129,10 @@ dat <- data.frame(log2_FoldChange, log10_p_value)
 
 # add a column of NAs
 dat$diffexpressed <- "NO"
-# if log2Foldchange > 0.5 and pvalue < 0.05, set as "UP" 
-dat$diffexpressed[dat$log2_FoldChange > 0.5 & dat$log10_p_value < log10(0.05)] <- "UP"
-# if log2Foldchange < -0.5 and pvalue < 0.05, set as "DOWN"
-dat$diffexpressed[dat$log2_FoldChange < -0.5 & dat$log10_p_value < log10(0.05)] <- "DOWN"
+# if log2Foldchange > 0.4 and pvalue < 0.05, set as "UP" 
+dat$diffexpressed[dat$log2_FoldChange > 0.4 & dat$log10_p_value < log10(0.05)] <- "UP"
+# if log2Foldchange < -0.4 and pvalue < 0.05, set as "DOWN"
+dat$diffexpressed[dat$log2_FoldChange < -0.4 & dat$log10_p_value < log10(0.05)] <- "DOWN"
 
 # Change point appearance 
 color <- c("blue", "red", "black")
@@ -169,10 +145,10 @@ ggplot(data = dat, mapping = aes(x=log2_FoldChange,
                                  col = diffexpressed))+
   geom_point()+
   scale_color_manual(values = color)+
-  geom_vline(xintercept=c(-0.5, 0.5), linetype="dashed", col="black")+
+  geom_vline(xintercept=c(-0.4, 0.4), linetype="dashed", col="black")+
   geom_hline(yintercept=-log10(0.05), linetype="dashed", col="black")+
-  scale_x_continuous(breaks = c(seq(-7, 7, 2)),
-                     limits = c(-7, 7))+
+  scale_x_continuous(breaks = c(seq(-1, 1, 0.2)),
+                     limits = c(-1, 1))+
   labs(title = "Volcano plot")
 ```
 
@@ -183,10 +159,10 @@ dat_2 <- data.frame(log2_FoldChange, log10_corrected_p_value)
 
 # add a column of NAs
 dat_2$diffexpressed <- "NO"
-# if log2Foldchange > 0.5 and pvalue < 0.05, set as "UP" 
-dat_2$diffexpressed[dat_2$log2_FoldChange > 0.5 & dat_2$log10_corrected_p_value < log10(0.05)] <- "UP"
-# if log2Foldchange < -0.5 and pvalue < 0.05, set as "DOWN"
-dat_2$diffexpressed[dat_2$log2_FoldChange < -0.5 & dat_2$log10_corrected_p_value < log10(0.05)] <- "DOWN"
+# if log2Foldchange > 0.4 and pvalue < 0.05, set as "UP" 
+dat_2$diffexpressed[dat_2$log2_FoldChange > 0.4 & dat_2$log10_corrected_p_value < log10(0.05)] <- "UP"
+# if log2Foldchange < -0.4 and pvalue < 0.05, set as "DOWN"
+dat_2$diffexpressed[dat_2$log2_FoldChange < -0.4 & dat_2$log10_corrected_p_value < log10(0.05)] <- "DOWN"
 
 # Change point appearance 
 color <- c("blue", "red", "black")
@@ -199,117 +175,9 @@ ggplot(data = dat_2, mapping = aes(x= log2_FoldChange,
                                    col= diffexpressed))+
   geom_point()+
   scale_color_manual(values = color)+
-  geom_vline(xintercept=c(-0.5, 0.5), linetype="dashed", col="darkgreen")+
+  geom_vline(xintercept=c(-0.4, 0.4), linetype="dashed", col="darkgreen")+
   geom_hline(yintercept=-log10(0.05), linetype="dashed", col="darkgreen")+
-  scale_x_continuous(breaks = c(seq(-7, 7, 2)),
-                     limits = c(-7, 7))+
+  scale_x_continuous(breaks = c(seq(-1, 1, 0.2)),
+                     limits = c(-1, 1))+
   labs(title = "Volcano plot")
 ```
-
-Create Volcano Plot with activity = log2 range -> (tumor - normal)
-
-```{r}
-dat3 <- data.frame(FoldChange_Diff, log10_p_value)
-
-# add a column of NAs
-dat3$diffexpressed <- "NO"
-# if log2Foldchange > 0.6 and pvalue < 0.05, set as "UP" 
-dat3$diffexpressed[dat3$FoldChange_Diff > log2(2) & dat3$log10_p_value < log10(0.05)] <- "UP"
-# if log2Foldchange < -0.6 and pvalue < 0.05, set as "DOWN"
-dat3$diffexpressed[dat3$FoldChange_Diff < log2(0.5) & dat3$log10_p_value < log10(0.05)] <- "DOWN"
-
-# Change point appearance 
-color <- c("blue", "red", "black")
-names(color) <- c("DOWN", "UP", "NO")
-
-library(ggplot2)
-
-ggplot(data = dat3, mapping = aes(x=FoldChange_Diff, 
-                                  y= -log10_p_value, 
-                                  col = diffexpressed))+
-  geom_point()+
-  scale_color_manual(values = color)+
-  geom_vline(xintercept=c(log2(0.5), log2(2)), linetype="dashed", col="black")+
-  geom_hline(yintercept=-log10(0.05), linetype="dashed", col="black")+
-  scale_x_continuous(breaks = c(seq(-7, 7, 2)),
-                     limits = c(-7, 7))+
-  labs(title = "Volcano plot")
-```
-
-```{r}
-dat_2 <- data.frame(FoldChange_Diff, log10_corrected_p_value)
-
-# add a column of NAs
-dat_2$diffexpressed <- "NO"
-# if log2Foldchange > 0.6 and pvalue < 0.05, set as "UP" 
-dat_2$diffexpressed[dat_2$FoldChange_Diff > log2(2) & dat_2$log10_corrected_p_value < log10(0.05)] <- "UP"
-# if log2Foldchange < -0.6 and pvalue < 0.05, set as "DOWN"
-dat_2$diffexpressed[dat_2$FoldChange_Diff < log2(0.5) & dat_2$log10_corrected_p_value < log10(0.05)] <- "DOWN"
-
-# Change point appearance 
-color <- c("blue", "red", "black")
-names(color) <- c("DOWN", "UP", "NO")
-
-library(ggplot2)
-
-ggplot(data = dat_2, mapping = aes(x= FoldChange_Diff, 
-                                   y= -log10_corrected_p_value, 
-                                   col= diffexpressed))+
-  geom_point()+
-  scale_color_manual(values = color)+
-  geom_vline(xintercept=c(log2(0.5), log2(2)), linetype="dashed", col="darkgreen")+
-  geom_hline(yintercept=-log10(0.05), linetype="dashed", col="darkgreen")+
-  scale_x_continuous(breaks = c(seq(-7, 7, 2)),
-                     limits = c(-7, 7))+
-  labs(title = "Volcano plot")
-```
-
-
-
-
-
-```{r}
-#------------------------------------------------------------------------------#
-# Visualisation!
-#------------------------------------------------------------------------------#
-
-pca.genes.PRAD <- Seurat::RunPCA(new_tcga$PRAD)
-pca.pw.PRAD <- Seurat::RunPCA(list_pw_activity$PRAD)
-pca.pw.ssgsea.PRAD <- Seurat::RunPCA(pw_activity_df)
-
-plot1 <- ggplot(as.data.frame(pca.genes.PRAD@cell.embeddings), aes(x = PC_1, y = PC_2)) +
-  geom_point()
-
-plot2 <- ggplot(as.data.frame(pca.pw.PRAD@cell.embeddings), aes(x = PC_1, y = PC_2)) +
-  geom_point()
-
-plot2.ssgsea <- ggplot(as.data.frame(pca.pw.ssgsea.PRAD@cell.embeddings), aes(x = PC_1, y = PC_2)) +
-  geom_point()
-
-umap.genes.PRAD <- umap(pca.genes.PRAD@cell.embeddings, metric = "cosine")
-umap.pw.PRAD <- umap(pca.pw.PRAD@cell.embeddings, metric = "cosine")
-umap.pw.ssgsea.PRAD <- umap(pca.pw.ssgsea.PRAD@cell.embeddings, metric = "cosine")
-
-plot3 <- ggplot(as.data.frame(umap.genes.PRAD), aes(x = V1, y = V2)) +
-  geom_point()
-
-plot4 <- ggplot(as.data.frame(umap.pw.PRAD), aes(x = V1, y = V2)) +
-  geom_point()
-
-plot4.ssgsea <- ggplot(as.data.frame(umap.pw.ssgsea.PRAD), aes(x = V1, y = V2)) +
-  geom_point()
-
-pca.genes <- Seurat::RunPCA(cbind(new_tcga$BRCA, new_tcga$PRAD))
-pca.pw <- Seurat::RunPCA(cbind(list_pw_activity$BRCA, list_pw_activity$PRAD))
-
-plot5 <- ggplot(as.data.frame(pca.genes@cell.embeddings), aes(x = PC_1, y = PC_2)) +
-  geom_point()
-
-plot6 <- ggplot(as.data.frame(pca.pw@cell.embeddings), aes(x = PC_1, y = PC_2)) +
-  geom_point()
-```
-
-```{r}
-
-```
-

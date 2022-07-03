@@ -13,10 +13,6 @@ output:
 # Introduction
 ## vfbdjns
 ## jutzhgrfedw
-```{r}
-tinytex:: install_tinytex()
-```
-
 
 ***
 # Materials and Methods
