@@ -88,17 +88,26 @@ for (i in 1:33){
 one plot
 ###
 ```{r}
+#createn einer liste mit allen patienten in dfs sortiert nach krebs
+cancers = list();cancers = vector('list',length(table(tcga_tumor_annotation$cancer_type_abbreviation)))
+names(cancers) = names(table(tcga_tumor_annotation$cancer_type_abbreviation))
+for (i in 1:length(cancers)){
+  cancers[[i]] = pw_activity_full_TCGA_df[,tcga_tumor_annotation$cancer_type_abbreviation == names(cancers)[i]]
+}
+```
+
+```{r}
 ## n_neighbours
 x = 15
 
 for(i in 1:33) { 
   nam <- paste("A", i, sep = "")
   
-  df <- as.data.frame(list_pw_activity[i])
+  df <- as.data.frame(cancers[i])
   matrix <- as.matrix(df)
   
   ## cancer type
-  ct <- names(list_pw_activity[i])
+  ct <- names(cancers[i])
   print(ct)
   
   ## PCA
@@ -113,7 +122,7 @@ for(i in 1:33) {
                  geom_point() +
                  xlab("UMAP1") +
                  ylab("UMAP2") +
-                 ggtitle(paste(names(list_pw_activity[i])))
+                 ggtitle(paste(names(cancers[i])))
 
   assign(nam, plots_i)
 }
@@ -126,7 +135,7 @@ for(i in 1:33) {
              A21, A22, A23, A24, A25, A26, A27, A28, A29, A30,
              A31, A32, A33, 
              ncol = 3, 
-             top = paste("UMAP by cancertype GSVA with n_neighbors =", x))
+             top = paste("UMAP by cancertype GSVA full TCGA with n_neighbors =", x))
              dev.off()
 ```
 

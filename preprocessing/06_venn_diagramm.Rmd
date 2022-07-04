@@ -10,7 +10,8 @@ editor_options:
 ```{r}
 setwd('..')
 pathways <- readRDS("data/total_pathways_ensID.rds")
-tcga_pancancer <- readRDS("data/tcga_pancancer")
+tcga_pancancer <- readRDS("data/tcga_pancancer.rds")
+focussed_analysis <- readRDS("data/PRAD_TvsN.rds")
 library(ggvenn)
 library(ggVennDiagram)
 library(ggplot2)
@@ -25,6 +26,8 @@ pathway_genes <- unlist(pathways, use.names = F)
 pathway_genes_uni <- unique(pathway_genes)
 rm(pathway_genes)
 ```
+
+### PANCANCER
 
 TCGA genes
 ```{r}
@@ -45,6 +48,32 @@ ggvenn(x) +
 
 ggVennDiagram(x) +
   ggtitle("Venn diagram of TCGA RNAseq genes and pathway genes") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggplot2::scale_fill_gradient(low="lightsalmon",high = "lightblue2")
+```
+
+
+### FOCUSED ANALYSIS
+
+TCGA genes
+```{r}
+prad_genes <- rownames(focussed_analysis$tumor)
+```
+
+Compute the intersection
+```{r}
+length(intersect(prad_genes, pathway_genes_uni))
+```
+Venn Diagram
+```{r}
+x <- list(RNAseq = prad_genes, Pathways = pathway_genes_uni)
+
+ggvenn(x) + 
+  ggtitle("Venn diagram of PRAD RNAseq genes and pathway genes") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggVennDiagram(x) +
+  ggtitle("Venn diagram of PRAD RNAseq genes and pathway genes") +
   theme(plot.title = element_text(hjust = 0.5)) +
   ggplot2::scale_fill_gradient(low="lightsalmon",high = "lightblue2")
 ```

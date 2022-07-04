@@ -35,20 +35,28 @@ total_pathways_ensID <- readRDS("data/total_pathways_ensID.rds")
 
 ```{r}
 #createn einer liste mit allen patienten in dfs sortiert nach krebs
-cancers = list();cancers = vector('list',length(table(tcga_anno$cancer_type_abbreviation)))
+#cancers = list();cancers = vector('list',length(table(tcga_anno$cancer_type_abbreviation)))
 names(cancers) = names(table(tcga_anno$cancer_type_abbreviation))
-for (i in 1:length(cancers)){
+#for (i in 1:length(cancers)){
   cancers[[i]] = tcga_pancancer[,tcga_anno$cancer_type_abbreviation == names(cancers)[i]]
-}
+#}
 
-new_tcga <- lapply(cancers, as.matrix)
+#new_tcga <- lapply(cancers, as.matrix)
 
-system.time(list_pw_activity <- lapply(new_tcga, function(tumor){
+#system.time(list_pw_activity <- lapply(new_tcga, function(tumor){
   pw_activity <- gsva(expr = tumor,
                       gset.idx.list = total_pathways_ensID,
                       kcdf = "Gaussian",
                       min.sz = 3)
-}))
+#}))
+```
+
+Full TCGA pancancer matrix
+```{r}
+pw_activity <- gsva(expr = as.matrix(tcga_pancancer),
+                      gset.idx.list = total_pathways_ensID,
+                      kcdf = "Gaussian",
+                      min.sz = 3)
 ```
 
 ```{r}
