@@ -18,7 +18,7 @@ tcga_tumor_norm <- readRDS("data/PRAD_TvsN.rds")
 Load data
 ```{r}
 # Fuse data frame PRAD normal with PRAD tumor
-PRAD_tumor_normal <- cbind(tcga_tumor_norm[["normal"]], tcga_tumor_norm[["tumor"]])
+PRAD_tumor_normal <- cbind(tcga_tumor_norm[["tumor"]], tcga_tumor_norm[["normal"]])
 
 class(PRAD_tumor_normal)
 ```
@@ -26,9 +26,9 @@ class(PRAD_tumor_normal)
 Calculate mean for each gene 
 
 ```{r}
-mean_normal <- apply(PRAD_tumor_normal[ ,1:52], 1, mean)
+mean_tumor <- apply(PRAD_tumor_normal[ ,1:52], 1, mean)
 
-mean_tumor <- apply(PRAD_tumor_normal[ ,53:104], 1, mean)
+mean_normal <- apply(PRAD_tumor_normal[ ,53:104], 1, mean)
 ```
 
 Calculate Fold Change 
