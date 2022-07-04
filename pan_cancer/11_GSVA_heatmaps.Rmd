@@ -9,7 +9,7 @@ editor_options:
 
 ```{r}
 setwd('..')
-tcga_pw_activity <- readRDS("data/tcga_pw_activity")
+pw_activity_full_TCGA_df <- readRDS("data/pw_activity_full_TCGA_df.rds")
 tcga_annot <- readRDS("data/tcga_tumor_annotation.rds")
 
 library(pheatmap)
@@ -20,9 +20,9 @@ Annotations
 ## cancertype
 cancer_annot <- t(as.data.frame(sort(tcga_annot$cancer_type_abbreviation)))
 rownames(cancer_annot)[1] = "Cancer type"
-colnames(cancer_annot) = colnames(tcga_pw_activity)
+colnames(cancer_annot) = colnames(pw_activity_full_TCGA_df)
 
-colnames(tcga_pw_activity) %in% cancer_annot
+colnames(pw_activity_full_TCGA_df) %in% cancer_annot
 
 ## pathways
 g <- rep("Given Sets", 46)
@@ -34,42 +34,29 @@ t <- rep("Ontology", 84)
 pw_annot <- as.data.frame(c(g, h, k, o, t))
 
 colnames(pw_annot) <- "Gene sets"
-rownames(pw_annot) <- rownames(tcga_pw_activity)
+rownames(pw_annot) <- rownames(pw_activity_full_TCGA_df)
 ```
 
 Heatmap
 ```{r}
-pheatmap(tcga_pw_activity,
-         show_colnames = F,
-         show_rownames = F,
-         cluster_cols = F,
-         cluster_rows = F,
-         annotation_col = cancer_annot,
-         annotation_row = pw_annot)
-
-pheatmap(tcga_pw_activity,
+pheatmap(pw_activity_full_TCGA_df,
          show_colnames = F,
          show_rownames = F,
          cluster_cols = T,
-         cluster_rows = T,
-         annotation_col = cancer_annot,
-         annotation_row = pw_annot)
-
-pheatmap(tcga_pw_activity,
-         show_colnames = F,
-         show_rownames = F,
-         cluster_cols = F,
          cluster_rows = F,
-         annotation_col = cancer_annot,
-         annotation_row = pw_annot)
+         treeheight_row = 0,
+         treeheight_col = 0,
+         cutree_cols = 2)
+## anotation_col geht nicht -.-
 ```
+
 
 Mean variance plot
 ```{r}
 library(ggplot2)
 
-m <- apply(tcga_pw_activity, 1, mean)
-v <- apply(tcga_pw_activity, 1, var)
+m <- apply(pw_activity_full_TCGA_df, 1, mean)
+v <- apply(pw_activity_full_TCGA_df, 1, var)
 
 mv <- data.frame(mean = m, variance = v)
 
@@ -78,7 +65,7 @@ ggplot(data = mv, aes(x = mean, y = variance)) +
 ```
 
 ```{r}
-topVar <- tcga_pw_activity[which(v > 0.125),]
+topVar <- pw_activity_full_TCGA_df[which(v > 0.125),]
 
 pheatmap(topVar,
          show_colnames = F,
@@ -88,6 +75,7 @@ pheatmap(topVar,
          fontsize = 10,
          main = "Heatmap GSVA, 40 Pathways with highest variance",
          cutree_rows = 3)
+## anotation_col geht nicht -.-
 ```
 
 
@@ -95,12 +83,19 @@ pheatmap(topVar,
 ***
 
 Mean over cancer types
-```{r}
-tcga_pw_activity_list <- readRDS("data/tcga_pw_activity")
-```
 
 ```{r}
-mean_score <- lapply(tcga_pw_activity_list, FUN = function(cancer_type){
+#createn einer liste mit allen patienten in dfs sortiert nach krebs
+cancers = list();cancers = vector('list',length(table(tcga_tumor_annotation$cancer_type_abbreviation)))
+names(cancers) = names(table(tcga_tumor_annotation$cancer_type_abbreviation))
+for (i in 1:length(cancers)){
+  cancers[[i]] = pw_activity_full_TCGA_df[,tcga_tumor_annotation$cancer_type_abbreviation == names(cancers)[i]]
+}
+```
+
+
+```{r}
+mean_score <- lapply(cancers, FUN = function(cancer_type){
   apply(cancer_type, 1, mean)
 })
 
@@ -114,9 +109,9 @@ pheatmap(mean_pw_activity,
          cluster_cols = T,
          cluster_rows = T,
          annotation_row = pw_annot,
-         fontsize = 6,
+         fontsize = 10,
          main = "Heatmap after GSVA mean by cancer type",
-         cutree_cols = 4)
+         cutree_cols = 3)
 ```
 
 ```{r}
@@ -130,7 +125,7 @@ mv <- data.frame(mean = m, variance = v)
 ggplot(data = mv, aes(x = mean, y = variance)) + 
   geom_point()
 
-topVar <- mean_pw_activity[which(v > 0.000155),]
+topVar <- mean_pw_activity[which(v > 0.0704),]
 
 pheatmap(topVar,
          show_colnames = T,
@@ -138,6 +133,8 @@ pheatmap(topVar,
          cluster_cols = T,
          cluster_rows = T,
          fontsize = 10,
+         cutree_cols = 3,
+         cutree_rows = 3,
          main = "Heatmap GSVA, 40 Pathways with highest variance, mean cancer type")
 ```
 
@@ -145,18 +142,8 @@ pheatmap(topVar,
 
 Pathway Correlation
 ```{r}
-cor_samples <- cor(tcga_pw_activity)
-diag(cor_samples) = NA
-cor_pw <- cor(t(tcga_pw_activity))
+cor_pw <- cor(t(pw_activity_full_TCGA_df))
 diag(cor_pw) = NA
-
-## dauert ewig
-pheatmap(cor_samples,
-         show_colnames = F,
-         show_rownames = F,
-         cluster_cols = T,
-         cluster_rows = T,
-         main = "Correlation Heatmap of samples after GSVA")
 
 ## pathway annotation
 g <- rep("Given Sets", 46)
@@ -168,7 +155,7 @@ t <- rep("Ontology", 84)
 pw_annot <- as.data.frame(c(g, h, k, o, t))
 
 colnames(pw_annot) <- "Gene sets"
-rownames(pw_annot) <- rownames(tcga_pw_activity)
+rownames(pw_annot) <- rownames(pw_activity_full_TCGA_df)
 
 pheatmap(cor_pw,
          show_colnames = F,
@@ -181,5 +168,20 @@ pheatmap(cor_pw,
          cutree_rows = 2,
          annotation_col = pw_annot)
 
+```
+
+Cancers correlation
+```{r}
+cor_cancer_types <- cor(mean_pw_activity)
+diag(cor_cancer_types) = NA
+
+pheatmap(cor_cancer_types,
+         show_colnames = T,
+         show_rownames = T,
+         cluster_cols = T,
+         cluster_rows = T,
+         cutree_rows = 3,
+         cutree_cols = 3,
+         main = "Correlation Heatmap of means over cancer types after GSVA")
 ```
 

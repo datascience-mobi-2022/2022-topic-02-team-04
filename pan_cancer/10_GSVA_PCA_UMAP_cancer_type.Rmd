@@ -9,7 +9,7 @@ editor_options:
 
 ```{r}
 setwd('..')
-tcga_pw_activity_list <- readRDS("data/tcga_tcga_pw_activity_list.rds")
+pw_activity_full_TCGA_df <- readRDS("data/tcga_pw_activity_full_TCGA_df.rds")
 tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.RDS")
 library(ggplot2)
 library(gridExtra)
@@ -128,7 +128,7 @@ for(i in 1:33) {
 }
 
 ## Export
-  filename = ("UMAP by cancertype GSVA n15 cosine.pdf")
+  filename = ("10_1_GSVA_UMAP_by_cancertype.pdf")
   pdf(file = filename, height = 2*11.69, width = 8.27)
   grid.arrange(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
              A11, A12, A13, A14, A15, A16, A17, A18, A19, A20,
