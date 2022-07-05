@@ -3,6 +3,8 @@ title: "Diffexpressed_pathways"
 author: "Laura Lange"
 date: '2022-07-04'
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -167,9 +169,10 @@ library(gridExtra)
 pca <- Seurat::RunPCA(PRAD_tumor_normal_pw_activity)
 
 ## UMAP
-set.seed(123); umap <- as.data.frame(uwot::umap(pca@cell.embeddings, n_neighbors = x, metric = "cosine", n_components = 2))
+set.seed(123); umap <- as.data.frame(uwot::umap(pca@cell.embeddings, n_neighbors = 15, metric = "cosine", n_components = 2))
 ```
 
+## UPREG
 
 ```{r}
 ## Sort by FC
@@ -212,6 +215,42 @@ for(i in 3:13) {
 }
 
 grid.arrange(A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13,
+             ncol = 3, 
+             top = paste("UMAP after GSVA with pathway activities"))
+```
+
+## DOWNREG
+```{r}
+## Sort by FC
+pw_downreg_sorted <- arrange(pw_downreg, ranks)
+
+## Get Pathway names
+pw_downreg_genes <- rownames(pw_downreg_sorted)
+
+## Get GSVA scores from
+pw_downreg_GSVA <- t(PRAD_tumor_normal_pw_activity[pw_downreg_genes,])
+
+## Combine UMAP and Pathway activity
+umap_act <- cbind(umap, pw_downreg_GSVA)
+```
+
+```{r}
+for(i in 3:ncol(umap_act)) { 
+  nam <- paste("A", i, sep = "")
+  
+  plots_i <- ggplot(umap_act, aes(x = V1, y = V2)) + 
+  geom_point(alpha = 1, aes_string(color = noquote(names(umap_act)[i]))) +
+  scale_color_gradient(low = "darkblue", high = "yellow") +
+  xlab("UMAP1") +
+  ylab("UMAP2") +
+  ggtitle(paste(names(umap_act[i]))) +
+  theme(plot.title = element_text(size = 6)) +
+  labs(color = "Pathway\nactivity")
+  
+    assign(nam, plots_i)
+}
+
+grid.arrange(A3, A4, A5, A6, A7,
              ncol = 3, 
              top = paste("UMAP after GSVA with pathway activities"))
 ```
