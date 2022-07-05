@@ -247,3 +247,93 @@ go.terms(dif_genes, .999)
 ```
 
 
+***
+
+To cut down the dimensions we will choose the first 500 genes of the 1345 differentially expressed genes.
+
+```{r}
+dat_df_small = dat_df[1:500,]
+```
+
+***
+
+determine the GO terms for the 500 genes
+
+```{r}
+dif_500genes <- rownames(dat_df_small)
+go.terms(dif_500genes, .999)
+```
+***
+
+Create lists for each GO term that contain the genes that were assigned to this specific GO term
+
+```{r}
+library(biomaRt)
+
+mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
+x = getBM(attributes = c("ensembl_gene_id", "go_id"), filters = "ensembl_gene_id", values = dif_500genes, mart = mart, useCache = FALSE)
+cx_goterms = x[!(is.na(x$go_id) | x$go_id==""), ]
+mxgenes <- unique(cx_goterms[1]) #490 genes were matched
+goxterms <- unique(cx_goterms[2])#3500 GO terms
+GO_terms = cx_goterms[2]
+Terms = lapply(GO_terms, Term)
+T = as.data.frame(Terms)
+colnames(T) <- "GO_term"
+cx_goterms = cbind(cx_goterms, T) # matrix with Ensembl ID, GO ID, and GO term
+```
+
+```{r}
+go_term_genes = list();go_term_genes = vector('list',length(table(cx_goterms$GO_term)))
+names(go_term_genes) = names(table(cx_goterms$GO_term))
+for (i in 1:length(go_term_genes)){
+  go_term_genes[[i]] = cx_goterms[which(cx_goterms$GO_term == names(go_term_genes)[i]),1]
+}
+
+```
+
+***
+
+TopVar 4000 genes
+
+```{r}
+var <- apply(PRAD_tumor_normal, 1, var)
+PRAD_tumor_normal_names = as.data.frame(rownames(PRAD_tumor_normal))
+colnames(PRAD_tumor_normal_names) = "genes"
+PRAD_tumor_normal_names$variance = var
+PRAD_tumor_normal_names = PRAD_tumor_normal_names[order(PRAD_tumor_normal_names[,"variance"], decreasing = TRUE),]
+topVar4000 = PRAD_tumor_normal_names[1:4000,]
+topVar4000_names = topVar4000$genes
+```
+
+now reduce the PRAD_tumor_normal matrix accordingly
+
+```{r}
+PRAD_tumor_normal_topVar4000 = subset(PRAD_tumor_normal,rownames(PRAD_tumor_normal) %in% topVar4000_names)
+```
+
+***
+
+have a look at the intersection between the genes describing a certain GO term and the topVar4000 genes
+
+```{r}
+library(ggvenn)
+library(ggVennDiagram)
+library(ggplot2)
+
+  for (i in 1:555){
+    #compute the intersection
+    length(intersect(go_term_genes[[i]], topVar4000_names))
+    # venn diagram
+    x <- list(go_term_genes[[i]], topVar = topVar4000_names)
+    ggvenn(x) + 
+      ggtitle("Venn diagram of names go term genes and topVar4000 genes") +
+      theme(plot.title = element_text(hjust = 0.5))
+
+    ggVennDiagram(x) +
+      ggtitle("Venn diagram of names go term genes and topVar4000 genes") +
+      theme(plot.title = element_text(hjust = 0.5)) +
+      ggplot2::scale_fill_gradient(low="lightsalmon",high = "lightblue2")
+    print(ggVennDiagram(x))
+  } 
+  
+```
