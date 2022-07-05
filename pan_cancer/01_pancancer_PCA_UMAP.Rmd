@@ -83,8 +83,7 @@ PCbiplot(new.coordinates)
 #UMAP
 
 ```{r}
-set.seed(123)
-umap_pan <- uwot::umap(pca@cell.embeddings)
+set.seed(123); umap_pan <- uwot::umap(pca@cell.embeddings)
 ```
 
 ```{r}
@@ -95,8 +94,7 @@ umap <- cbind(as.data.frame(umap_pan), cancer_type)
 # Basic scatter plot
 n <- length(unique(cancer_type))
 
-set.seed(123);
-pal <- c(distinctColorPalette(k = n))
+set.seed(123); pal <- c(distinctColorPalette(k = n))
 
 ggplot(umap, aes(x = V1, y = V2, color = cancer_type)) + 
   geom_point(alpha = .5) +

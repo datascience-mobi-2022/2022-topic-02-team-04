@@ -27,6 +27,7 @@ pathway_genes_uni <- unique(pathway_genes)
 rm(pathway_genes)
 ```
 
+***
 ### PANCANCER
 
 TCGA genes
@@ -52,7 +53,28 @@ ggVennDiagram(x) +
   ggplot2::scale_fill_gradient(low="lightsalmon",high = "lightblue2")
 ```
 
+Determining the genes with the highes variance and their overlap with the pathways
+```{r}
+# Computing the variance
+v <- apply(tcga_pancancer, 1, var) 
 
+# Getting genes with highest variance
+topVar <- tcga_pancancer[v > quantile(v, 0.90),]
+```
+
+```{r}
+topVar_genes <- rownames(topVar)
+
+x <- list(RNAseqTopVar = topVar_genes, Pathways = pathway_genes_uni)
+
+ggVennDiagram(x) +
+  ggtitle("TCGA RNAseq genes with var > q90") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggplot2::scale_fill_gradient(low="lightsalmon",high = "lightblue2")
+```
+
+
+***
 ### FOCUSED ANALYSIS
 
 TCGA genes

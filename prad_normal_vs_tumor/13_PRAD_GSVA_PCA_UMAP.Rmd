@@ -1,0 +1,102 @@
+---
+title: "PRAD GSVA PCA UMAP"
+author: "Fabian Strobel"
+date: '2022-06-11'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+set.seed(123)
+```
+
+```{r}
+setwd('../')
+getwd()
+PRAD_tumor_normal_pw_activity <- readRDS("/data/PRAD_tumor_normal_pw_activity.rds")
+```
+
+```{r}
+pca <- Seurat::RunPCA(PRAD_tumor_normal_pw_activity)
+```
+
+```{r}
+sample <- c(rep("tumor", 52), rep("normal", 52))
+new.c = as.data.frame(pca@cell.embeddings)
+new.coordinates = cbind(new.c, sample)
+
+PCbiplot <- function(coords){
+  require(ggplot2)
+  require(gridExtra)
+  
+  a <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_2, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+  b <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_3, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+  c <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_4, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+  d <- ggplot(data = coords, mapping = aes(x = PC_2, y = PC_3, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+          
+  e <- ggplot(data = coords, mapping = aes(x = PC_2, y = PC_4, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+  f <- ggplot(data = coords, mapping = aes(x = PC_3, y = PC_4, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+   ## Export
+  filename = paste("13_1_PRAD_GSVA_PC_biplots.pdf", sep = "")
+  pdf(file = filename, height = 8.27, width = 11.69)
+  grid.arrange(a,b,c,d,e,f, ncol = 3, top = "PC biplots PRAD after GSVA")
+  dev.off()
+}
+
+PCbiplot(new.coordinates)
+```
+
+
+```{r}
+# n_neighbors
+x <- 15
+
+set.seed(123); umap <- uwot::umap(pca@cell.embeddings, n_neighbors = x, metric = "cosine", n_components = 2)
+
+umap_2 <- as.data.frame(umap)
+
+sample <- c(rep("tumor", 52), rep("normal", 52))
+umap_2 <- cbind(umap_2, sample)
+
+pal = c("springgreen4", "firebrick3")
+
+## Export
+filename = paste("UMAP_PRAD_combined.pdf", sep = "")
+pdf(file = filename, height = 8.27, width = 11.69)
+
+ggplot(umap_2, aes(x = V1, y = V2, color = sample)) + 
+  geom_point(alpha = 1) +
+  scale_color_manual(values = pal) +
+  xlab("UMAP1") +
+  ylab("UMAP2") +
+  ggtitle(paste("PRAD GSVA UMAP, n =", x))
+
+dev.off()
+```
+
+```{r}
+umap_TandN <- uwot::umap(pca_TandN@cell.embeddings, n_neighbors = 2, n_components = 3)
+scatterplot3d(umap_TandN,
+              type = "h",
+              main = "3D Scatter Plot after UMAP for combined PRAD")
+```
