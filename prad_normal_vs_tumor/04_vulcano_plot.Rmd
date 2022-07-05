@@ -198,7 +198,7 @@ class(all_genes)
 # character of all genes in pathway
 total_pathways_ensID <- readRDS("~/GitHub/2022-topic-02-team-04/data/total_pathways_ensID.rds")
 
-pathway_genes <- total_pathways_ensID$spermatogenesis
+pathway_genes <- total_pathways_ensID$KEGG_PROSTATE_CANCER
 class(pathway_genes)
 # add column: TRUE if gene is in pathway + FALSE if it is not
 dat_all$pathway_genes <- !is.na(match(all_genes, pathway_genes))
