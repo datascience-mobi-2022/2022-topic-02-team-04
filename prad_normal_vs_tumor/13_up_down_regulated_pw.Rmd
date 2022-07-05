@@ -1,0 +1,151 @@
+---
+title: "Diffexpressed_pathways"
+author: "Laura Lange"
+date: '2022-07-04'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load data
+
+```{r}
+setwd('..')
+tcga_tumor_norm <- readRDS("data/PRAD_tumor_normal_pw_activity.rds")
+
+PRAD_tumor_normal_pw_activity <- readRDS("~/GitHub/2022-topic-02-team-04/data/PRAD_tumor_normal_pw_activity.rds")
+
+total_pathways_ensID <- readRDS("~/GitHub/2022-topic-02-team-04/data/total_pathways_ensID.rds")
+```
+
+Calculate mean for each gene 
+
+```{r}
+mean_tumor <- apply(PRAD_tumor_normal_pw_activity[ ,1:52], 1, mean)
+
+mean_normal <- apply(PRAD_tumor_normal_pw_activity[ ,53:104], 1, mean)
+```
+
+Calculate Fold Change 
+
+$$
+log_2[(T)/N]
+$$
+
+T = tumor 
+N = normal 
+
+```{r}
+e_mean_tumor <- 2^mean_tumor
+e_mean_normal <- 2^mean_normal
+FoldChange <- e_mean_tumor / e_mean_normal
+# Scale Fold Change 
+log2_FoldChange <- log2(FoldChange)
+```
+
+Calculate significane of the fold change (paired wilcox-test)
+
+```{r}
+# calculate p-value with apply function 
+p_value <- apply(PRAD_tumor_normal_pw_activity, 1, function(x) wilcox.test(x[1:52], 
+                                                                           x[53:104],
+                                                                           paired = TRUE,
+                                                                           exact = FALSE)$p.value)
+
+# Scale p-values 
+log10_p_value <- log10(p_value)
+```
+
+correct p-values and plot them again 
+
+```{r}
+# correct p-value via Bonferroni ("bonferroni") / Benjamini-Hichberg ("BH")
+corrected_p_value <- p.adjust(p_value, method = "bonferroni")
+
+# Scale corrected p-values 
+log10_corrected_p_value <- log10(corrected_p_value)
+
+```
+
+Create volcano plot with corrected p-values 
+
+```{r}
+pw_df <- data.frame(log2_FoldChange, log10_corrected_p_value)
+
+# add a column of NAs
+pw_df$diffexpressed <- "NO"
+# if log2Foldchange > 0.4 and pvalue < 0.05, set as "UP" 
+pw_df$diffexpressed[pw_df$log2_FoldChange > 0.4 & pw_df$log10_corrected_p_value < log10(0.05)] <- "UP"
+# if log2Foldchange < -0.4 and pvalue < 0.05, set as "DOWN"
+pw_df$diffexpressed[pw_df$log2_FoldChange < -0.4 & pw_df$log10_corrected_p_value < log10(0.05)] <- "DOWN"
+```
+
+create a data frame with differentially expressed pathways
+
+```{r}
+NO <- which(pw_df$diffexpressed == "NO")
+length(NO) #519 pathways are not differentially expressed 
+pw_diffexpressed <- pw_df[-NO,] #we are left with 16 pathways
+```
+create a data frame with up and downregulated pathways
+
+```{r}
+pw_upreg <- pw_diffexpressed[-which(pw_diffexpressed$diffexpressed == "DOWN"), ]
+
+pw_downreg <- pw_diffexpressed[-which(pw_diffexpressed$diffexpressed == "UP"), ]
+```
+
+Rank up and downregulated pathways
+
+```{r}
+pw_upreg$ranks = rank(pw_upreg$log2_FoldChange)
+
+pw_downreg$ranks = rank(pw_downreg$log2_FoldChange)
+```
+
+Extract pathway size
+
+```{r}
+for (index in 1:length(rownames(pw_upreg))) {
+  pw_name <- rownames(pw_upreg)[index]
+  pw_upreg$pw_size[index] <- length(total_pathways_ensID[[pw_name]])
+}
+
+for (index in 1:length(rownames(pw_downreg))) {
+  pw_name <- rownames(pw_downreg)[index]
+  pw_downreg$pw_size[index] <- length(total_pathways_ensID[[pw_name]])
+}
+```
+
+
+```{r}
+install.packages("ggrepel")
+library(ggrepel)
+
+ggplot(data = pw_upreg, mapping = aes(x = ranks, 
+                                      y = log2_FoldChange))+
+  geom_point(aes(size = pw_size))+
+  geom_text_repel(aes(label = rownames(pw_upreg)),
+                  size = 2)+
+  labs(title = "Upregulated pathways",
+       x = "Ranks",
+       y = "log2 Fold Change")
+
+```
+
+```{r}
+ggplot(data = pw_downreg, mapping = aes(x = ranks, 
+                                        y = log2_FoldChange))+
+  geom_point(aes(size = pw_size))+
+  geom_text_repel(aes(label = rownames(pw_downreg)),
+                  size = 2,
+                  box.padding = 1
+                  )+
+  labs(title = "Downregulated pathways",
+       x = "Ranks",
+       y = "log2 Fold Change")
+
+```
+

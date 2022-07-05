@@ -42,7 +42,7 @@ pw_activity <- gsva(expr = PRAD_tumor_normal,
                     kcdf = "Gaussian",
                     min.sz = 3)
 
-saveRDS(pw_activity, file = "PRAD_tumor_normal_pw_activity")
+saveRDS(pw_activity, file = "PRAD_tumor_normal_pw_activity.rds")
 ```
 
 ```{r}

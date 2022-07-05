@@ -60,17 +60,6 @@ for (i in 1:length(total_pathways_ensID)){
 }
 
 names(size_pathway) <- names(total_pathways_ensID)
-
-size_pathway <- size_pathway[! (size_pathway %in% c('Angio_AACR', 
-                                                   'Apop_AACR',
-                                                   'Genome_AACR',
-                                                   'Growth_AACR',
-                                                   'Immune_AACR',
-                                                   'Inflam_AACR',
-                                                   'Meta_AACR',
-                                                   'Prol_AACR',
-                                                   'Replication_AACR'))]
-head(size_pathway)
 ```
 
 4. apply funciton form challange 2

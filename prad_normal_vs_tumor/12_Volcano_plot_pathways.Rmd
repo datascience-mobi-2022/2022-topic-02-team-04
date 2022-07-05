@@ -5,6 +5,10 @@ date: '2022-07-04'
 output: html_document
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
 Volcano plot
 
 Load data
@@ -144,4 +148,5 @@ ggplot(data = dat_2, mapping = aes(x= log2_FoldChange,
                      limits = c(-1, 1))+
   labs(title = "Volcano plot")
 ```
+
 
