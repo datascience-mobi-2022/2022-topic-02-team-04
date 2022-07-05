@@ -14,6 +14,7 @@ tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.rds")
 library(ggplot2)
 library(gridExtra)
 library(randomcoloR)
+library(dplyr)
 set.seed(123)
 ```
 
@@ -81,3 +82,48 @@ ggplot(umap, aes(x = V1, y = V2, color = cancer_type)) +
   ylab("UMAP2") +
   ggtitle("UMAP GSVA cosine n_neighbors = 15")
 ```
+
+***
+
+Visualize pw activity
+
+```{r}
+## Compute variance
+variance <- as.data.frame(apply(pw_activity_full_TCGA, 1, var))
+colnames(variance) = "variance"
+
+## sort descending
+var_sorted <- arrange(variance, desc(variance))
+
+## take 9 pws mit highes variance
+topVar <- rownames(var_sorted)[1:9]
+
+## get GSVA scores
+pw_act <- t(as.data.frame(pw_activity_full_TCGA[topVar,]))
+
+## Combine UMAP and Pathway activity
+umap_act <- cbind(as.data.frame(umap_pan_cosine), pw_act)
+```
+
+```{r}
+for(i in 3:ncol(umap_act)) { 
+  nam <- paste("A", i, sep = "")
+  
+  plots_i <- ggplot(umap_act, aes(x = V1, y = V2)) + 
+  geom_point(alpha = 1, aes_string(color = noquote(names(umap_act)[i]))) +
+  scale_color_gradient(low = "darkblue", high = "yellow") +
+  xlab("UMAP1") +
+  ylab("UMAP2") +
+  ggtitle(paste(names(umap_act[i]))) +
+  theme(plot.title = element_text(size = 10)) +
+  labs(color = "Pathway\nactivity")
+  
+    assign(nam, plots_i)
+}
+
+grid.arrange(A3, A4, A5, A6, A7, A8, A9, A10, A11,
+             ncol = 3, 
+             top = paste("UMAP after GSVA with pathway activities"))
+```
+
+
