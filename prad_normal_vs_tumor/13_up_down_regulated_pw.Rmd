@@ -100,7 +100,7 @@ pw_downreg <- pw_diffexpressed[-which(pw_diffexpressed$diffexpressed == "UP"), ]
 Rank up and downregulated pathways
 
 ```{r}
-pw_upreg$ranks = rank(pw_upreg$log2_FoldChange)
+pw_upreg$ranks = rank(-pw_upreg$log2_FoldChange)
 
 pw_downreg$ranks = rank(pw_downreg$log2_FoldChange)
 ```
