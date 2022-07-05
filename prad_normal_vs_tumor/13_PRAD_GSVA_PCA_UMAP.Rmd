@@ -93,10 +93,3 @@ ggplot(umap_2, aes(x = V1, y = V2, color = sample)) +
 
 dev.off()
 ```
-
-```{r}
-umap_TandN <- uwot::umap(pca_TandN@cell.embeddings, n_neighbors = 2, n_components = 3)
-scatterplot3d(umap_TandN,
-              type = "h",
-              main = "3D Scatter Plot after UMAP for combined PRAD")
-```
