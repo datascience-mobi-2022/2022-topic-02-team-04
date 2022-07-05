@@ -18,11 +18,9 @@ library(pheatmap)
 Annotations
 ```{r}
 ## cancertype
-cancer_annot <- t(as.data.frame(sort(tcga_annot$cancer_type_abbreviation)))
-rownames(cancer_annot)[1] = "Cancer type"
-colnames(cancer_annot) = colnames(pw_activity_full_TCGA_df)
-
-colnames(pw_activity_full_TCGA_df) %in% cancer_annot
+cancer_annot <- as.data.frame(sort(tcga_annot$cancer_type_abbreviation))
+colnames(cancer_annot)[1] = "Cancer type"
+rownames(cancer_annot) = colnames(pw_activity_full_TCGA_df)
 
 ## pathways
 g <- rep("Given Sets", 46)
@@ -39,6 +37,8 @@ rownames(pw_annot) <- rownames(pw_activity_full_TCGA_df)
 
 Heatmap
 ```{r}
+pdf(file = "11_1_GSVA_heatmap2.pdf", height = 2*11.69, width = 2*11.69)
+
 pheatmap(pw_activity_full_TCGA_df,
          show_colnames = F,
          show_rownames = F,
@@ -46,8 +46,10 @@ pheatmap(pw_activity_full_TCGA_df,
          cluster_rows = F,
          treeheight_row = 0,
          treeheight_col = 0,
-         cutree_cols = 2)
-## anotation_col geht nicht -.-
+         cutree_cols = 2,
+         anotation_col = cancer_annot)
+
+dev.off()
 ```
 
 
@@ -74,8 +76,8 @@ pheatmap(topVar,
          cluster_rows = T,
          fontsize = 10,
          main = "Heatmap GSVA, 40 Pathways with highest variance",
-         cutree_rows = 3)
-## anotation_col geht nicht -.-
+         cutree_rows = 3,
+         annotation_col = cancer_annot)
 ```
 
 
@@ -172,6 +174,26 @@ pheatmap(cor_pw,
 
 Cancers correlation
 ```{r}
+cor_cancer_types <- cor(pw_activity_full_TCGA_df)
+diag(cor_cancer_types) = NA
+
+pdf(file = "11_9_GSVA_heatmap_correlation_cancers.pdf", height = 2*11.69, width = 2*11.69)
+
+pheatmap(cor_cancer_types,
+         show_colnames = T,
+         show_rownames = T,
+         cluster_cols = T,
+         cluster_rows = T,
+         cutree_rows = 3,
+         cutree_cols = 3,
+         annotation_col = cancer_annot,
+         main = "Correlation Heatmap of means over cancer types after GSVA")
+
+dev.off()
+```
+
+Cancers correlation
+```{r}
 cor_cancer_types <- cor(mean_pw_activity)
 diag(cor_cancer_types) = NA
 
@@ -184,4 +206,3 @@ pheatmap(cor_cancer_types,
          cutree_cols = 3,
          main = "Correlation Heatmap of means over cancer types after GSVA")
 ```
-

@@ -246,7 +246,9 @@ go.terms(dif_genes, .999)
 To cut down the dimensions we will choose the first 500 genes of the 1345 differentially expressed genes.
 
 ```{r}
-dat_df_small = dat_df[1:500,]
+dat_df_sorted <- dplyr::arrange(dat_df, log10_corrected_p_value) ## sort by pvalue
+
+dat_df_small = dat_df_sorted[1:500,]
 ```
 
 ***
@@ -265,28 +267,47 @@ Create lists for each GO term that contain the genes that were assigned to this 
 library(biomaRt)
 
 mart = useEnsembl(dataset = "hsapiens_gene_ensembl", biomart='ensembl')
+
 x = getBM(attributes = c("ensembl_gene_id", "go_id"), filters = "ensembl_gene_id", values = dif_500genes, mart = mart, useCache = FALSE)
+
 cx_goterms = x[!(is.na(x$go_id) | x$go_id==""), ]
-mxgenes <- unique(cx_goterms[1]) #490 genes were matched
-goxterms <- unique(cx_goterms[2])#3500 GO terms
+
+mxgenes <- unique(cx_goterms[1]) #485genes were matched
+
+goxterms <- unique(cx_goterms[2])#3286 GO terms
+
 GO_terms = cx_goterms[2]
-Terms = lapply(GO_terms, Term)
-T = as.data.frame(Terms)
-colnames(T) <- "GO_term"
-cx_goterms = cbind(cx_goterms, T) # matrix with Ensembl ID, GO ID, and GO term
+
+Terms = lapply(GO_terms, Term) ## good practice (do not use "T" as variable)
+
+term = as.data.frame(Terms)
+
+colnames(term) <- "GO_term"
+
+cx_goterms = cbind(cx_goterms, term) # matrix with Ensembl ID, GO ID, and GO term
 ```
 
 ```{r}
 go_term_genes = list();go_term_genes = vector('list',length(table(cx_goterms$GO_term)))
+
 names(go_term_genes) = names(table(cx_goterms$GO_term))
+
 for (i in 1:length(go_term_genes)){
   go_term_genes[[i]] = cx_goterms[which(cx_goterms$GO_term == names(go_term_genes)[i]),1]
 }
 
+## Remove lists with less than 10 entries
+for (i in 1:length(go_term_genes)){
+  if (length(go_term_genes[[i]]) < 10){
+    go_term_genes[[i]] <- NA
+  }
+}
+
+go_term_genes <- go_term_genes[!is.na(go_term_genes)]
 ```
-
+___
 ***
-
+##### HIER BIN ICH GAR NICHT MEHR SO SICHER WIE NÖTIG DAS IST ._.
 TopVar 4000 genes
 
 ```{r}
@@ -304,30 +325,118 @@ now reduce the PRAD_tumor_normal matrix accordingly
 ```{r}
 PRAD_tumor_normal_topVar4000 = subset(PRAD_tumor_normal,rownames(PRAD_tumor_normal) %in% topVar4000_names)
 ```
-
+___
 ***
 
 have a look at the intersection between the genes describing a certain GO term and the topVar4000 genes
 
 ```{r}
-library(ggvenn)
 library(ggVennDiagram)
 library(ggplot2)
 
-  for (i in 1:555){
-    #compute the intersection
-    length(intersect(go_term_genes[[i]], topVar4000_names))
-    # venn diagram
-    x <- list(go_term_genes[[i]], topVar = topVar4000_names)
-    ggvenn(x) + 
-      ggtitle("Venn diagram of names go term genes and topVar4000 genes") +
-      theme(plot.title = element_text(hjust = 0.5))
+inter <- data.frame()
+                    
+inter <- t(as.data.frame(lapply(go_term_genes, function(goterm){
+  length(intersect(goterm, rownames(PRAD_tumor_normal)))
+})))
 
-    ggVennDiagram(x) +
-      ggtitle("Venn diagram of names go term genes and topVar4000 genes") +
-      theme(plot.title = element_text(hjust = 0.5)) +
-      ggplot2::scale_fill_gradient(low="lightsalmon",high = "lightblue2")
-    print(ggVennDiagram(x))
-  } 
-  
+# venn diagram
+x <- list("GO_term_genes" = unlist(go_term_genes, use.names = F), PvsN_genes = rownames(PRAD_tumor_normal))
+
+ggVennDiagram(x) +
+  ggtitle("Venn diagram of go term genes and focused analysis genes") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggplot2::scale_fill_gradient(low="lightsalmon",high = "lightblue2")
 ```
+## GO term enrichment analysis
+
+```{r}
+View(go_term_genes)
+View(PRAD_tumor_normal)
+```
+
+```{r}
+library(GSVA)
+```
+
+```{r}
+PRAD_tumor_normal_matrix <- as.matrix(PRAD_tumor_normal)
+
+go_activity <- gsva(expr = PRAD_tumor_normal_matrix,
+                    gset.idx.list = go_term_genes,
+                    kcdf = "Gaussian",
+                    min.sz = 3)
+```
+### PCA/UMAP
+```{r}
+pca <- Seurat::RunPCA(go_activity)
+```
+
+```{r}
+sample <- c(rep("tumor", 52), rep("normal", 52))
+new.c = as.data.frame(pca@cell.embeddings)
+new.coordinates = cbind(new.c, sample)
+
+PCbiplot <- function(coords){
+  require(ggplot2)
+  require(gridExtra)
+  
+  a <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_2, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+  b <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_3, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+  c <- ggplot(data = coords, mapping = aes(x = PC_1, y = PC_4, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+  d <- ggplot(data = coords, mapping = aes(x = PC_2, y = PC_3, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+          
+  e <- ggplot(data = coords, mapping = aes(x = PC_2, y = PC_4, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+  f <- ggplot(data = coords, mapping = aes(x = PC_3, y = PC_4, color = sample)) + 
+  scale_color_manual(values = c("springgreen4", "firebrick4")) +
+  geom_point()
+  
+   ## Export
+  #filename = paste("13_1_PRAD_GSVA_PC_biplots.pdf", sep = "")
+  #pdf(file = filename, height = 8.27, width = 11.69)
+  grid.arrange(a,b,c,d,e,f, ncol = 3, top = "PC biplots PRAD GO enrichment analyis")
+  #dev.off()
+}
+
+PCbiplot(new.coordinates)
+```
+UMAP
+```{r}
+set.seed(123); umap <- uwot::umap(pca@cell.embeddings, metric = "cosine", n_components = 2)
+
+umap_2 <- as.data.frame(umap)
+
+sample <- c(rep("tumor", 52), rep("normal", 52))
+umap_2 <- cbind(umap_2, sample)
+
+pal = c("springgreen4", "firebrick3")
+
+## Export
+#filename = paste("UMAP_PRAD_combined.pdf", sep = "")
+#pdf(file = filename, height = 8.27, width = 11.69)
+
+ggplot(umap_2, aes(x = V1, y = V2, color = sample)) + 
+  geom_point(alpha = 1) +
+  scale_color_manual(values = pal) +
+  xlab("UMAP1") +
+  ylab("UMAP2") +
+  ggtitle(paste("PRAD GO enrichment analysis UMAP"))
+
+#dev.off()
+```
+
+Würde es Sinn ergeben die "GO activity" (GSVA scores) anzufärben?
