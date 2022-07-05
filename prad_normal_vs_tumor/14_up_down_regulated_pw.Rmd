@@ -149,3 +149,69 @@ ggplot(data = pw_downreg, mapping = aes(x = ranks,
 
 ```
 
+
+***
+
+###
+Visualizing the pathway activity in UMAP
+###
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+```
+
+```{r}
+## PCA
+pca <- Seurat::RunPCA(PRAD_tumor_normal_pw_activity)
+
+## UMAP
+set.seed(123); umap <- as.data.frame(uwot::umap(pca@cell.embeddings, n_neighbors = x, metric = "cosine", n_components = 2))
+```
+
+
+```{r}
+## Sort by FC
+pw_upreg_sorted <- arrange(pw_upreg, desc(log2_FoldChange))
+
+## Get Pathway names
+pw_upreg_genes <- rownames(pw_upreg_sorted)
+
+## Get GSVA scores from
+pw_upreg_GSVA <- t(PRAD_tumor_normal_pw_activity[pw_upreg_genes,])
+
+## Combine UMAP and Pathway activity
+umap_act <- cbind(umap, pw_upreg_GSVA)
+```
+
+```{r}
+ggplot(umap_act, aes(x = V1, y = V2)) + 
+  geom_point(alpha = 1, aes_string(color = noquote(names(umap_act)[4]))) +
+  scale_color_gradient(low = "darkblue", high = "yellow") +
+  xlab("UMAP1") +
+  ylab("UMAP2") +
+  ggtitle(paste(names(umap_act[4]))) +
+  labs(color = "Pathway\nactivity")
+```
+
+```{r}
+for(i in 3:13) { 
+  nam <- paste("A", i, sep = "")
+  
+  plots_i <- ggplot(umap_act, aes(x = V1, y = V2)) + 
+  geom_point(alpha = 1, aes_string(color = noquote(names(umap_act)[i]))) +
+  scale_color_gradient(low = "darkblue", high = "yellow") +
+  xlab("UMAP1") +
+  ylab("UMAP2") +
+  ggtitle(paste(names(umap_act[i]))) +
+  theme(plot.title = element_text(size = 6)) +
+  labs(color = "Pathway\nactivity")
+  
+    assign(nam, plots_i)
+}
+
+grid.arrange(A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13,
+             ncol = 3, 
+             top = paste("UMAP after GSVA with pathway activities"))
+```
