@@ -130,12 +130,6 @@ reduce the PRAD_tumor_normal data frame
 PRAD_tumor_normal_df = subset(PRAD_tumor_normal,rownames(PRAD_tumor_normal) %in% dat_df_names)
 ```
 
-Choose a heatmap color palette
-```{r}
-library(RColorBrewer)
-heat_colors <- brewer.pal(n = 6, name = "YlOrRd")
-```
-
 generate a Heatmap
 ```{r}
 library(pheatmap)
