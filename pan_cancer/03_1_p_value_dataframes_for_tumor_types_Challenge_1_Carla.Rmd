@@ -94,6 +94,7 @@ setwd('..')
 
 tcga_pancancer <- readRDS("data/tcga_pancancer.rds")
 pathways <- readRDS("data/total_pathways_ensID.rds")
+pvalues_topvar <- readRDS("data/pvalue_matrix_topvar.rds")
 ```
 
 
@@ -176,5 +177,10 @@ single_tumortype <- data.frame(topVar)
     }
     pvalue_matrix <- rbind(pvalue_matrix,pvalue_temp)
   }
+```
+#reihen und Spaltennamen
+```{r}
+colnames(pvalues_topvar)<-names(topVar)
+rownames(pvalues_topvar)<-names(topInt_pws)
 ```
 
