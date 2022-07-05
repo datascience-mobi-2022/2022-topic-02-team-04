@@ -1,55 +1,33 @@
 ---
-title: "05_dimension_reduction_of_pvalue_matrix"
+title: "Dimension reduction small pvalue matrix"
 author: "Fabian Strobel"
 date: '2022-06-20'
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
 setwd('..')
-tcga_pvalues <- readRDS("data/tcga_pvalues.rds")
+tcga_pvalue_topvar <- readRDS("data/tcga_pvalue_topvar.rds")
 tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.rds")
 library(ggplot2)
 library(gridExtra)
 library(randomcoloR)
+library(dplyr)
 set.seed(123)
 ```
 
-I dunno why but each entry of the p value matrix is of class "list"
 ```{r}
-class(tcga_pvalues[1,1])
-```
-This needs to be changed to numeric if we want to use it in mathematical functions
-```{r}
-pathways <- rownames(tcga_pvalues)
-pvalues <- apply(tcga_pvalues, 2, as.numeric)
-rownames(pvalues) = pathways
-class(pvalues[1,1])
+pvalue_pw_activity <- -log10(tcga_pvalue_topvar)
 ```
 
-Also, data.frames are cooler than matrices
-```{r}
-pvalues <- as.data.frame(pvalues)
-```
-
-Lets perform a -log10 transformation
-```{r}
-pvalues_log10 <- -log10(pvalues)
-```
-
-```{r}
-rm(tcga_pvalues)
-rm(pathways)
-rm(pvalues)
-```
-
-***
 
 ## Dimension reduction
 
 ### PCA
 ```{r}
-pca <- Seurat::RunPCA(as.matrix(pvalues_log10))
+pca <- Seurat::RunPCA(as.matrix(pvalue_pw_activity), npcs = 2)
 ```
 
 ```{r}
@@ -77,7 +55,7 @@ PCbiplot <- function(coords){
   f <- ggplot(data = coords, mapping = aes(x = PC_3, y = PC_4)) +
   geom_point()
   
-  grid.arrange(a,b,c,d,e,f, ncol = 3, top = "PC biplots for pathway activity matrix")
+  grid.arrange(a,b,c,d,e,f, ncol = 3, top = "PC biplots for log10 p value matrix")
 }
 
 PCbiplot(new.coordinates)
@@ -86,25 +64,70 @@ PCbiplot(new.coordinates)
 ### UMAP
 
 ```{r}
-set.seed(123)
-umap_pan <- uwot::umap(pca@cell.embeddings)
+#set.seed(123); umap_pan <- uwot::umap(pca@cell.embeddings, n_neighbors = 100)
+
+set.seed(123); umap_pan_cosine <- uwot::umap(pca@cell.embeddings, metric = "cosine", n_neighbors = 15)
 ```
 
 ```{r}
 cancer_type <- tcga_tumor_annotation$cancer_type_abbreviation
 
-umap <- cbind(as.data.frame(umap_pan), cancer_type)
+umap <- cbind(as.data.frame(umap_pan_cosine), cancer_type)
 
 # Basic scatter plot
 n <- length(unique(cancer_type))
 
-set.seed(123);
-pal <- c(distinctColorPalette(k = n))
+set.seed(123); pal <- c(distinctColorPalette(k = n))
 
 ggplot(umap, aes(x = V1, y = V2, color = cancer_type)) + 
   geom_point(alpha = .5) +
   scale_color_manual(values = pal) +
   xlab("UMAP1") +
   ylab("UMAP2") +
-  ggtitle("UMAP pathway activity matrix")
+  ggtitle("UMAP GSVA cosine n_neighbors = 15")
 ```
+
+***
+
+Visualize pw activity
+
+```{r}
+## Compute variance
+variance <- as.data.frame(apply(tcga_pvalue_topvar, 1, var))
+colnames(variance) = "variance"
+
+## sort descending
+var_sorted <- arrange(variance, desc(variance))
+
+## take 9 pws mit highes variance
+topVar <- rownames(var_sorted)[1:9]
+
+## get GSVA scores
+pw_act <- t(as.data.frame(tcga_pvalue_topvar[topVar,]))
+
+## Combine UMAP and Pathway activity
+umap_act <- cbind(as.data.frame(umap_pan_cosine), pw_act)
+```
+
+```{r}
+for(i in 3:ncol(umap_act)) { 
+  nam <- paste("A", i, sep = "")
+  
+  plots_i <- ggplot(umap_act, aes(x = V1, y = V2)) + 
+  geom_point(alpha = 1, aes_string(color = noquote(names(umap_act)[i]))) +
+  scale_color_gradient(low = "darkblue", high = "yellow") +
+  xlab("UMAP1") +
+  ylab("UMAP2") +
+  ggtitle(paste(names(umap_act[i]))) +
+  theme(plot.title = element_text(size = 10)) +
+  labs(color = "Pathway\nactivity")
+  
+    assign(nam, plots_i)
+}
+
+grid.arrange(A3, A4, A5, A6, A7, A8, A9, A10, A11,
+             ncol = 3, 
+             top = paste("UMAP after GSVA with pathway activities"))
+```
+
+
