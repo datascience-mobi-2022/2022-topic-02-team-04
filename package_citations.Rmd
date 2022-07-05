@@ -13,7 +13,6 @@ citation("ggVennDiagram")
 citation("gridExtra")
 citation("randomcoloR")
 citation("pheatmap")
-citation("RColorBrewer")
 
 ## Data bases
 citation("msigdbr")
@@ -34,5 +33,6 @@ citation("GSVA")
 
 ## not used
 #citation("scatterplot3d")
+#citation("RColorBrewer")
 ```
 
