@@ -91,10 +91,9 @@ PCbiplot(new.coordinates)
 
 ```{r}
 # n_neighbors
-x <- 2
+x <- 15
 
-set.seed(123)
-umap_TandN <- uwot::umap(pca_TandN@cell.embeddings, n_neighbors = x, n_components = 2)
+set.seed(123); umap_TandN <- uwot::umap(pca_TandN@cell.embeddings, n_components = 2, metric = "cosine")
 umap_2 <- as.data.frame(umap_TandN)
 
 sample <- c(rep("tumor", 52), rep("normal", 52))
@@ -107,11 +106,11 @@ filename = paste("UMAP_PRAD_combined.pdf", sep = "")
 pdf(file = filename, height = 8.27, width = 11.69)
 
 ggplot(umap_2, aes(x = V1, y = V2, color = sample)) + 
-  geom_point(alpha = 0.3) +
+  geom_point(alpha = 1) +
   scale_color_manual(values = pal) +
   xlab("UMAP1") +
   ylab("UMAP2") +
-  ggtitle(paste("UMAP tumor/normal combined with n_neighbors =", x))
+  ggtitle(paste("UMAP tumor/normal combined"))
 
 dev.off()
 ```
