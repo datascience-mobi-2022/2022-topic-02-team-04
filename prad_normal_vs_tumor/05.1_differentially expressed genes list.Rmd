@@ -3,6 +3,8 @@ title: "Differentially expressed gene list"
 date: '2022-06-18'
 author: "Lottida Phondeth"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
