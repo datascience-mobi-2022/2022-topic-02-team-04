@@ -118,7 +118,7 @@ Create function
 ```{r}
 size_ratio_pathway = function(pathway){
   # gens in pathway
-  pathway_genes <- pathway[[1]]
+  pathway_genes <- pathway
   # number of genes in pathway
   num_pw_genes <- length(pathway_genes)
   
@@ -189,19 +189,14 @@ diff_pathways_ensID <- total_pathways_ensID[diff_expressed_pw]
 
 ```{r}
 
+percentage_diff_pw <- lapply(diff_pathways_ensID, function(x) size_ratio_pathway(pathway = x))
 
-size_ratio_pathway(total_pathways_ensID[[1]])
+percentage_diff_pw <- unlist(percentage_diff_pw)
 
-diff_pw <- total_pathways_ensID[[1]]
+percentage_diff_pw <- sort(percentage_diff_pw, decreasing = TRUE)
 
-size_ratio_pw <- data.frame(NA_col = rep(NA, length(diff_pw)))
-  
-for (index in 1:length(diff_pw)){
-  size_ratio_pw[index, ] <- size_ratio_pathway(pathway = diff_pw[[index]])
-  colnames(size_ratio_pw) <- "size_ratio"
-}
-
-rownames(size_ratio_pw) <- names(diff_pw)
+percentage_diff_pw
 ```
+
 
 

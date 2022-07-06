@@ -18,7 +18,7 @@ PRAD_tumor_normal_pw_activity <- readRDS("~/GitHub/2022-topic-02-team-04/data/PR
 Heatmap
 
 ```{r}
-install.packages("pheatmap")
+# install.packages("pheatmap")
 
 library(pheatmap)
 
