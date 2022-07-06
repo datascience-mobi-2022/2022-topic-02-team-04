@@ -18,12 +18,13 @@ tcga_tumor_norm <- readRDS("data/PRAD_TvsN.rds")
 
 ```
 
-To visually grasp where the differentially expressed genes are coming from, the code for the volcano plot was applied a again 
-create a data frame that contains the gene expression values for tumor and normal cell data
+To visually grasp where the differentially expressed genes are coming from, the code for the volcano plot was applied here again 
+Create a data frame that contains the gene expression values for tumor and normal cell data
 ```{r}
 PRAD_tumor_normal <- cbind(tcga_tumor_norm[["tumor"]], tcga_tumor_norm[["normal"]])
 
 ```
+
 calculate the mean and the FC
 ```{r}
 mean_t = apply(PRAD_tumor_normal[,1:52], 1, mean)
@@ -43,12 +44,10 @@ p_value <- apply(PRAD_tumor_normal, 1, function(x) wilcox.test(x[1:52],
 log10_p_value <- log10(p_value)
 ```
 
-
 Plot not corrected p-values
 ```{r}
 hist(p_value, breaks = 20)
 ```
-
 
 correct the p-values for multiple testing
 ```{r}
@@ -115,14 +114,13 @@ ggplot(data = dat_corrected, mapping = aes(x= log2_FoldChange,
 ```
 
 create a gene list with differentially expressed genes
-
 ```{r}
 n_df = which(dat_corrected$diffexpressed == "NO")
 length(n_df) #6456 genes are not differentially expressed 
 dat_df = dat_corrected[-n_df,] #we are left with 1345 genes
 ```
-
-extract the names
+We are left with 1345 differentially expressed genes
+extract the names of these genes
 ```{r}
 dat_df_names = as.list(rownames(dat_df))
 ```
@@ -246,6 +244,7 @@ go.terms(dif_genes, .999)
 ***
 
 To cut down the dimensions we will choose the first 500 genes of the 1345 differentially expressed genes.
+In order to achieve this, we arranged the data frame dat_df according to the log10_corrected_p_value and chose the first 500 genes with the highest pvalue.
 
 ```{r}
 dat_df_sorted <- dplyr::arrange(dat_df, log10_corrected_p_value) ## sort by pvalue
@@ -263,7 +262,7 @@ go.terms(dif_500genes, .999)
 ```
 ***
 
-Create lists for each GO term that contain the genes that were assigned to this specific GO term
+Create lists for each GO term that contain the genes that were assigned to this specific GO term. Lists that contained less than 10 differentially expressed genes were removed.
 
 ```{r}
 library(biomaRt)
@@ -331,6 +330,7 @@ ___
 ***
 
 have a look at the intersection between the genes describing a certain GO term and the topVar4000 genes
+This part is also unneccessary since these genes are the genes from the PRAD_tumor_normal dataframe.
 
 ```{r}
 library(ggVennDiagram)
@@ -356,6 +356,8 @@ ggVennDiagram(x) +
 View(go_term_genes)
 View(PRAD_tumor_normal)
 ```
+
+perform a GSVA
 
 ```{r}
 library(GSVA)
