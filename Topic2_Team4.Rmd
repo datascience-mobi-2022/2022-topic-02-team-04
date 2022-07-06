@@ -1,23 +1,74 @@
 ---
-title: "Final Report"
-author: "Fabian Strobel, Lottida Phondeth, Laura Lange, Carla Welz"
-date: '2022-07-01'
+title: " "
+author: ""
+bibliography: test.bib 
+   
 output:
   pdf_document: 
-    toc: true
-    toc_depth: 2
+    #toc: true
+    #toc_depth: 2
     number_sections: true
-   
+    
 ---
+\begin{titlepage}
+\centering
+	{\Large Ruprecht-Karls-Universität Heidelberg\\
+		Fakultät für Biowissenschaften\\
+		Bachelorstudiengang Molekulare Biotechnologie\\}
 
+	{\vspace{\stretch{2}}}
+
+
+		{\Huge Final Report}
+
+		
+
+	
+
+	\vspace{\stretch{2}}
+	{\Large Data Science Project SoSe 2022}
+
+	\vspace{\stretch{1}}
+
+	{\Large
+		Fabian Strobel, Lottida Phondeth, Laura Lange, Carla Welz
+}
+
+	\vspace{\stretch{1}}
+
+\end{titlepage}
+
+\newpage
+\tableofcontents
+
+\newpage
 # Introduction
 ## vfbdjns
 ## jutzhgrfedw
+R version 4.2.0 (2022-04-22 ucrt) -- "Vigorous Calisthenics"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R. [@10.3389/fmolb.2020.00053,]
+
+![Caption for the picture.](descriptive_analysis/Disribution of age at initial pathologic diagnosis.png)
 
 ***
 # Materials and Methods
 ## udfhjkwss
 ## jhtgrfedws
+
+\newpage
 
 ***
 # Results
@@ -27,4 +78,8 @@ output:
 ***
 # Discussion
 ## kjhtgrfedws
-## uztrwwret
+## uztrwwret  
+
+***
+# Refrences
+  
