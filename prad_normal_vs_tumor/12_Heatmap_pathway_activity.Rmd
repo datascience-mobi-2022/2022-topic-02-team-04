@@ -12,7 +12,37 @@ knitr::opts_chunk$set(echo = TRUE)
 Load data 
 
 ```{r}
-
+PRAD_tumor_normal_pw_activity <- readRDS("~/GitHub/2022-topic-02-team-04/data/PRAD_tumor_normal_pw_activity.rds")
 ```
+
+Heatmap
+
+```{r}
+install.packages("pheatmap")
+
+library(pheatmap)
+
+# clustering method -> 
+# "single" -> minimal distance 
+# "average" -> average of all pairwise distances 
+# "complete" -> maximal distance
+# "ward.D2" -> distance between the two cluster is equal to the increase of the variance of the combined cluster compared to individual clusters 
+# "centroid" -> distance between the clusters is given by the distance to the centers of the clusters
+
+# distance ->
+# "euclidean" -> (Differenz der x-Koordinaten)^2 - Differenz der y-Koordinaten)^2
+# "manhattan" -> (Betrage der x-Koordinaten) - (Betrag der y-Koordinaten)
+# "correlation"
+                      
+
+pheatmap(PRAD_tumor_normal_pw_activity,
+         cluster_rows = F,
+         show_rownames = F,
+         show_colnames = F,
+         clustering_distance_cols = "euclidean",
+         clustering_method = "ward.D2",
+         cutree_cols = 2)
+```
+
 
 

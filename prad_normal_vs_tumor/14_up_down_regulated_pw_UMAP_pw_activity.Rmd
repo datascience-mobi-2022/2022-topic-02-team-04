@@ -4,7 +4,7 @@ author: "Laura Lange"
 date: '2022-07-04'
 output: html_document
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -20,7 +20,7 @@ tcga_tumor_norm <- readRDS("data/PRAD_tumor_normal_pw_activity.rds")
 PRAD_tumor_normal_pw_activity <- readRDS("~/GitHub/2022-topic-02-team-04/data/PRAD_tumor_normal_pw_activity.rds")
 
 total_pathways_ensID <- readRDS("~/GitHub/2022-topic-02-team-04/data/total_pathways_ensID.rds")
-```
+s```
 
 Calculate mean for each gene 
 
@@ -123,7 +123,6 @@ for (index in 1:length(rownames(pw_downreg))) {
 
 
 ```{r}
-install.packages("ggrepel")
 library(ggrepel)
 
 ggplot(data = pw_upreg, mapping = aes(x = ranks, 
@@ -134,7 +133,6 @@ ggplot(data = pw_upreg, mapping = aes(x = ranks,
   labs(title = "Upregulated pathways",
        x = "Ranks",
        y = "log2 Fold Change")
-
 ```
 
 ```{r}
@@ -148,7 +146,6 @@ ggplot(data = pw_downreg, mapping = aes(x = ranks,
   labs(title = "Downregulated pathways",
        x = "Ranks",
        y = "log2 Fold Change")
-
 ```
 
 

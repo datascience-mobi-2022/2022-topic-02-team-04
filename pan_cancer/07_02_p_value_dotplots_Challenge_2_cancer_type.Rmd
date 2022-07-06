@@ -110,6 +110,7 @@ get_top10pathways_from_pvalues = function(df_p_values, length_genesets) {
 }
 ```
 
+
 ```{r}
 # apply function for p-value matrix = weird 
 # top_10_pathways <- lapply(p_values_cancer, get_top10pathways_from_pvalues, length_genesets = size_pathway)

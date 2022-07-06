@@ -1,0 +1,207 @@
+---
+title: "Size_ratio_diffexpressed_pathways"
+author: "Laura Lange"
+date: '2022-07-05'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load data
+
+```{r}
+setwd('..')
+tcga_tumor_norm <- readRDS("data/PRAD_TvsN.rds")
+tcga_tumor_norm <- readRDS("~/GitHub/2022-topic-02-team-04/data/PRAD_TvsN.rds")
+
+# Fuse data frame PRAD normal with PRAD tumor
+PRAD_tumor_normal <- cbind(tcga_tumor_norm[["tumor"]], tcga_tumor_norm[["normal"]])
+```
+
+Calculate mean for each gene 
+
+```{r}
+mean_tumor <- apply(PRAD_tumor_normal[ ,1:52], 1, mean)
+
+mean_normal <- apply(PRAD_tumor_normal[ ,53:104], 1, mean)
+```
+
+Calculate Fold Change 
+
+$$
+log_2[(T)/N]
+$$
+
+T = tumor 
+N = normal 
+
+```{r}
+e_mean_tumor <- 2^mean_tumor
+e_mean_normal <- 2^mean_normal
+FoldChange <- e_mean_tumor / e_mean_normal
+
+# Scale Fold Change 
+log2_FoldChange <- log2(FoldChange)
+```
+
+Calculate significane of the fold change (paired wilcox-test)
+
+```{r}
+# calculate p-value with apply function 
+
+p_value <- apply(PRAD_tumor_normal, 1, function(x) wilcox.test(x[1:52], 
+                                                         x[53:104], 
+                                                         paired = TRUE,
+                                                         exact = FALSE)$p.value)
+
+# Scale p-values 
+log10_p_value <- log10(p_value)
+```
+
+correct p-values and plot them again 
+
+```{r}
+# correct p-value via Bonferroni ("bonferroni") / Benjamini-Hichberg ("BH")
+corrected_p_value <- p.adjust(p_value, method = "bonferroni")
+
+# Scale corrected p-values 
+log10_corrected_p_value <- log10(corrected_p_value)
+```
+
+Get up and downregulated pathways 
+
+```{r}
+genes_diff <- data.frame(log2_FoldChange, log10_p_value)
+
+# add a column of NAs
+genes_diff$diffexpressed <- "NO"
+# if log2Foldchange > 1 and pvalue < 0.05, set as "UP" 
+genes_diff$diffexpressed[genes_diff$log2_FoldChange > log2(2) & genes_diff$log10_p_value < log10(0.05)] <- "UP"
+# if log2Foldchange < -1 and pvalue < 0.05, set as "DOWN"
+genes_diff$diffexpressed[genes_diff$log2_FoldChange < log2(0.5) & genes_diff$log10_p_value < log10(0.05)] <- "DOWN"
+```
+
+Load pathways 
+
+```{r}
+total_pathways_ensID <- readRDS("~/GitHub/2022-topic-02-team-04/data/total_pathways_ensID.rds")
+```
+
+Get size ratio (first try with one example)
+
+```{r}
+# gens in pathway
+pathway_genes <- total_pathways_ensID$HALLMARK_ANDROGEN_RESPONSE
+# number of genes in pathway
+num_pw_genes <- length(pathway_genes)
+
+
+# get all diffexpressed genes
+genes_NO <- which(genes_diff$diffexpressed == "NO") 
+genes_up_down <- genes_diff[-genes_NO, ]
+name_gene_diff <- rownames(genes_up_down)
+# TRUE if gene is in pathway + FALSE if it is not
+genes_pw_diff <- !is.na(match(name_gene_diff, pathway_genes))
+
+# number of diffexpressed genes in pathway
+num_diff_genes <- length(which(genes_pw_diff == TRUE))
+
+
+# calculate ratio
+size_ratio <- num_diff_genes/num_pw_genes
+```
+
+Create function 
+
+```{r}
+size_ratio_pathway = function(pathway){
+  # gens in pathway
+  pathway_genes <- pathway[[1]]
+  # number of genes in pathway
+  num_pw_genes <- length(pathway_genes)
+  
+  
+  # get all diffexpressed genes
+  genes_NO <- which(genes_diff$diffexpressed == "NO") 
+  genes_up_down <- genes_diff[-genes_NO, ]
+  name_gene_diff <- rownames(genes_up_down)
+  # TRUE if gene is in pathway + FALSE if it is not
+  genes_pw_diff <- !is.na(match(name_gene_diff, pathway_genes))
+  
+  # number of diffexpressed genes in pathway
+  num_diff_genes <- length(which(genes_pw_diff == TRUE))
+
+
+  # calculate ratio
+  size_ratio <- num_diff_genes/num_pw_genes
+  
+  return(size_ratio)
+}
+```
+
+Crate list with unregulated pathways
+
+upregulated pathways 
+"Replication_Telomerase"                          
+"HALLMARK_ANDROGEN_RESPONSE"                      
+"HALLMARK_E2F_TARGETS"                            
+"HALLMARK_G2M_CHECKPOINT"                         
+"HALLMARK_MITOTIC_SPINDLE"                        
+"HALLMARK_MYC_TARGETS_V1"                         
+"HALLMARK_MYC_TARGETS_V2"                         
+"KEGG_AMINO_SUGAR_AND_NUCLEOTIDE_SUGAR_METABOLISM"
+"KEGG_CELL_CYCLE"                                 
+"KEGG_ENDOMETRIAL_CANCER"                         
+"KEGG_NOTCH_SIGNALING_PATHWAY"
+
+downregulated pathways 
+"HALLMARK_MYOGENESIS"                                
+"KEGG_DORSO_VENTRAL_AXIS_FORMATION"                  
+"KEGG_GLYCOSAMINOGLYCAN_BIOSYNTHESIS_KERATAN_SULFATE"
+"KEGG_GLYCOSPHINGOLIPID_BIOSYNTHESIS_GANGLIO_SERIES" 
+"BCAT_BILD_ET_AL_UP"
+
+```{r}
+diff_expressed_pw <- c( "Replication_Telomerase",                    "HALLMARK_ANDROGEN_RESPONSE",                      
+"HALLMARK_E2F_TARGETS",                            
+"HALLMARK_G2M_CHECKPOINT",                         
+"HALLMARK_MITOTIC_SPINDLE",                        
+"HALLMARK_MYC_TARGETS_V1",                         
+"HALLMARK_MYC_TARGETS_V2",                       
+"KEGG_AMINO_SUGAR_AND_NUCLEOTIDE_SUGAR_METABOLISM",
+"KEGG_CELL_CYCLE",                                 
+"KEGG_ENDOMETRIAL_CANCER",                        
+"KEGG_NOTCH_SIGNALING_PATHWAY",
+
+"HALLMARK_MYOGENESIS",                               
+"KEGG_DORSO_VENTRAL_AXIS_FORMATION",                  
+"KEGG_GLYCOSAMINOGLYCAN_BIOSYNTHESIS_KERATAN_SULFATE",
+"KEGG_GLYCOSPHINGOLIPID_BIOSYNTHESIS_GANGLIO_SERIES", 
+"BCAT_BILD_ET_AL_UP")
+
+
+
+diff_pathways_ensID <- total_pathways_ensID[diff_expressed_pw]
+```
+
+
+```{r}
+
+
+size_ratio_pathway(total_pathways_ensID[[1]])
+
+diff_pw <- total_pathways_ensID[[1]]
+
+size_ratio_pw <- data.frame(NA_col = rep(NA, length(diff_pw)))
+  
+for (index in 1:length(diff_pw)){
+  size_ratio_pw[index, ] <- size_ratio_pathway(pathway = diff_pw[[index]])
+  colnames(size_ratio_pw) <- "size_ratio"
+}
+
+rownames(size_ratio_pw) <- names(diff_pw)
+```
+
+
