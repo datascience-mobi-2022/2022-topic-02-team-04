@@ -2,7 +2,9 @@
 title: " "
 author: ""
 bibliography: test.bib 
-   
+geometry: "margin=2.5cm" 
+linestretch: 1.5
+fontsize: 12pt
 output:
   pdf_document: 
     #toc: true
@@ -10,6 +12,7 @@ output:
     number_sections: true
     
 ---
+\pagenumbering{arabic}
 \begin{titlepage}
 \centering
 	{\Large Ruprecht-Karls-Universität Heidelberg\\
