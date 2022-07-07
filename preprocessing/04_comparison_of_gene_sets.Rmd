@@ -97,6 +97,7 @@ pheatmap(jaccard_matrix,
          main = "Jaccard Indices to compare similarity between different pathways",
          show_rownames = F,
          show_colnames = F,
-         annotation_row = annot)
+         treeheight_row = 0,
+         annotation_col = annot)
 ```
 

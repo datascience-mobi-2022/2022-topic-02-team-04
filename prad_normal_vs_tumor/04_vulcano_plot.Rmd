@@ -236,7 +236,7 @@ ggplot(data = dat_all, mapping = aes(x = log2_FoldChange,
     subtitle = "Genes in pathway",
     x = "log2 Fold Change",
     y = "- log10 corrected p-value",
-    colour = "differentially expressed genes",
+    colour = "differentially\nexpressed genes",
     shape = "genes in pathway")
 ```
 

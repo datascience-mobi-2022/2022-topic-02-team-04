@@ -55,18 +55,18 @@ ggplot(tcga_annot, aes(y=cancer_type_abbreviation,fill=cancer_type_abbreviation)
 ```
 
 ```{r}
-means <- apply(tcga_exp_cleaned, 1, mean)
-vars <- apply(tcga_exp_cleaned, 1, var)
+means <- apply(tcga_pancancer, 1, mean)
+vars <- apply(tcga_pancancer, 1, var)
 
-tcga_exp_var_mean <- data.frame("variance" = vars, "mean" = means)
+tcga_pancancer_vm <- data.frame("variance" = vars, "mean" = means)
 ```
 
 
 #plot aller Mittelwerte gegen die Varianz aller Gene
 ```{r}
-ggplot(tcga_exp_var_mean, aes(mean, variance))+ 
+ggplot(tcga_pancancer_vm, aes(mean, variance))+ 
   geom_point(fill="tomato1",color="tomato4",shape=21) +
-  ggtitle("Variance and mean of every gene ") +
+  ggtitle("Variance and mean of every gene after filtering") +
   xlab("mean") +
   ylab("variance")
 ```
