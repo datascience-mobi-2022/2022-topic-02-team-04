@@ -73,14 +73,14 @@ log10_corrected_p_value <- log10(corrected_p_value)
 Get up and downregulated pathways 
 
 ```{r}
-genes_diff <- data.frame(log2_FoldChange, log10_p_value)
+genes_diff <- data.frame(log2_FoldChange, log10_corrected_p_value)
 
 # add a column of NAs
 genes_diff$diffexpressed <- "NO"
 # if log2Foldchange > 1 and pvalue < 0.05, set as "UP" 
-genes_diff$diffexpressed[genes_diff$log2_FoldChange > log2(2) & genes_diff$log10_p_value < log10(0.05)] <- "UP"
+genes_diff$diffexpressed[genes_diff$log2_FoldChange > log2(2) & genes_diff$log10_corrected_p_value < log10(0.05)] <- "UP"
 # if log2Foldchange < -1 and pvalue < 0.05, set as "DOWN"
-genes_diff$diffexpressed[genes_diff$log2_FoldChange < log2(0.5) & genes_diff$log10_p_value < log10(0.05)] <- "DOWN"
+genes_diff$diffexpressed[genes_diff$log2_FoldChange < log2(0.5) & genes_diff$log10_corrected_p_value < log10(0.05)] <- "DOWN"
 ```
 
 Load pathways 
@@ -164,22 +164,23 @@ downregulated pathways
 "BCAT_BILD_ET_AL_UP"
 
 ```{r}
-diff_expressed_pw <- c( "Replication_Telomerase",                    "HALLMARK_ANDROGEN_RESPONSE",                      
-"HALLMARK_E2F_TARGETS",                            
-"HALLMARK_G2M_CHECKPOINT",                         
-"HALLMARK_MITOTIC_SPINDLE",                        
-"HALLMARK_MYC_TARGETS_V1",                         
-"HALLMARK_MYC_TARGETS_V2",                       
-"KEGG_AMINO_SUGAR_AND_NUCLEOTIDE_SUGAR_METABOLISM",
-"KEGG_CELL_CYCLE",                                 
-"KEGG_ENDOMETRIAL_CANCER",                        
-"KEGG_NOTCH_SIGNALING_PATHWAY",
+up_expressed_pw <- c( "Replication_Telomerase",                    
+                      "HALLMARK_ANDROGEN_RESPONSE",                      
+                      "HALLMARK_E2F_TARGETS",                           
+                      "HALLMARK_G2M_CHECKPOINT",                      
+                      "HALLMARK_MITOTIC_SPINDLE",                       
+                      "HALLMARK_MYC_TARGETS_V1",                        
+                      "HALLMARK_MYC_TARGETS_V2",
+                      "KEGG_AMINO_SUGAR_AND_NUCLEOTIDE_SUGAR_METABOLISM",
+                      "KEGG_CELL_CYCLE",                                
+                      "KEGG_ENDOMETRIAL_CANCER",                  
+                      "KEGG_NOTCH_SIGNALING_PATHWAY")
 
-"HALLMARK_MYOGENESIS",                               
-"KEGG_DORSO_VENTRAL_AXIS_FORMATION",                  
-"KEGG_GLYCOSAMINOGLYCAN_BIOSYNTHESIS_KERATAN_SULFATE",
-"KEGG_GLYCOSPHINGOLIPID_BIOSYNTHESIS_GANGLIO_SERIES", 
-"BCAT_BILD_ET_AL_UP")
+down_expressed_pw <- c("HALLMARK_MYOGENESIS",                  
+                       "KEGG_DORSO_VENTRAL_AXIS_FORMATION",
+                       "KEGG_GLYCOSAMINOGLYCAN_BIOSYNTHESIS_KERATAN_SULFATE",
+                       "KEGG_GLYCOSPHINGOLIPID_BIOSYNTHESIS_GANGLIO_SERIES", 
+                       "BCAT_BILD_ET_AL_UP")
 
 
 
