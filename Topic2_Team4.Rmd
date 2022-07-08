@@ -1,6 +1,7 @@
 ---
 title: " "
 author: ""
+date: "`r format(Sys.time(),'%d %B %Y')`"
 bibliography: test.bib 
 geometry: "margin=2.5cm" 
 linestretch: 1.5
