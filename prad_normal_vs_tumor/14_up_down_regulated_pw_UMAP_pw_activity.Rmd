@@ -20,7 +20,7 @@ tcga_tumor_norm <- readRDS("data/PRAD_tumor_normal_pw_activity.rds")
 PRAD_tumor_normal_pw_activity <- readRDS("~/GitHub/2022-topic-02-team-04/data/PRAD_tumor_normal_pw_activity.rds")
 
 total_pathways_ensID <- readRDS("~/GitHub/2022-topic-02-team-04/data/total_pathways_ensID.rds")
-s```
+```
 
 Calculate mean for each gene 
 
@@ -124,20 +124,21 @@ for (index in 1:length(rownames(pw_downreg))) {
 
 ```{r}
 library(ggrepel)
+library(ggplot2)
 
 ggplot(data = pw_upreg, mapping = aes(x = ranks, 
-                                      y = log2_FoldChange))+
+                                      y = log10_corrected_p_value))+
   geom_point(aes(size = pw_size))+
   geom_text_repel(aes(label = rownames(pw_upreg)),
                   size = 2)+
   labs(title = "Upregulated pathways",
        x = "Ranks",
-       y = "log2 Fold Change")
+       y = "corrected log10 p-value")
 ```
 
 ```{r}
 ggplot(data = pw_downreg, mapping = aes(x = ranks, 
-                                        y = log2_FoldChange))+
+                                        y = log10_corrected_p_value))+
   geom_point(aes(size = pw_size))+
   geom_text_repel(aes(label = rownames(pw_downreg)),
                   size = 2,
@@ -145,7 +146,7 @@ ggplot(data = pw_downreg, mapping = aes(x = ranks,
                   )+
   labs(title = "Downregulated pathways",
        x = "Ranks",
-       y = "log2 Fold Change")
+       y = "corrected log10 p-value")
 ```
 
 

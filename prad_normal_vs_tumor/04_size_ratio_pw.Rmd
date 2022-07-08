@@ -93,7 +93,13 @@ Get size ratio (first try with one example)
 
 ```{r}
 # gens in pathway
-pathway_genes <- total_pathways_ensID$HALLMARK_ANDROGEN_RESPONSE
+pathway_genes <- total_pathways_ensID$PGF_UP.V1_UP
+
+all_pathway_ensID <- unlist(total_pathways_ensID)
+pw_genes <- !is.na(match(pathway_genes, all_pathway_ensID))
+# number of genes in pathway (corrected)
+pw_num <- length(which(pw_genes == TRUE))
+
 # number of genes in pathway
 num_pw_genes <- length(pathway_genes)
 
@@ -184,20 +190,31 @@ down_expressed_pw <- c("HALLMARK_MYOGENESIS",
 
 
 
-diff_pathways_ensID <- total_pathways_ensID[diff_expressed_pw]
+up_pathways_ensID <- total_pathways_ensID[up_expressed_pw]
+
+down_pathways_ensID <- total_pathways_ensID[down_expressed_pw]
 ```
 
 
 ```{r}
 
-percentage_diff_pw <- lapply(diff_pathways_ensID, function(x) size_ratio_pathway(pathway = x))
+percentage_up <- lapply(up_pathways_ensID, function(x) size_ratio_pathway(pathway = x))
 
-percentage_diff_pw <- unlist(percentage_diff_pw)
+percentage_up <- unlist(percentage_up)
 
-percentage_diff_pw <- sort(percentage_diff_pw, decreasing = TRUE)
+percentage_up <- sort(percentage_up, decreasing = TRUE)
 
-percentage_diff_pw
+percentage_up
 ```
 
+```{r}
 
+percentage_down <- lapply(down_pathways_ensID, function(y) size_ratio_pathway(pathway = y))
+
+percentage_down <- unlist(percentage_down)
+
+percentage_down <- sort(percentage_down, decreasing = TRUE)
+
+percentage_down
+```
 
