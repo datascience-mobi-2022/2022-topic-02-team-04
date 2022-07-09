@@ -1,6 +1,6 @@
 ---
-title: " "
-author: ""
+title: "Cancer Hallmark and Metabolic Pathways differ over Cancer types and in Prostate Adenocarcinoma patients"
+author: "Fabian Strobel, Lottida Phondeth, Laura Lange, Carla Welz"
 date: "`r format(Sys.time(),'%d %B %Y')`"
 bibliography: dataanalysis_ref.bib 
 geometry: "margin=2.5cm" 
