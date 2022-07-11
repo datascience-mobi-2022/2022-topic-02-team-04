@@ -1,7 +1,7 @@
 ---
-title: "Cancer Hallmark and Metabolic Pathways differ over Cancer types and in Prostate Adenocarcinoma patients"
-author: "Fabian Strobel, Lottida Phondeth, Laura Lange, Carla Welz"
-date: "`r format(Sys.time(),'%d %B %Y')`"
+title: " "
+author: " "
+date: " "
 bibliography: dataanalysis_ref.bib 
 geometry: "margin=2.5cm" 
 linestretch: 1.5
@@ -20,7 +20,7 @@ output:
 		Fakultät für Biowissenschaften\\
 		Bachelorstudiengang Molekulare Biotechnologie\\}
 
-	{\vspace{\stretch{2}}}
+	{\vspace{\stretch{3}}}
 
 
 		{\Huge Cancer Hallmark and Metabolic Pathways differ over Cancer types and in Prostate Adenocarcinoma patients}
@@ -29,13 +29,18 @@ output:
 
 	
 
-	\vspace{\stretch{2}}
+	\vspace{\stretch{4}}
 	{\Large Data Science Project SoSe 2022}
 
-	\vspace{\stretch{1}}
+	\vspace{\stretch{0.25}}
+	
+{\Large
+	 `r format(Sys.time(),'%d %B %Y')`
+}
+	\vspace{\stretch{0.75}}
 
 	{\Large
-		Fabian Strobel, Lottida Phondeth, Laura Lange, Carla Welz
+		Fabian Strobel, Lottida Phondeth, Laura Lange, Carla Welz  
 }
 
 	\vspace{\stretch{1}}
@@ -49,17 +54,8 @@ output:
 # Introduction
 ## vfbdjns
 ## jutzhgrfedw
-R version 4.2.0 (2022-04-22 ucrt) -- "Vigorous Calisthenics"
-Copyright (C) 2022 The R Foundation for Statistical Computing
-Platform: x86_64-w64-mingw32/x64 (64-bit)
 
-R is free software and comes with ABSOLUTELY NO WARRANTY.
-You are welcome to redistribute it under certain conditions.
-Type 'license()' or 'licence()' for distribution details.
 
-R is a collaborative project with many contributors.
-Type 'contributors()' for more information and
-'citation()' on how to cite R or R packages in publications.
 
 Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
