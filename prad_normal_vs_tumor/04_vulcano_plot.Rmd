@@ -124,9 +124,9 @@ dat <- data.frame(log2_FoldChange, log10_p_value)
 
 # add a column of NAs
 dat$diffexpressed <- "NO"
-# if log2Foldchange > 0.6 and pvalue < 0.05, set as "UP" 
+# if log2Foldchange > 1 and pvalue < 0.05, set as "UP" 
 dat$diffexpressed[dat$log2_FoldChange > log2(2) & dat$log10_p_value < log10(0.05)] <- "UP"
-# if log2Foldchange < -0.6 and pvalue < 0.05, set as "DOWN"
+# if log2Foldchange < 1 and pvalue < 0.05, set as "DOWN"
 dat$diffexpressed[dat$log2_FoldChange < log2(0.5) & dat$log10_p_value < log10(0.05)] <- "DOWN"
 
 # Change point appearance 
@@ -154,9 +154,9 @@ dat_2 <- data.frame(log2_FoldChange, log10_corrected_p_value)
 
 # add a column of NAs
 dat_2$diffexpressed <- "NO"
-# if log2Foldchange > 0.6 and pvalue < 0.05, set as "UP" 
+# if log2Foldchange > 1 and pvalue < 0.05, set as "UP" 
 dat_2$diffexpressed[dat_2$log2_FoldChange > log2(2) & dat_2$log10_corrected_p_value < log10(0.05)] <- "UP"
-# if log2Foldchange < -0.6 and pvalue < 0.05, set as "DOWN"
+# if log2Foldchange < -1 and pvalue < 0.05, set as "DOWN"
 dat_2$diffexpressed[dat_2$log2_FoldChange < log2(0.5) & dat_2$log10_corrected_p_value < log10(0.05)] <- "DOWN"
 
 # Change point appearance 
