@@ -1,0 +1,165 @@
+---
+title: "Linear regression - predicting whether we have cancer or normal cell samples"
+author: "Lottida Phondeth, Carla Welz"
+date: "`r format(Sys.time(),'%d %B %Y')`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+load data
+
+```{r}
+setwd('..')
+tcga_anno = readRDS("~/GitHub/2022-topic-02-team-04/data/tcga_tumor_annotation.RDS") 
+PRAD_TvsN = readRDS("~/GitHub/2022-topic-02-team-04/data/PRAD_TvsN.rds")
+pw_activity_full_TCGA_df = readRDS("~/GitHub/2022-topic-02-team-04/data/pw_activity_full_TCGA_df.rds")
+tcga_pancancer = readRDS("~/GitHub/2022-topic-02-team-04/data/tcga_pancancer.rds")
+tcga_anno = readRDS("~/GitHub/2022-topic-02-team-04/data/tcga_tumor_annotation.RDS")
+tcga_tumor_norm = readRDS("~/GitHub/2022-topic-02-team-04/data/PRAD_tumor_normal_pw_activity.rds")
+
+```
+
+# Objectives
+
+In this task it is our goal to generate a multiple regression model that can determine whether the obtained cell samples are cancerous or not.
+We might have to determine the pathway that can be used to predict the sample state.
+
+First we generated our test and training sample by dividing our pan cancer dataset and out tumor vs normal dataset. 
+
+```{r}
+PRAD_pan = as.data.frame(pw_activity_full_TCGA_df[which(tcga_anno$cancer_type_abbreviation == "PRAD" )])
+
+PRAD_tumor = as.data.frame(tcga_tumor_norm[,1:52])
+
+PRAD_normal = as.data.frame(tcga_tumor_norm[,53:104])
+
+PRAD_pan = subset(PRAD_pan,rownames(PRAD_pan) %in% rownames(PRAD_tumor) )
+
+test_tumor = PRAD_tumor[,1:round(ncol(PRAD_tumor)*0.4,0)]
+
+test_normal = PRAD_normal[,1:round(ncol(PRAD_normal)*0.4,0)]
+
+test_pan = PRAD_pan[,1:round(ncol(PRAD_pan)*0.4,0)]
+
+train_tumor = PRAD_tumor[,(round(ncol(PRAD_tumor)*0.4,0)+1):ncol(PRAD_tumor)]
+
+train_normal = PRAD_normal[,(round(ncol(PRAD_normal)*0.4,0)+1):ncol(PRAD_normal)]
+
+train_pan =  PRAD_pan[,(round(ncol(PRAD_pan)*0.4,0)+1):ncol(PRAD_pan)]
+
+dat.train = cbind(train_tumor, train_normal, train_pan)
+
+dat.test = cbind(test_tumor, test_normal, test_pan)
+```
+
+The variance of the pathways was computed, sorted accordingly and afterwards 100 pathways with the highest variance were selected.
+
+```{r}
+library(dplyr)
+library(pheatmap)
+variance <- as.data.frame(apply(dat.train, 1, var))
+colnames(variance) = "variance"
+
+var_sorted <- arrange(variance, desc(variance))
+
+## take 9 pws mit highes variance
+topVar <- rownames(var_sorted)[1:100]
+
+## take these pws
+topVar_pw <- as.data.frame(dat.train[topVar,])
+
+##
+topVar_cor <- cor(t(topVar_pw)); diag(topVar_cor) = NA
+pheatmap(topVar_cor,
+         show_colnames = F,
+         show_rownames = F,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE)
+
+```
+
+Here we select the pathways with the highest variance (TopVar100)
+```{r}
+b = data.frame()
+lr_pw = c( )
+lr_pw = c(rownames(topVar_pw[1,]))
+ for(p in 2:100){
+   correlation = FALSE
+   for(f in 1:length(lr_pw)){
+     if(p!=f){
+      if(topVar_cor[f,p]>0){
+      correlation = TRUE
+      }
+    }
+   }
+   b[p,1] = correlation
+   if(correlation == FALSE){
+   lr_pw = c(lr_pw,rownames(topVar_pw)[p])
+   }
+ }
+```
+
+Generate the annotations of the patients (cancer vs no cancer)
+
+```{r}
+#annotations for each patient group
+tumor_anno <- as.data.frame(rep("tumor", 52))
+colnames(tumor_anno) = "sample"
+rownames(tumor_anno) = colnames(tcga_tumor_norm[,1:52])
+tumor_anno = t(tumor_anno)
+
+normal_anno <- as.data.frame(rep("normal", 52))
+colnames(normal_anno) = "sample"
+rownames(normal_anno) = colnames(tcga_tumor_norm[,53:104])
+normal_anno = t(normal_anno)
+
+pan_anno <- as.data.frame(rep("tumor", ncol(PRAD_pan)))
+colnames(pan_anno) = "sample"
+rownames(pan_anno) = colnames(PRAD_pan)
+pan_anno = t(pan_anno)
+#divide annotations for test and training set
+test_tumor_anno = as.data.frame(tumor_anno[,1:round(ncol(PRAD_tumor)*0.4,0)])
+test_tumor_anno = t(test_tumor_anno)
+#colnames(test_tumor_anno) = colnames(tumor_anno[1:round(ncol(PRAD_tumor)*0.4,0)])
+test_normal_anno = as.data.frame(normal_anno[,1:round(ncol(PRAD_normal)*0.4,0)])
+test_normal_anno = t(test_normal_anno)
+
+test_pan_anno = as.data.frame(pan_anno[,1:round(ncol(PRAD_pan)*0.4,0)])
+test_pan_anno = t(test_pan_anno)
+
+train_tumor_anno = as.data.frame(tumor_anno[,(round(ncol(PRAD_tumor)*0.4,0)+1):ncol(PRAD_tumor)])
+train_tumor_anno = t(train_tumor_anno)
+
+train_normal_anno = as.data.frame(normal_anno[,(round(ncol(PRAD_normal)*0.4,0)+1):ncol(PRAD_normal)])
+train_normal_anno = t(train_normal_anno)
+
+train_pan_anno =  as.data.frame(pan_anno[,(round(ncol(PRAD_pan)*0.4,0)+1):ncol(PRAD_pan)])
+train_pan_anno = t(train_pan_anno)
+
+dat.train_anno = cbind(train_tumor_anno, train_normal_anno, train_pan_anno)
+
+dat.test_anno = cbind(test_tumor_anno, test_normal_anno, test_pan_anno)
+```
+
+```{r}
+topVar_pw_anno = as.data.frame(t(topVar_pw))
+topVar_pw_anno = cbind(topVar_pw_anno, t(dat.train_anno))
+colnames(topVar_pw_anno[101])="anno"
+
+```
+
+```{r}
+lr = lm( ~ HINATA_NFKB_IMMU_INF, data=topVar_pw_anno)
+summary(lr)
+
+hist(lr$residuals)
+qqnorm(lr$residuals); qqline(lr$residuals)
+cor(topVar_pw$HALLMARK_G2M_CHECKPOINT, lr$residuals)
+plot(topVar_pw$HALLMARK_G2M_CHECKPOINT, lr$residuals)
+```
+
