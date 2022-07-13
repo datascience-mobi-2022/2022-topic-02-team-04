@@ -92,16 +92,17 @@ total_pathways_ensID <- readRDS("~/GitHub/2022-topic-02-team-04/data/total_pathw
 Get size ratio (first try with one example)
 
 ```{r}
-# gens in pathway
+# number of genes in pathway (not corrected)
+# num_pw_genes <- length(pathway_genes)
+
+
+# gens in pathway (corrected)
 pathway_genes <- total_pathways_ensID$PGF_UP.V1_UP
 
 all_pathway_ensID <- unlist(total_pathways_ensID)
 pw_genes <- !is.na(match(pathway_genes, all_pathway_ensID))
 # number of genes in pathway (corrected)
 pw_num <- length(which(pw_genes == TRUE))
-
-# number of genes in pathway
-num_pw_genes <- length(pathway_genes)
 
 
 # get all diffexpressed genes
@@ -116,17 +117,22 @@ num_diff_genes <- length(which(genes_pw_diff == TRUE))
 
 
 # calculate ratio
-size_ratio <- num_diff_genes/num_pw_genes
+size_ratio <- num_diff_genes/pw_num
 ```
 
 Create function 
 
 ```{r}
 size_ratio_pathway = function(pathway){
+  
   # gens in pathway
   pathway_genes <- pathway
-  # number of genes in pathway
-  num_pw_genes <- length(pathway_genes)
+
+  all_pathway_ensID <- unlist(total_pathways_ensID)
+  pw_genes <- !is.na(match(pathway_genes, all_pathway_ensID))
+  # number of genes in pathway (corrected)
+  pw_num <- length(which(pw_genes == TRUE))
+  # gens in pathway
   
   
   # get all diffexpressed genes
@@ -141,7 +147,7 @@ size_ratio_pathway = function(pathway){
 
 
   # calculate ratio
-  size_ratio <- num_diff_genes/num_pw_genes
+  size_ratio <- num_diff_genes/pw_num
   
   return(size_ratio)
 }
