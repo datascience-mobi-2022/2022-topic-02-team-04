@@ -31,17 +31,7 @@ Calculate Fold Change between Tumor and Normal for each sample
 
 e_PRAD_tumor_normal <- 2^PRAD_tumor_normal
 
-fold_change <- data.frame(NA_col = rep(NA, nrow(PRAD_tumor_normal)))
-
-for(col in 1:(ncol(PRAD_tumor_normal)/2)) {
-  for(row in 1:nrow(PRAD_tumor_normal)) {
-    fold_change[row,col] <- (e_PRAD_tumor_normal[row,col]) / (e_PRAD_tumor_normal[row,(col+52)])
-    row.names(fold_change) <- row.names(e_PRAD_tumor_normal)
-    colnames(fold_change) <- colnames(e_PRAD_tumor_normal[1:52])
-  }
-}
-
-# faster and easier way
+# calculate fold change
 
 e_PRAD_tumor <- 2^PRAD_tumor
 
@@ -132,42 +122,3 @@ fgsea_dat = fgsea(pathways = total_pathways_ensID,
 ```{r}
 fgsea_dat
 ```
-
-
-```{r}
-plotEnrichment(total_pathways_ensID[["spermatogenesis"]], ordered_log2FC[[1]])
-```
-
-
-```{r}
-plotEnrichment(total_pathways_ensID[["apoptosis"]], ranks)
-```
-
-
-```{r}
-library("BiocManager")
-library("fgsea")
-library("data.table")
-library("ggplot2")
-library("dplyr")
-topUp <- fgsea_dat %>% 
-    filter(ES > 0) %>% 
-    top_n(10, wt=-padj)
-topDown <- fgsea_dat %>% 
-    filter(ES < 0) %>% 
-    top_n(10, wt=-padj)
-topPathways <- bind_rows(topUp, topDown) %>% 
-    arrange(-ES)
-
-plotGseaTable(total_pathways_ensID[topPathways$pathway], 
-              ranks, 
-              fgsea_dat, 
-              gseaParam = 0.5)
-```
-
-What kind of significant pathways do we have?
-
-```{r}
-sig_pathways_Gsea = fgsea_dat[which(fgsea_dat$ES > 0 & fgsea_dat$pval < 0.05),] # only two pathways "Meta_Chol" and "cholesterol homeostasis"
-```
-
