@@ -73,6 +73,7 @@ To get a broader view about the cancer hallmarks and metabolic activities, addit
 
 ## Preprocessing
 The RNA-seq data came in a log2(TPM) format which served as normalization technique. The original pan-cancer data frame, which contained 60,498 genes, was preprocessed as follows (Figure 1): After confirming the absence of missing values, the means and variances for all genes were calculated. To remove rather constant genes across all cancer types, variance filtering was performed, were all genes with a variance below the 35 % quantile were discarded. Following this, the biotypes of the remaining 39,324 genes were identified by using the *EnsDb.Hsapiens.v79 package*. 98 genes which could not be attributed with a biotype were also removed. For the rest, the frequency of each occurring biotype was counted. For further analysis, the most interesting biotypes within the RNA-seq data frame were kept. These include short non-coding RNAs like small nuclear RNAs, micro RNAs, ribosomal RNAs and small nucleolar RNAs, which are known to have important functions in molecular biology (Alberts, 2015). Furthermore, long non-coding RNAs, which are longer than 200 bp in length and might possess regulatory functions (Alberts, 2015; Cunningham et al., 2021) and protein coding genes were retained. The latter also included T cell receptor genes and immunoglobulin genes that both undergo somatic recombination and were listed with separate biotypes (Cunningham et al., 2021). All chosen biotypes also appeared within the pathways. After removing the other biotypes from the pan-cancer data frame, it only contained 20,675 genes. Similarly, the combined PRAD data frame was variance filtered using a 60 % quantile threshold. In contrast to the pan-cancer analysis biotypes, only protein coding genes and long non-coding genes were present and therefore kept resulting in a final data frame with 7,801 genes.
+
 ![Preprocessing.](report_figures/figure10.jpg)
 
 ## Analysis of gene sets
@@ -114,16 +115,27 @@ After GSVA PCA and UMAP were applied on the pathway activity matrix. Furthermore
 ***
 # Results
 ## Preprocessing
+
 ![Preprocessing results.](report_figures/figure20.jpg)
+
 ![Gene set analysis.](report_figures/figure30.jpg)
+
 ![Descriptive analysis. CARLA NEUE PLOTS](report_figures/figure40.jpg)
+
 ![Pan-cancer GSVA and UMAP.](report_figures/figure50.jpg)
+
 ![GSVA Top Var heatmap and mean over cancer types.](report_figures/figure60.jpg)
+
 ![GSVA topVar combined with mean over cancer types.](report_figures/figure70.jpg)
+
 ![Correlation between cancer types after GSVA.](report_figures/figure80.jpg)
+
 ![Volcano plots.](report_figures/figure90.jpg)
+
 ![GOEA.](report_figures/figure100.jpg)
+
 ![PRAD GSVA UMAP.](report_figures/figure110.jpg)
+
 
 ***
 # Discussion
