@@ -1,0 +1,291 @@
+---
+title: "Regression analysis"
+author: "Laura Lange"
+date: '2022-07-08'
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+setwd('..')
+pw_activity_full_TCGA_df <- readRDS("data/tcga_pw_activity_full_TCGA_df.rds")
+tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.RDS")
+
+```
+
+```{r}
+#createn einer liste mit allen patienten in dfs sortiert nach krebs
+cancers = list();
+
+cancers = vector('list',length(table(tcga_tumor_annotation$cancer_type_abbreviation)))
+names(cancers) = names(table(tcga_tumor_annotation$cancer_type_abbreviation))
+
+for (i in 1:length(cancers)){
+  cancers[[i]] = pw_activity_full_TCGA_df[,tcga_tumor_annotation$cancer_type_abbreviation == names(cancers)[i]]
+}
+```
+
+```{r}
+LGG_org <- cancers[["LGG"]]
+LGG_red <- sample(1:ncol(LGG_org), 370)
+LGG = LGG_org[ ,LGG_red]
+
+LIHC <- cancers[["LIHC"]]
+```
+
+Calculate mean for each gene 
+
+```{r}
+mean_LGG <- apply(LGG, 1, mean)
+
+mean_LIHC <- apply(LIHC, 1, mean)
+
+```
+
+Calculate Fold Change 
+
+$$
+log_2[(T)/N]
+$$
+
+T = tumor 
+N = normal 
+
+```{r}
+e_mean_LGG <- 2^mean_LGG
+e_mean_LIHC <- 2^mean_LIHC
+FoldChange <- e_mean_LGG / e_mean_LIHC
+
+# Scale Fold Change 
+log2_FoldChange <- log2(FoldChange)
+```
+
+Calculate significane of the fold change (paired wilcox-test)
+
+```{r}
+# each has 370 cols
+LGG_LIHC <- cbind(LGG, LIHC)
+
+# calculate p-value with apply function 
+p_value <- apply(LGG_LIHC, 1, function(x) wilcox.test(x[1:370], 
+                                                      x[371:740], 
+                                                      paired = TRUE,
+                                                      exact = FALSE)$p.value)
+
+# correct p-value via Bonferroni ("bonferroni") / Benjamini-Hichberg ("BH")
+corrected_p_value <- p.adjust(p_value, method = "bonferroni")
+
+# Scale corrected p-values 
+log10_corrected_p_value <- log10(corrected_p_value)
+```
+
+
+Create volcano plot with corrected p-values 
+
+```{r}
+dat <- data.frame(log2_FoldChange, log10_corrected_p_value)
+
+# add a column of NAs
+dat$diffexpressed <- "NO"
+# if log2Foldchange > 0.6 and pvalue < 0.05, set as "UP" 
+dat$diffexpressed[dat$log2_FoldChange > log2(2) & dat$log10_corrected_p_value < log10(0.05)] <- "UP"
+# if log2Foldchange < -0.6 and pvalue < 0.05, set as "DOWN"
+dat$diffexpressed[dat$log2_FoldChange < log2(0.5) & dat$log10_corrected_p_value < log10(0.05)] <- "DOWN"
+
+# Change point appearance 
+color <- c("blue", "red", "black")
+names(color) <- c("DOWN", "UP", "NO")
+
+library(ggplot2)
+
+ggplot(data = dat, mapping = aes(x= log2_FoldChange, 
+                                 y= -log10_corrected_p_value, 
+                                 col= diffexpressed))+
+  geom_point()+
+  scale_color_manual(values = color)+
+  geom_vline(xintercept=c(log2(0.5), log2(2)), linetype="dashed", col="darkgreen")+
+  geom_hline(yintercept=-log10(0.05), linetype="dashed", col="darkgreen")+
+  scale_x_continuous(breaks = c(seq(-3, 3, 0.5)),
+                     limits = c(-3, 3))+
+  labs(title = "Volcano plot")
+```
+
+```{r}
+diffexpressed_pathways <- dat[dat$diffexpressed == "DOWN", ]
+
+pw_names <- rownames(diffexpressed_pathways)
+
+LGG_diff_pw <- t(LGG[pw_names, ])
+LGG_diff_pw <- as.data.frame(LGG_diff_pw)
+LGG_diff_pw$cancer_type <- "LGG"
+
+LIHC_diff_pw <- t(LIHC[pw_names, ])
+LIHC_diff_pw <- as.data.frame(LIHC_diff_pw)
+LIHC_diff_pw$cancer_type <- "LIHC"
+
+LGG_LIHC_diff <- rbind(LGG_diff_pw, LIHC_diff_pw)
+
+```
+
+
+1. Predict cancer type from pathway activity
+
+```{r}
+# KEGG_ASCORBATE_AND_ALDARATE_METABOLISM
+# calculate mean as threshold for cancer type
+
+LGG_KEGG <- mean(LGG_diff_pw[ ,1])
+LIHC_KEGG <- mean(LIHC_diff_pw[ ,1])
+
+(LIHC_KEGG + LGG_KEGG)/2
+```
+
+```{r}
+correl <- cor(LGG_LIHC_diff)
+heatmap(correl)
+```
+
+
+```{r}
+## take 200 random patients to form the training set
+i.train = sample (1:nrow(LGG_LIHC_diff), 259)
+##
+set.seed(123)
+dat.train = LGG_LIHC_diff[i.train,]
+dat.test = LGG_LIHC_diff[-i.train,]
+
+colnames(dat.test)
+```
+
+```{r}
+l.train = lm(KEGG_ASCORBATE_AND_ALDARATE_METABOLISM ~
+               KEGG_COMPLEMENT_AND_COAGULATION_CASCADES+
+               KEGG_DRUG_METABOLISM_CYTOCHROME_P450+
+               KEGG_DRUG_METABOLISM_OTHER_ENZYMES+
+               KEGG_METABOLISM_OF_XENOBIOTICS_BY_CYTOCHROME_P450+
+               KEGG_PENTOSE_AND_GLUCURONATE_INTERCONVERSIONS+
+               KEGG_PORPHYRIN_AND_CHLOROPHYLL_METABOLISM+
+               KEGG_RETINOL_METABOLISM+
+               KEGG_STEROID_HORMONE_BIOSYNTHESIS+
+               KEGG_TYROSINE_METABOLISM, 
+             data = dat.train)
+
+summary(l.train)
+```
+
+```{r}
+l.train = lm(KEGG_ASCORBATE_AND_ALDARATE_METABOLISM ~ 
+               KEGG_DRUG_METABOLISM_CYTOCHROME_P450+
+               KEGG_METABOLISM_OF_XENOBIOTICS_BY_CYTOCHROME_P450+
+               KEGG_PENTOSE_AND_GLUCURONATE_INTERCONVERSIONS+
+               KEGG_PORPHYRIN_AND_CHLOROPHYLL_METABOLISM,
+             data = dat.train)
+
+summary(l.train)
+```
+
+```{r}
+pred = predict(l.train, newdata = dat.test)
+```
+
+```{r}
+pred_LGG <- pred[pred < 0.1064367]
+pred_LGG_names <- as.data.frame(names(pred_LGG))
+
+pred_LIHG <- pred[pred > 0.1064367]
+pred_LIHG_names <- as.data.frame(names(pred_LIHG))
+```
+
+```{r}
+real_LGG <- dat.test[which(dat.test$cancer_type == "LGG"), ]
+real_LGG_names <- as.data.frame(rownames(real_LGG))
+
+real_LIHG <- dat.test[which(dat.test$caner_type == "LIHG"), ]
+real_LIHG_names <- as.data.frame(rownames(real_LIHG))
+```
+ 
+compare patients
+
+```{r}
+(pred_LGG_names[1,1] %in% real_LGG_names[ ,1]) == TRUE
+false_estimate <- 0
+
+for (i in length(pred_LGG_names[ ,1])) {
+  if ((pred_LGG_names[i,1] %in% real_LGG_names[ ,1]) == TRUE) {
+    false_estimate <- false_estimate +1
+  }
+}
+  
+```
+
+```{r}
+a <- pred_LGG_names[1,1] %in% real_LGG_names[ ,1]
+
+false_estimate <- data.frame(NA_col = rep(FALSE, length(pred_LGG_names[ ,1])))
+
+for (i in length(pred_LGG_names[ ,1])) {
+  false_estimate[i,1] <- pred_LGG_names[i,1] %in% real_LGG_names[ ,1]
+}
+```
+
+
+2. Predict pathway activity from cancer type
+
+```{r}
+l.g = lm(KEGG_ASCORBATE_AND_ALDARATE_METABOLISM ~ cancer_type, data = LGG_LIHC_diff)
+
+summary(l.g)
+```
+
+```{r}
+hist(l.g$residuals,breaks=60)
+```
+ 
+```{r}
+qqnorm(l.g$residuals);qqline(l.g$residuals)
+```
+
+```{r}
+n = nrow(LGG_LIHC_diff)
+rmse = sqrt(1/n*sum(l.g$residuals^2))
+rmse
+
+# the lower the rmse (root mean squared error) the better the model performance
+```
+
+```{r}
+## take 200 random patients to form the training set
+i.train = sample (1:nrow(LGG_LIHC_diff), 259)
+##
+dat.train = LGG_LIHC_diff[i.train,]
+dat.test = LGG_LIHC_diff[-i.train,]
+```
+
+```{r}
+l.train = lm(KEGG_ASCORBATE_AND_ALDARATE_METABOLISM ~ cancer_type, data = LGG_LIHC_diff)
+
+summary(l.train)
+```
+
+```{r}
+n = nrow(dat.train)
+rmse.train = sqrt(1/n*sum(l.train$residuals^2))
+rmse.train
+```
+
+```{r}
+pred = predict(l.train, newdata = dat.test)
+```
+
+```{r}
+n = nrow(dat.test)
+residuals = dat.test$KEGG_ASCORBATE_AND_ALDARATE_METABOLISM - pred
+rmse.test = sqrt(1/n * sum(residuals^2))
+rmse.test
+```
+
