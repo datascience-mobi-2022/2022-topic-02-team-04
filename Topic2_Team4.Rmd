@@ -60,9 +60,12 @@ output:
 
 Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
-Type 'q()' to quit R. [@10.3389/fmolb.2020.00053,]
+Type 'q()' to quit R. [@RN1]
 
 ![Caption for the picture.](descriptive_analysis/Disribution of age at initial pathologic diagnosis.png)
+
+
+
 
 ***
 # Methods
@@ -76,6 +79,9 @@ The RNA-seq data came in a log2(TPM) format which served as normalization techni
 
 ![Preprocessing.](report_figures/figure10.jpg)
 
+
+
+
 ## Analysis of gene sets
 To get a sense of the meaningfulness of the used gene sets in the study, their overlap with the genes of the RNAseq was investigated using Venn diagrams. 
 
@@ -85,12 +91,20 @@ J(A, B) = \frac{|A \cap B|}{|A \cup B|} \> with \\ 0 \leq J(A, B) \leq 1
 $$
 were computed for each combination. These result in a value between zero and one which is the ratio between intersection and union of the two respective pathways (Levandowsky and Winter, 1971). After computing the Jaccard indices for every combination a heatmap was created which also clustered the gene sets.
 
+
+
+
 ## Pan-cancer analysis
+
 ### descriptive analsis --> CARLA
+
 For further dimension reduction a Principal Component Analysis (PCA) (Jolliffe, 2011) was applied over the full pan-cancer data using the Seurat package. With the resulting first 50 principal components, Uniform Manifold Approximation and Projection (UMAP) (McInnes and Healy, 2018) with a set seed (123) was performed with the uwot package. By using “cosine” (why) as metric two UMAP components were calculated and later plotted in a two-dimensional plot. The same analysis was used after dividing the whole data into the 33 different cancer types with 35 principal components. 
 Next, Gene Set Variation Analysis (GSVA) was carried out. GSVA allows summarizing single genes into defined pathways or gene sets. This reduces the dimensionality of the RNAseq data and eases biological interpretability (Hänzelmann et al., 2013). For our study, this method resulted in a pathway activity matrix with the samples as columns and 552 pathways as rows. Three pathways were discarded by the GSVA package because of a too small intersection between pathway genes and RNAseq genes, since the minimum size of the resulting gene sets was set to 3. Otherwise, the functions default settings were used. Trying to determine the win or loss of information caused by the GSVA a PCA followed by UMAP was done for the pathway activity matrix with the same settings as mentioned before. To explain the resulting clusters, the pathway activity for the pathways with the highest variance was visualized in a heatmap. Another heatmap was created in which the mean pathways activity for each cancer type was determined and plotted against the pathways 
 
 ### linear regression
+
+
+
 
 ## Focused analysis: Prostate adenocarcinome
 ### descriptive analysis CARLA
@@ -110,7 +124,6 @@ After GSVA PCA and UMAP were applied on the pathway activity matrix. Furthermore
 
 
 
-\newpage
 
 ***
 # Results
