@@ -146,7 +146,7 @@ LIHC_KEGG <- mean(LIHC_diff_pw[ ,1])
 ```
 
 ```{r}
-correl <- cor(LGG_LIHC_diff)
+correl <- cor(LGG_LIHC_diff[ ,1:10])
 heatmap(correl)
 ```
 
