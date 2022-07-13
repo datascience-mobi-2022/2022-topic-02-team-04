@@ -41,8 +41,62 @@ pheatmap(PRAD_tumor_normal_pw_activity,
          show_colnames = F,
          clustering_distance_cols = "euclidean",
          clustering_method = "ward.D2",
+         annotation_col = sample_annot,
          cutree_cols = 2)
 ```
 
 
+```{r}
+PRAD_GSVA <- as.data.frame(PRAD_tumor_normal_pw_activity)
+
+## Sample annot
+sample_annot <- as.data.frame(c(rep("tumor", 52), rep("normal", 52)))
+colnames(sample_annot) <- "sample"
+rownames(sample_annot) <- colnames(PRAD_GSVA)
+
+## pathway annot
+
+total_pathways_ensID <- readRDS("data/total_pathways_ensID.rds")
+totalpw <- names(total_pathways_ensID)
+GSVApw <- rownames(PRAD_GSVA)
+
+setdiff(totalpw, GSVApw)
+
+g <- rep("Given Sets", 46)
+h <- rep("MSigDB Hallmarks", 50-1)
+k <- rep("KEGG", 186-19)
+o <- rep("Oncogenic Sigantures", 189)
+t <- rep("Ontology", 84)
+
+pw_annot <- as.data.frame(c(g, h, k, o, t))
+
+colnames(pw_annot) <- "Gene sets"
+rownames(pw_annot) <- rownames(PRAD_GSVA)
+
+## Heatmap
+pheatmap(PRAD_GSVA,
+         cluster_rows = T,
+         show_rownames = F,
+         show_colnames = F,
+         annotation_col = sample_annot,
+         annotation_row = pw_annot,
+         cutree_cols = 2,
+         treeheight_row = 0)
+
+
+```
+
+```{r}
+v <- apply(PRAD_GSVA,1,var)
+
+topVar <- PRAD_GSVA[which(v > 0.225),]
+
+## Heatmap
+pheatmap(topVar,
+         cluster_rows = T,
+         show_rownames = F,
+         show_colnames = F,
+         annotation_col = sample_annot,
+         cutree_cols = 2)
+```
 

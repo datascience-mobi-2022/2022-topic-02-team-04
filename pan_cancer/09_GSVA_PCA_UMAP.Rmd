@@ -83,6 +83,7 @@ ggplot(umap, aes(x = V1, y = V2, color = cancer_type)) +
   ggtitle("UMAP GSVA")
 ```
 
+
 ***
 
 Visualize pw activity
@@ -126,4 +127,26 @@ grid.arrange(A3, A4, A5, A6, A7, A8, A9, A10, A11,
              top = paste("UMAP after GSVA with pathway activities"))
 ```
 
+## Divide into two clusters by pw activity 
+```{r}
+## Enormous cluster
+c1 <- umap[umap$V1 < 5,]
+enorm <- c1[c1$V2 > -2,]; rm(c1)
 
+## Other clusters
+c2_1 <- umap[umap$V2 < -2,]
+c2_2 <- umap[umap$V1 > 14,]
+scat <- rbind(c2_1, c2_2)
+```
+
+```{r}
+table(enorm$cancer_type)
+up_cancers <- c("BLCA", "BRCA", "CESC", "COAD", "DLBC", "ESCA", "HNSC", "LAML", "LUAD", "LUSC", "MESO", "OV", "PAAD", "READ", "SARC", "SKCM", "STAD", "TGCT", "THYM", "UCEC", "UCS", "UVM")
+```
+BLCA, BRCA, CESC, COAD, DLBC, ESCA, HNSC, LAML, LUAD, LUSC, MESO, OV, PAAD, READ, SARC, SKCM, STAD, TGCT, THYM, UCEC, UCS, UVM
+
+```{r}
+table(scat$cancer_type)
+down_cancers <- c("ACC", "CHOL", "GBM", "KICH", "KIRC", "KIRP", "LGG", "LIHC", "PCPG", "PRAD", "THCA")
+```
+ACC, CHOL, GBM, KICH, KIRC, KIRP, LGG, LIHC, PCPG, PRAD, THCA
