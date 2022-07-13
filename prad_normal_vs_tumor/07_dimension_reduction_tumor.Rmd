@@ -82,8 +82,7 @@ PCbiplot(new.coordinates)
 # n_neighbors
 x <- 2
 
-set.seed(123)
-umap_tumor <- uwot::umap(pca_tumor@cell.embeddings, n_neighbors = x, n_components = 2)
+set.seed(123); umap_tumor <- uwot::umap(pca_tumor@cell.embeddings, metric = "cosine", n_components = 2)
 
 umap_tumor <- as.data.frame(umap_tumor)
 
@@ -95,7 +94,7 @@ ggplot(umap_tumor, aes(x = V1, y = V2)) +
   geom_point(alpha = 0.5) +
   xlab("UMAP1") +
   ylab("UMAP2") +
-  ggtitle(paste("UMAP PRAD tumor with n_neighbors =", x))
+  ggtitle(paste("UMAP PRAD tumor with n_neighbors ="))
 
 dev.off()
 ```

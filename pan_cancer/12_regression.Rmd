@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r}
-pw_activity_full_TCGA_df <- readRDS("data/pw_activity_full_TCGA_df.rds")
+#pw_activity_full_TCGA_df <- readRDS("data/pw_activity_full_TCGA_df.rds")
 
 library(pheatmap)
 library(dplyr)
@@ -82,7 +82,7 @@ rmse
 Divide in training and testing set (70/30)
 ```{r}
 ## take 70 % random patients to form the training set
-i.train = sample(1:nrow(topVar_pw), round(nrow(topVar_pw)*0.7,0))
+set.seed(123); i.train = sample(1:nrow(topVar_pw), round(nrow(topVar_pw)*0.7,0))
 ##
 dat.train = topVar_pw[i.train,]
 dat.test = topVar_pw[-i.train,]

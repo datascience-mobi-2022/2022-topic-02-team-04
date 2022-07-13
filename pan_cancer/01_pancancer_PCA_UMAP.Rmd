@@ -33,7 +33,7 @@ barplot(log(variance), main = "log(variance) after pca for pan-cancer dataset", 
 ###
 ```{r}
 # Get the standard deviations for each PC from the Seurat object
-Seurat::Stdev(object = pca, reduction = "pca")
+ Seurat::Stdev(object = pca, reduction = "pca")
 ```
 ###
 
@@ -83,7 +83,7 @@ PCbiplot(new.coordinates)
 #UMAP
 
 ```{r}
-set.seed(123); umap_pan <- uwot::umap(pca@cell.embeddings)
+set.seed(123); umap_pan <- uwot::umap(pca@cell.embeddings, metric = "cosine")
 ```
 
 ```{r}
