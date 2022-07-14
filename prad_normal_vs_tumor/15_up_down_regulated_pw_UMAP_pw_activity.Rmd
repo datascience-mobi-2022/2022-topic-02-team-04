@@ -241,6 +241,62 @@ grid.arrange(A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13,
              top = paste("UMAP after GSVA with pathway activities"))
 ```
 
+## Report
+```{r}
+KEGG_DNA_REPLICATION
+KEGG_MISMATCH_REPAIR
+KEGG_HOMOLOGOUS_RECOBINATION
+HALLMARK_E2F_TARGETS
+HALLMARK_MYC_TARGETS_V1
+SINGH_KRAS_DEPENDENCY_SIGNATURE
+KEGG_PROTEASOME
+HALLMARK_G2M_CHECKPOINT
+KEGG_NUCLEOTIDE_EXCISION_REPAIR
+```
+
+```{r}
+pw_plot <- rbind(pw_upreg_sorted[3,], pw_upreg_sorted[5,], pw_upreg_sorted[6,], pw_upreg_sorted[7,], pw_upreg_sorted[8,], pw_upreg_sorted[11,])
+
+## Get Pathway names
+pw_plot_genes <- rownames(pw_plot)
+
+## Get GSVA scores from
+pw_plot_GSVA <- t(PRAD_tumor_normal_pw_activity[pw_plot_genes,])
+
+## Combine UMAP and Pathway activity
+umap_act <- cbind(umap, pw_plot_GSVA)
+
+## Plots
+for(i in 3:8) { 
+  nam <- paste("A", i, sep = "")
+  
+  plots_i <- ggplot(umap_act, aes(x = V1, y = V2)) + 
+  geom_point(alpha = 1, aes_string(color = noquote(names(umap_act)[i]))) +
+  scale_color_gradient(low = "darkblue", high = "yellow") +
+  xlab("UMAP1") +
+  ylab("UMAP2") +
+  ggtitle(paste(names(umap_act[i])))  +
+  labs(color = "Pathway\nactivity")
+  
+    assign(nam, plots_i)
+}
+
+grid.arrange(A3, A4, A5, A6, A7, A8,
+             ncol = 6, 
+             top = paste("UMAP after GSVA with pathway activities (upregulated)"))
+```
+
+```{r}
+A8 <- ggplot(umap_act, aes(x = V1, y = V2)) + 
+  geom_point(alpha = 1, aes_string(color = noquote(names(umap_act)[8]))) +
+  scale_color_gradient(low = "darkblue", high = "yellow") +
+  xlab("UMAP1") +
+  ylab("UMAP2") +
+  ggtitle("KEGG_AMINO_SUGAR_AND\nNUCLEOTIDE_SUGAR_METABOLSIM") +
+  labs(color = "Pathway\nactivity")
+```
+
+
 ## DOWNREG
 ```{r}
 ## Sort by FC

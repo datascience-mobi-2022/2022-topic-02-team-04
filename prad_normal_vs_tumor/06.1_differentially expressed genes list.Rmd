@@ -110,7 +110,8 @@ ggplot(data = dat_corrected, mapping = aes(x= log2_FoldChange,
   geom_hline(yintercept=-log10(0.05), linetype="dashed", col="darkgreen")+
   scale_x_continuous(breaks = c(seq(-7, 7, 2)),
                      limits = c(-7, 7))+
-  labs(title = "Volcano plot")
+  labs(title = "Volcano plot") +
+  geom_hline(yintercept=3.636794, linetype="dotted", col="darkgreen")
 ```
 
 create a gene list with differentially expressed genes

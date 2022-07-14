@@ -98,6 +98,7 @@ pheatmap(jaccard_matrix,
          show_rownames = F,
          show_colnames = F,
          treeheight_row = 0,
-         annotation_col = annot)
+         treeheight_col = 0,
+         annotation_row = annot)
 ```
 
