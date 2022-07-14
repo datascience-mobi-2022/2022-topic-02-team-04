@@ -67,16 +67,17 @@ ggplot(data = mv, aes(x = mean, y = variance)) +
 ```
 
 ```{r}
-topVar <- pw_activity_full_TCGA_df[which(v > 0.125),]
+topVar <- pw_activity_full_TCGA_df[which(v > 0.144),]
 
 pheatmap(topVar,
          show_colnames = F,
          show_rownames = T,
          cluster_cols = T,
          cluster_rows = T,
+         treeheight_col = 0,
          fontsize = 10,
-         main = "Heatmap GSVA, 40 Pathways with highest variance",
-         cutree_rows = 3,
+         main = "Heatmap GSVA, 30 Pathways with highest variance",
+         cutree_rows = 4,
          annotation_col = cancer_annot)
 ```
 
@@ -202,7 +203,7 @@ pheatmap(cor_cancer_types,
          show_rownames = T,
          cluster_cols = T,
          cluster_rows = T,
-         cutree_rows = 3,
-         cutree_cols = 3,
+         cutree_rows = 2,
+         cutree_cols = 2,
          main = "Correlation Heatmap of means over cancer types after GSVA")
 ```

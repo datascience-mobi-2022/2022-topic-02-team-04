@@ -144,15 +144,13 @@ To combine the information of RNAseq into pathways the overlap between the exper
 
 ## Pan-cancer analysis
 
-For pan-cancer analysis PCA and UMAP were applied on the cleaned RNAseq data frame. The two-dimensional UMAP components were then plotted and colored according to the 33 different cancer types (Figure XA). Around two thirds of the cancer types seemed to build individual clusters. But not every cluster was pure of one cancer type. Furthermore, the were one large and two smaller clusters consisting of multiple cancer types where no differentiation was possible. Trying to characterize the cancer types with pathway activity, GSVA was applied with the former mentioned chosen pathways. Next, PCA and UMAP were also applied and plotted (Figure XB) which allowed a comparison between the plots. After GSVA only ten sperate clusters were visible. Whereas some of the clusters before GSVA reappeared as individual small clusters, many cancer types formed one enormous cluster. To find out more about the differences between the enormous cluster and the smaller ones the pathway activity for the nine pathways with the largest variance across all cancer types was dyed (Figure XC). These pathways include cell cycle, DNA replication and repair, the E2F transcription factor family, proteasome, and the oncogenes myc and kras. In general, the enormous cluster and one other small cluster showed predominantly increased pathway activity (BLCA, BRCA, CESC, COAD, DLBC, ESCA, HNSC, LAML, LUAD, LUSC, MESO, OV, PAAD, READ, SARC, SKCM, STAD, TGCT, THYM, UCEC, UCS, UVM). In contrast, the remaining clusters showed rather decreased pathway activity (ACC, CHOL, GBM, KICH, KIRC, KIRP, LGG, LIHC, PCPG, PRAD, THCA).
 
 ![Pan-cancer GSVA and UMAP.](report_figures/figure50.jpg)
 
-![GSVA Top Var heatmap and mean over cancer types.](report_figures/figure60.jpg)
+![Correlation between cancer types after GSVA.](report_figures/figure60.jpg)
 
-![GSVA topVar combined with mean over cancer types.](report_figures/figure70.jpg)
+![GSVA 30 topVar pws.](report_figures/figure70.jpg)
 
-![Correlation between cancer types after GSVA.](report_figures/figure80.jpg)
 
 ![Volcano plots.](report_figures/figure90.jpg)
 

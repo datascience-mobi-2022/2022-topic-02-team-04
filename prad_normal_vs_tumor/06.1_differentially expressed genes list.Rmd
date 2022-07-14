@@ -229,7 +229,9 @@ go.terms <- function(genes, quant){
   geom_bar(stat = "identity") + 
   coord_flip() +
   xlab("GO term") +
-  ggtitle(main)
+  ggtitle(main) +
+  theme(axis.title = element_text(size = 15)) +
+  theme(axis.text = element_text(size = 15))   
   
   return(plot)
 }
@@ -258,7 +260,7 @@ determine the GO terms for the 500 genes
 
 ```{r}
 dif_500genes <- rownames(dat_df_small)
-go.terms(dif_500genes, .999)
+go.terms(dif_500genes, .995)
 ```
 ***
 
