@@ -28,7 +28,7 @@ ggplot(tcga_annot, aes(age_at_initial_pathologic_diagnosis,color=cancer_type_abb
 ```{r}
 ggplot(tcga_annot, aes(age_at_initial_pathologic_diagnosis ))+ 
   geom_histogram(binwidth=1, fill="tomato1", color="black") + 
-  ggtitle("Disribution of age at initial pathologic diagnosis") +
+  ggtitle("Distribution of age at initial pathologic diagnosis") +
   xlab("age at initial pathologic diagnosis") 
 
 ```
