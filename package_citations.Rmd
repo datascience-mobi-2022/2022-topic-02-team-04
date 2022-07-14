@@ -2,10 +2,12 @@
 title: "package_citations"
 author: "Fabian Strobel"
 date: '2022-06-20'
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
-```{r}
+```{r, echo=FALSE}
 ## Plotting
 citation("ggplot2")
 #citation("ggvenn")
@@ -35,4 +37,46 @@ citation("GSVA")
 #citation("scatterplot3d")
 #citation("RColorBrewer")
 ```
+
+```{r}
+names<-c("ggplot2","ggVennDiagram","gridExtra","randomcoloR","pheatmap","msigdbr","EnsDb.Hsapiens.v79","biomaRt","GO.db","Seurat","uwot","dplyr","fgsea","BiocManager","data.table","GSVA")
+citations<-c("H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York, 2016",
+             
+"Gao C (2021). _ggVennDiagram: A 'ggplot2' Implement of Venn Diagram_. R package version  1.2.0,<https://CRAN.R-project.org/package=ggVennDiagram>",
+
+"Auguie B (2017). _gridExtra: Miscellaneous Functions for Grid Graphics_. R package version 2.3, <https://CRAN.R-project.org/package=gridExtra>",
+
+"Ammar R (2019). _randomcoloR: Generate Attractive Random Colors_. R package version 1.1.0.1, <https://CRAN.R-project.org/package=randomcoloR>","Kolde R (2019). _pheatmap: Pretty Heatmaps_. R package version 1.0.12, <https://CRAN.R-project.org/package=pheatmap>",
+
+"Dolgalev I (2022). _msigdbr: MSigDB Gene Sets for Multiple Organisms in a Tidy Data Format_. R package version 7.5.1, <https://CRAN.R-project.org/package=msigdbr>",
+
+"Rainer J (2017). _EnsDb.Hsapiens.v79: Ensembl based annotation package_. R package version 2.99.0.",
+
+"Mapping identifiers for the integration of genomic datasets with the R/Bioconductor package biomaRt. Steffen Durinck, Paul T. Spellman, Ewan Birney and Wolfgang Huber, Nature Protocols 4, 1184-1191 (2009)",
+  
+"Carlson M (2022). _GO.db: A set of annotation maps describing the entire Gene Ontology_. R package version 3.15.0.",
+  
+"Hao and Hao et al. Integrated analysis of multimodal single-cell data. Cell (2021) [Seurat V4] 
+
+Stuart and Butler et al. Comprehensive Integration of Single-Cell Data. Cell (2019) [Seurat V3] 
+
+Butler et al. Integrating single-cell transcriptomic data across different conditions, technologies, and species. Nat Biotechnol (2018) [Seurat V2]  
+
+Satija and Farrell et al. Spatial reconstruction of single-cell gene expression data. Nat Biotechnol (2015) [Seurat V1]","Melville J (2021). _uwot: The Uniform Manifold Approximation and Projection (UMAP) Method for Dimensionality Reduction_. R package version 0.1.11, <https://CRAN.R-project.org/package=uwot>",
+  
+"Wickham H, François R, Henry L, Müller K (2022). _dplyr: A Grammar of Data Manipulation_. R package version 1.0.9, <https://CRAN.R-project.org/package=dplyr>",
+  
+"G. Korotkevich, V. Sukhov, A. Sergushichev. Fast gene set enrichment analysis. bioRxiv (2019), doi:10.1101/060012","Morgan M (2022). _BiocManager: Access the Bioconductor Project Package Repository_. R package version 1.30.18, <https://CRAN.R-project.org/package=BiocManager>",
+  
+"Dowle M, Srinivasan A (2021). _data.table: Extension of `data.frame`_. R package version 1.14.2, <https://CRAN.R-project.org/package=data.table>",
+  
+"Hänzelmann, S., Castelo, R. and Guinney, A. GSVA: gene set variation analysis for microarray and RNA-seq data. BMC Bioinformatics, 14:7, 2013")
+packages <- data.frame(names,citations)
+
+x <- knitr::kable(packages, col.names = c("packages", " "), "latex")
+kableExtra::column_spec(x, 2, width = "35em")
+kableExtra::landscape(x, margin = "1cm")
+```
+
+
 

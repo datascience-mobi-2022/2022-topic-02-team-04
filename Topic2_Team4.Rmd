@@ -175,4 +175,7 @@ After GSVA PCA and UMAP were applied on the pathway activity matrix. Furthermore
 
 ***
 # Refrences
-  
+ 
+## used packages
+
+![](data/packages.png){width=70%}
