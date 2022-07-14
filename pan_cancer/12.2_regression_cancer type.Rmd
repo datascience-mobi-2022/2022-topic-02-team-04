@@ -16,6 +16,8 @@ setwd('..')
 pw_activity_full_TCGA_df <- readRDS("data/tcga_pw_activity_full_TCGA_df.rds")
 tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.RDS")
 
+pw_activity_full_TCGA_df <- readRDS("~/GitHub/2022-topic-02-team-04/data/pw_activity_full_TCGA_df.rds")
+tcga_tumor_annotation <- readRDS("~/GitHub/2022-topic-02-team-04/data/tcga_tumor_annotation.RDS")
 ```
 
 ```{r}
@@ -122,34 +124,30 @@ pw_names <- rownames(diffexpressed_pathways)
 
 LGG_diff_pw <- t(LGG[pw_names, ])
 LGG_diff_pw <- as.data.frame(LGG_diff_pw)
-LGG_diff_pw$cancer_type <- "LGG"
+# define LGG cancer type as 1
+LGG_diff_pw$cancer_type <- 1
 
 LIHC_diff_pw <- t(LIHC[pw_names, ])
 LIHC_diff_pw <- as.data.frame(LIHC_diff_pw)
-LIHC_diff_pw$cancer_type <- "LIHC"
+# define LIHC caner type as 0
+LIHC_diff_pw$cancer_type <- 0
 
 LGG_LIHC_diff <- rbind(LGG_diff_pw, LIHC_diff_pw)
 
 ```
 
-
-1. Predict cancer type from pathway activity
-
-```{r}
-# KEGG_ASCORBATE_AND_ALDARATE_METABOLISM
-# calculate mean as threshold for cancer type
-
-LGG_KEGG <- mean(LGG_diff_pw[ ,1])
-LIHC_KEGG <- mean(LIHC_diff_pw[ ,1])
-
-(LIHC_KEGG + LGG_KEGG)/2
-```
+Predict cancer type from pathway activity
 
 ```{r}
 correl <- cor(LGG_LIHC_diff[ ,1:10])
-heatmap(correl)
-```
 
+library(pheatmap)
+
+pheatmap(correl,
+         cluster_rows = T,
+         show_rownames = T,
+         show_colnames = F)
+```
 
 ```{r}
 ## take 200 random patients to form the training set
@@ -157,122 +155,28 @@ i.train = sample (1:nrow(LGG_LIHC_diff), 259)
 ##
 set.seed(123)
 dat.train = LGG_LIHC_diff[i.train,]
+set.seed(123)
 dat.test = LGG_LIHC_diff[-i.train,]
 
 colnames(dat.test)
 ```
 
 ```{r}
-l.train = lm(KEGG_ASCORBATE_AND_ALDARATE_METABOLISM ~
-               KEGG_COMPLEMENT_AND_COAGULATION_CASCADES+
-               KEGG_DRUG_METABOLISM_CYTOCHROME_P450+
-               KEGG_DRUG_METABOLISM_OTHER_ENZYMES+
-               KEGG_METABOLISM_OF_XENOBIOTICS_BY_CYTOCHROME_P450+
-               KEGG_PENTOSE_AND_GLUCURONATE_INTERCONVERSIONS+
-               KEGG_PORPHYRIN_AND_CHLOROPHYLL_METABOLISM+
-               KEGG_RETINOL_METABOLISM+
-               KEGG_STEROID_HORMONE_BIOSYNTHESIS+
-               KEGG_TYROSINE_METABOLISM, 
+l.train = lm(cancer_type ~ 
+               KEGG_ASCORBATE_AND_ALDARATE_METABOLISM, 
              data = dat.train)
 
 summary(l.train)
 ```
 
 ```{r}
-l.train = lm(KEGG_ASCORBATE_AND_ALDARATE_METABOLISM ~ 
-               KEGG_DRUG_METABOLISM_CYTOCHROME_P450+
-               KEGG_METABOLISM_OF_XENOBIOTICS_BY_CYTOCHROME_P450+
-               KEGG_PENTOSE_AND_GLUCURONATE_INTERCONVERSIONS+
-               KEGG_PORPHYRIN_AND_CHLOROPHYLL_METABOLISM,
-             data = dat.train)
-
-summary(l.train)
+hist(l.train$residuals,breaks=60)
 ```
-
 ```{r}
-pred = predict(l.train, newdata = dat.test)
+qqnorm(l.train$residuals);qqline(l.train$residuals)
 ```
-
 ```{r}
-pred_LGG <- pred[pred < 0.1064367]
-pred_LGG_names <- as.data.frame(names(pred_LGG))
-
-pred_LIHG <- pred[pred > 0.1064367]
-pred_LIHG_names <- as.data.frame(names(pred_LIHG))
-```
-
-```{r}
-real_LGG <- dat.test[which(dat.test$cancer_type == "LGG"), ]
-real_LGG_names <- as.data.frame(rownames(real_LGG))
-
-real_LIHG <- dat.test[which(dat.test$caner_type == "LIHG"), ]
-real_LIHG_names <- as.data.frame(rownames(real_LIHG))
-```
- 
-compare patients
-
-```{r}
-(pred_LGG_names[1,1] %in% real_LGG_names[ ,1]) == TRUE
-false_estimate <- 0
-
-for (i in length(pred_LGG_names[ ,1])) {
-  if ((pred_LGG_names[i,1] %in% real_LGG_names[ ,1]) == TRUE) {
-    false_estimate <- false_estimate +1
-  }
-}
-  
-```
-
-```{r}
-a <- pred_LGG_names[1,1] %in% real_LGG_names[ ,1]
-
-false_estimate <- data.frame(NA_col = rep(FALSE, length(pred_LGG_names[ ,1])))
-
-for (i in length(pred_LGG_names[ ,1])) {
-  false_estimate[i,1] <- pred_LGG_names[i,1] %in% real_LGG_names[ ,1]
-}
-```
-
-
-2. Predict pathway activity from cancer type
-
-```{r}
-l.g = lm(KEGG_ASCORBATE_AND_ALDARATE_METABOLISM ~ cancer_type, data = LGG_LIHC_diff)
-
-summary(l.g)
-```
-
-```{r}
-hist(l.g$residuals,breaks=60)
-```
- 
-```{r}
-qqnorm(l.g$residuals);qqline(l.g$residuals)
-```
-
-```{r}
-n = nrow(LGG_LIHC_diff)
-rmse = sqrt(1/n*sum(l.g$residuals^2))
-rmse
-
 # the lower the rmse (root mean squared error) the better the model performance
-```
-
-```{r}
-## take 200 random patients to form the training set
-i.train = sample (1:nrow(LGG_LIHC_diff), 259)
-##
-dat.train = LGG_LIHC_diff[i.train,]
-dat.test = LGG_LIHC_diff[-i.train,]
-```
-
-```{r}
-l.train = lm(KEGG_ASCORBATE_AND_ALDARATE_METABOLISM ~ cancer_type, data = LGG_LIHC_diff)
-
-summary(l.train)
-```
-
-```{r}
 n = nrow(dat.train)
 rmse.train = sqrt(1/n*sum(l.train$residuals^2))
 rmse.train
@@ -284,8 +188,15 @@ pred = predict(l.train, newdata = dat.test)
 
 ```{r}
 n = nrow(dat.test)
-residuals = dat.test$KEGG_ASCORBATE_AND_ALDARATE_METABOLISM - pred
+residuals = dat.test$cancer_type - pred
 rmse.test = sqrt(1/n * sum(residuals^2))
 rmse.test
+```
+
+```{r}
+pred.type <- ifelse(pred > 0.5, 1, 0)
+true.type <- ifelse(dat.test$cancer_type == 1, 1, 0)
+
+table(pred.type, true.type)
 ```
 
