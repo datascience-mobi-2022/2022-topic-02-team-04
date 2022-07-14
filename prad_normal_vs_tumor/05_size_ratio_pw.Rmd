@@ -3,6 +3,8 @@ title: "Size_ratio_diffexpressed_pathways"
 author: "Laura Lange"
 date: '2022-07-05'
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -214,6 +216,20 @@ percentage_up
 ```
 
 ```{r}
+df_percentage_up <- as.data.frame(percentage_up)
+df_percentage_up$pathway_names <- rownames(df_percentage_up)
+
+
+ggplot(data = df_percentage_up, aes(x = percentage_up, 
+                                    y = reorder(pathway_names, percentage_up)))+
+  geom_point()+
+  labs(title = "Upregulated pathways",
+       x = "percentage of diffexpressed genes", 
+       y = "data set names")
+```
+
+
+```{r}
 
 percentage_down <- lapply(down_pathways_ensID, function(y) size_ratio_pathway(pathway = y))
 
@@ -224,3 +240,15 @@ percentage_down <- sort(percentage_down, decreasing = TRUE)
 percentage_down
 ```
 
+```{r}
+df_percentage_down <- as.data.frame(percentage_down)
+df_percentage_down$pathway_names <- rownames(df_percentage_down)
+
+
+ggplot(data = df_percentage_down, aes(x = percentage_down, 
+                                      y = reorder(pathway_names, percentage_down)))+
+  geom_point()+
+  labs(title = "Downregulated pathways",
+       x = "percentage of diffexpressed genes", 
+       y = "data set names")
+```
