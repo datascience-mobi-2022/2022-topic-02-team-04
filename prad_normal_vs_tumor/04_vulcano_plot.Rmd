@@ -177,6 +177,17 @@ ggplot(data = dat_2, mapping = aes(x= log2_FoldChange,
   labs(title = "Volcano plot")
 ```
 
+```{r}
+# 998 downregulated genes
+a <- which(dat_2$diffexpressed == "DOWN")
+length(a)
+
+# 347 upregulated genes 
+b <- which(dat_2$diffexpressed == "UP")
+length(b)
+```
+
+
 Create volcano plot with genes of one pathway 
 
 ```{r}
