@@ -35,7 +35,7 @@ output:
 	\vspace{\stretch{0.25}}
 	
 {\Large
-	 `r format(Sys.time(),'%d %B %Y')`
+	 `r format(Sys.time(),'%m/%d/%y')`
 }
 	\vspace{\stretch{0.75}}
 
