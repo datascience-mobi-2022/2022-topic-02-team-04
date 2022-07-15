@@ -173,6 +173,18 @@ Linear regression
 
 ## Focused analysis: Prostate adenocarcinoma
 
+### LAURA volcano plot genes
+
+Knowledge about GO terms of the differentially expressed genes between normal and tumor samples of PRAD allowed an insight into the cellular functions. Computing the GO term frequency showed that, changes caused by cancer cannot be pinned down to a restricted part of a cell, but rather causes changes within the whole cell. The GOEA resulted in two almost pure sample clusters. The four respective exceptions could not be explained with known clinical annotations. It is also to be considered that only the 484 most significantly differentially expressed genes were part of the GO gene sets. The role of the remaining RNAseq data remained unanswered. One thing that caught the eye was that the normal samples were showing a horizontal gap within the UMAP cluster. The gap between the two clusters with normal samples is by far greater after the GSVA with the gene sets. Again, no clinical annotations explained this effect. The GSVA used many more pathways and genes than the GOEA. The four normal samples within the tumor samples are also visible, here. In general, even though the Venn diagram showed a better overlap with the RNAseq data in the focused analysis than in the pan-cancer analysis, the clustering results are more scattered. The reasons are unclear. One explanation might be that the GSVA uses one combined data frame as input. On major difference was that the pan-cancer analysis only had cancer samples, the focused analysis used normal samples. Another interesting fact is that in the pan-cancer analysis PRAD was part of the scattered clusters with downregulated pathway activity. But some of the pathways reappeared in the focused analysis as upregulated compared to normal cells. Hence, the pathways seem to be upregulated to a certain level in PRAD, but not as much as compared to cancers of the enormous pan-cancer cluster. Perhaps the pathway activity is still too similar between tumor and normal cells in PRAD.
+The volcano plot for the pathways also shows that only a small number of pathways is differentially expressed between the sample types. The GSVA considered by which degree the genes are up or downregulated. However, it does not correct against the pathway size which also effects the results. 
+
+### LAURA volcano plot pathways
+
+Downregulation of genes is more common -> gene knock out can be done by unspecific deactivating mutations. Gene upregulation is only possible by specific activating mutations 
+Cancer gene sets contain more genes that are potentially upregulated -> specific activating mutations can cause cancer faster that deactivating mutations (2 alleles)
+
+### LOTTI Panel9b,c
+
 
 ***
 # Refrences
