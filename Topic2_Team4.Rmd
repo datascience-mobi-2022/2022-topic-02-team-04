@@ -150,14 +150,21 @@ Based on the pathway activity matrix, another goal was to build a linear regress
 
 ## Focused analysis
 
+For GOEA the GO terms of the 500 differentially expressed genes from the volcano plot with the highest significance, the genes above upper horizontal line in Figure XA, were determined. 484 genes were matched with at least one GO term. Most GO terms had a very low frequency. Some GO terms with the highest frequency were for example “protein binding” (357 counts), “membrane” (221), “cytoplasm” (205), or “nucleus” (132) (Figure XB). With the created gene sets per GO term GSVA was applied followed by PCA and UMAP. Plotting two UMAP components for each sample showed two separated cluster (Figure XC). Annotating the sample type revealed that the two clusters are formed by the tumor and normal samples. Both clusters show four samples from the opposite tissue source, respectively. Looking at the “normal” samples, there is a horizontal gap visible withing the “normal” cluster. This gap is far greater when performing the GSVA with the gene sets from pan-cancer analysis (Figure XD). Here, there are two separated clusters of normal samples and one widely scattered tumor cluster containing again four normal samples.
+
 ![Panel name](report_figures/figure80.jpg)
 
 ![Panel name](report_figures/figure90.jpg)
 
 ***
 # Discussion
-## kjhtgrfedws
-## uztrwwret  
+## Preprocessing and analysis of gene sets
+The analysis with the Venn diagrams showed that not every RNAseq gene is represented at least once in any gene set. This has the consequence that information will be lost whenever a method only uses the genes included within the gene sets. This effect is stronger in the pan-cancer analysis than in the focused analysis. Not only shows this a downside of reducing the data into pathways but also stresses how much information about transcriptomics are yet to be discovered. The dissimilarity between the gene sets which was illustrated with the Jaccard heatmap was the try to increase the overlap with the RNAseq genes. A careful analysis with the chosen gene sets was possible and performed.
+
+## Pan-cancer analysis
+
+## Focused analysis: Prostate adenocarcinoma
+
 
 ***
 # Refrences
