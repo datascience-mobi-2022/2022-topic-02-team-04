@@ -4,7 +4,7 @@ author: " "
 date: " "
 bibliography: dataanalysis_ref.bib 
 geometry: "margin=2.5cm" 
-linestretch: 1.5
+linestretch: 1.15
 fontsize: 12pt
 output:
   pdf_document: 
@@ -95,12 +95,10 @@ Next, Gene Set Variation Analysis (GSVA) was carried out. GSVA allows summarizin
 Finally, a linear regression model was built to predict…
 
 ## Focused analysis: Prostate adenocarcinoma 
-For the focused analysis, the normality was also checked using violin plots and qq-plots. As with the pan-cancer RNAseq data frame, PCA and UMAP were applied on a combined data frame of tumor and normal samples from RNAseq. To get a first impression of the differences between the samples, volcano plots were created. Volcano plots are one way to visualize the difference between two conditions and identify genes or pathways that are differentially expressed and whose change in expression is statistically significant. To get a symmetrical distribution around zero the log2 fold change between tumor and normal tissues is calculated for each gene or pathway. 
-
+For the focused analysis, the normality was also checked using violin plots and qq-plots. As with the pan-cancer RNAseq data frame, PCA and UMAP were applied on a combined data frame of tumor and normal samples from RNAseq. To get a first impression of the differences between the samples, volcano plots were created. Volcano plots are one way to visualize the difference between two conditions and identify genes or pathways that are differentially expressed and whose change in expression is statistically significant. To get a symmetrical distribution around zero the log2 fold change between tumor and normal tissues is calculated for each gene or pathway.
 $$
 Fold change =  log_2\frac{mean\:tumor}{mean\:normal}
 $$
-
 The log2 fold change is plotted on the x-axis. Genes with a log2 Fold Change higher than +/- 1 were defined to be differentially expressed and pathways with a log2 Fold Change of +/- 0.4 were defined to be differentially expressed.
 Additionally, a paired, nonparametric Wilcoxon Signed Rank Test was performed. This statistical test compares two paired groups that do not need to be normally distributed. The computed p-value was adjusted due to multiple testing using the Bonferroni correction. Before the test an alpha of 0.05 was defined. To get a higher score for the significant tests the -log10 p-value was plotted on the y-axis.
 
@@ -109,11 +107,9 @@ To get a better understanding of the RNAseq gene’s functions, a gene ontology 
 
 ### PRAD Gene Set Variation Analysis (and GSEA)
 Since GO terms alone do not give information about further interactions or pathways, in the next step the use of Gene Set Enrichment Analysis (GSEA) and Gene Set Variation Analysis (GSVA) were investigated. Unlike the GSVA the Gene Set Enrichment Analysis (GSEA) uses the distinction between two different phenotypes to determine a ranking score for each gene of each patient (Korotkevich et al., 2021; Subramanian et al., 2005). The Log2 Foldchange can be used to determine this score to enable the ranking of the genes of each patient. Since approximately 28% of the Log2 Foldchange showed to have ties the fGSEA couldn’t be applied here. When applying the GSVA, 20 gene sets were discarded by the function. After GSVA, a new volcano plot was created and PCA and UMAP were applied on the pathway activity matrix. Furthermore, the pathway activity of six selected upregulated genes from a pathway volcano plot was visualized. The shown pathways are pathways that did not already appear in the pan-cancer plots. When calculating the pathway activity with the GSVA an error occurs because larger gene sets automatically get a higher enrichment score. One opportunity to correct this error would be to count how many genes of the gene set are included in the TCGA data frame and determine how many differentially expressed genes are in the gene set.  The formula
-
 $$
 Pathway-size-ratio = number of differentially expressed genes / number of genes in pathway
 $$
-
 provides the percentage of differentially expressed genes in the pathway. 
 
 
@@ -124,7 +120,7 @@ provides the percentage of differentially expressed genes in the pathway.
 By calculating the mean and variance for each gene of the original RNAseq data frame, an overview of the data was possible. To reduce the dimensionality variance and biotype filtering were performed, resulting in a data frame with only a third of the starting number of genes. The remaining genes were visualized in a mean-variance plot (Figure 2A) showing a smaller number of genes with a very large variance compared to the rest.
 To combine the information of RNAseq into pathways the overlap between the experimental data and the available gene sets must be considered. In the pan-cancer analysis, 12,248 RNAseq genes (59 %) were included in the gene sets (Figure 2B). From only the ten percent of genes with the highest variance in expression, 65 % were present within the pathways. A greater overlap was achieved at the focused PRAD analysis where 6,591 RNAseq genes (84 %) occurred within the gene sets (Figure 2C). Furthermore, the Jaccard metric combined with a heatmap shows the similarity between the gene sets used during the study (Figure 2D). Particularly the ontology gene sets display the greatest likeness, as well as a small part of the KEGG pathways and given pathway. 
 
-![Preprocessing and gene sets. *A* Mean-Variance-Plot after preprocessing. *B* Venn diagram for pan-cancer RNAseq genes and gene sets. *C* Venn diagram for focused analysis RNAseq genes and gene sets. *D* Heatmap for pathway similarity based on Jaccard metric.](report_figures/figure25.jpg)
+![Preprocessing and gene sets. *A* Mean-Variance-Plot after preprocessing. *B* Venn diagram for pan-cancer RNAseq genes and gene sets. *C* Venn diagram for focused analysis RNAseq genes and gene sets. *D* Heatmap for pathway similarity based on Jaccard metric.](report_figures/figure25.jpg){width=80%}
 
 ## Pan-cancer analysis
 The distribution of age at the initial diagnosis is left-skewed around the mean of 59 years (Figure 3A). This can also be seen in the quartiles. The first quartile lies at 50 years, the third at 69 years. Taking a look at the distribution of cancer types within the pan-cancer RNAseq data, BRCA brings the most (1094) patients (Figure 3B). The median number of samples per cancer type is 262 (mean = 295). The cancer types ACC, CHOL, DLBC, KICH, MESO, READ, UCS, and UVM have less than 100 samples.
@@ -137,11 +133,11 @@ For closer pan-cancer analysis PCA and UMAP were applied to the cleaned RNAseq d
 
 The pan-cancer clusters were mostly verified by a correlation heatmap, where the mean pathway activity for every cancer type was computed (Figure 5). The two main clusters match the clusters from the UMAP with two exceptions: PAAD and UVM were clustered with the down regulated cancer types from the UMAP. A closer look at the correlation heatmap also shows very strong correlation between COAD and READ as well as between HNSC and LUSC.
 
-![Pathway activity correlation between cancer types after GSVA.](report_figures/figure60.jpg)
+![Pathway activity correlation between cancer types after GSVA.](report_figures/figure60.jpg){width=55%}
 
 Looking at the 30 pathways with the highest variance among all patients, three major cluster were identified (Figure 6). First, a rather metabolism-oriented group, second, a DNA and cell cycle-oriented group and third, an immune system-oriented group. For these 30 pathways there were no clusters for specific cancer types recognizable.
 
-![Pathway activty (after GSVA) per sample for the 30 gene sets with the highest variance among all cancer types.](report_figures/figure70.jpg)
+![Pathway activty (after GSVA) per sample for the 30 gene sets with the highest variance among all cancer types.](report_figures/figure70.jpg){width=70%}
 
 Based on the pathway activity matrix, another goal was to build a linear regression model. Here, it was tried to predict a pathway's activity based on other pathways’ activities.
 
