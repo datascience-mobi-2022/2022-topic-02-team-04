@@ -6,10 +6,11 @@ output: html_document
 ---
 
 ```{r}
-#pw_activity_full_TCGA_df <- readRDS("data/pw_activity_full_TCGA_df.rds")
+pw_activity_full_TCGA_df <- readRDS("data/pw_activity_full_TCGA_df.rds")
 
 library(pheatmap)
 library(dplyr)
+library(car)
 ```
 
 ```{r}
@@ -84,23 +85,116 @@ Divide in training and testing set (70/30)
 ## take 70 % random patients to form the training set
 set.seed(123); i.train = sample(1:nrow(topVar_pw), round(nrow(topVar_pw)*0.7,0))
 ##
+dat.train70 = topVar_pw[i.train,]
+dat.test30 = topVar_pw[-i.train,]
+
+## take 70 % random patients to form the training set
+set.seed(123); i.train = sample(1:nrow(topVar_pw), round(nrow(topVar_pw)*0.6,0))
+##
+dat.train60 = topVar_pw[i.train,]
+dat.test40 = topVar_pw[-i.train,]
+
+## take 70 % random patients to form the training set
+set.seed(123); i.train = sample(1:nrow(topVar_pw), round(nrow(topVar_pw)*0.5,0))
+##
+dat.train50 = topVar_pw[i.train,]
+dat.test50 = topVar_pw[-i.train,]
+
+## take 70 % random patients to form the training set
+set.seed(123); i.train = sample(1:nrow(topVar_pw), round(nrow(topVar_pw)*0.4,0))
+##
+dat.train40 = topVar_pw[i.train,]
+dat.test60 = topVar_pw[-i.train,]
+```
+
+
+
+***
+
+## With correlating predictors
+### 70/30
+```{r}
+l.train70 = lm(dat.train70$KEGG_NUCLEOTIDE_EXCISION_REPAIR ~ ., dat.train70)
+summary(l.train70)
+vif(l.train70)
+```
+
+```{r}
+n = nrow(dat.train70)
+rmse.train70 = sqrt(1/n*sum(l.train70$residuals^2))
+rmse.train70
+```
+
+```{r}
+pred30 = predict(l.train70,newdata = dat.test30)
+```
+
+```{r}
+n = nrow(dat.test30)
+residuals30 = dat.test30$KEGG_NUCLEOTIDE_EXCISION_REPAIR - pred30
+rmse.test30 = sqrt(1/n * sum(residuals30^2))
+rmse.test30
+```
+### 60/40
+```{r}
+l.train60 = lm(dat.train60$KEGG_NUCLEOTIDE_EXCISION_REPAIR ~ ., dat.train60)
+summary(l.train60)
+vif(l.train60)
+```
+
+### 50/50
+```{r}
+l.train50 = lm(dat.train50$KEGG_NUCLEOTIDE_EXCISION_REPAIR ~ ., dat.train50)
+summary(l.train50)
+vif(l.train50)
+```
+
+## 40/60
+```{r}
+l.train40 = lm(dat.train40$KEGG_NUCLEOTIDE_EXCISION_REPAIR ~ ., dat.train40)
+summary(l.train40)
+vif(l.train40)
+```
+
+```{r}
+VIF <- cbind("70/30" = vif(l.train70), "60/40" = vif(l.train60), "50/50" = vif(l.train50), "40/60" = vif(l.train40))
+```
+
+***
+
+Divide in training and testing set (70/30)
+```{r}
+## take 70 % random patients to form the training set
+set.seed(123); i.train = sample(1:nrow(topVar_pw), round(nrow(topVar_pw)*0.7,0))
+##
 dat.train = topVar_pw[i.train,]
 dat.test = topVar_pw[-i.train,]
 ```
 
+## Reduces predictors
 ```{r}
-l.train = lm(dat.train$KEGG_NUCLEOTIDE_EXCISION_REPAIR ~ ., dat.train)
-summary(l.train)
+l.train.vif = lm(dat.train$KEGG_NUCLEOTIDE_EXCISION_REPAIR ~ SINGH_KRAS_DEPENDENCY_SIGNATURE + KEGG_HOMOLOGOUS_RECOMBINATION, dat.train)
+summary(l.train.vif)
+vif(l.train.vif)
 ```
+
+```{r}
+#train
+plot(dat.train$KEGG_NUCLEOTIDE_EXCISION_REPAIR, l.train.vif$fitted.values,pch=20,col='blue', xlab='Real values',ylab='Predicted values', main = "Training");abline(0,1,col='red')
+
+#test
+plot(dat.test$KEGG_NUCLEOTIDE_EXCISION_REPAIR, pred,pch=20,col='blue', xlab='Real values',ylab='Predicted values', main = "Validation");abline(0,1,col='red')
+```
+
 
 ```{r}
 n = nrow(dat.train)
-rmse.train = sqrt(1/n*sum(l.train$residuals^2))
-rmse.train
+rmse.train.vif = sqrt(1/n*sum(l.train.vif$residuals^2))
+rmse.train.vif
 ```
 
 ```{r}
-pred = predict(l.train,newdata = dat.test)
+pred = predict(l.train.vif,newdata = dat.test)
 ```
 
 ```{r}
@@ -109,4 +203,3 @@ residuals = dat.test$KEGG_NUCLEOTIDE_EXCISION_REPAIR - pred
 rmse.test = sqrt(1/n * sum(residuals^2))
 rmse.test
 ```
-
