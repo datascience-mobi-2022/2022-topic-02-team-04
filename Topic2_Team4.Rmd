@@ -174,3 +174,7 @@ The analysis with the Venn diagrams showed that not every RNAseq gene is represe
 ## used packages
 
 ![R packages.](report_figures/packages.png){width=70%}
+
+## Cancer type abbreviations
+
+![Cancer type abbreviations and their names.](report_figures/Cancer type abbrevitatios and their names.png){width=70%}
