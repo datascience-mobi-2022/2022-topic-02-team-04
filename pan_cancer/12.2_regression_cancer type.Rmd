@@ -162,6 +162,7 @@ colnames(dat.test)
 ```
 
 ```{r}
+set.seed(123)
 l.train = lm(cancer_type ~ 
                KEGG_ASCORBATE_AND_ALDARATE_METABOLISM, 
              data = dat.train)
@@ -183,6 +184,7 @@ rmse.train
 ```
 
 ```{r}
+set.seed(123)
 pred = predict(l.train, newdata = dat.test)
 ```
 
@@ -197,6 +199,14 @@ rmse.test
 pred.type <- ifelse(pred > 0.5, 1, 0)
 true.type <- ifelse(dat.test$cancer_type == 1, 1, 0)
 
-table(pred.type, true.type)
+conf_tab <- table(pred.type, true.type)
+
+conf_tab[4]
+
+# FPR = FP/(FP+TN)
+FPR <- conf_tab[3]/(conf_tab[3]+conf_tab[1])
+  
+#TPR = TP/(TP+FN)
+TPR <- conf_tab[4]/(conf_tab[4]+conf_tab[2])
 ```
 
