@@ -32,6 +32,8 @@ citation("fgsea")
 citation("BiocManager")
 citation("data.table")
 citation("GSVA")
+citation("car")
+
 
 ## not used
 #citation("scatterplot3d")
