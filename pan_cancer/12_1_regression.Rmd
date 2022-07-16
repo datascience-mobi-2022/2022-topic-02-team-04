@@ -14,6 +14,7 @@ tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.rds")
 library(pheatmap)
 library(dplyr)
 library(car)
+library(ggplot2)
 ```
 
 ```{r}
@@ -113,6 +114,9 @@ rmse.train
 
 ```{r}
 plot(dat.train$KEGG_PROTEASOME, l.train$fitted.values ,pch=20,col='blue', xlab='Real values',ylab='Predicted values', main ="Training");abline(0,1,col='red')
+
+val <- data.frame("Real values" = dat.train$KEGG_PROTEASOME, "Predicted values" = l.train$fitted.values)
+ggplot(data = val) + geom_point(aes(Real.values, Predicted.values)) + geom_abline(slope = 1, color = "blue") + ylab("Predicted values") + xlab("Real values") + ggtitle("Training, manual")
 ```
 
 ```{r}
@@ -127,7 +131,8 @@ rmse.test
 ```
 
 ```{r}
-plot(dat.test$KEGG_PROTEASOME, pred ,pch=20,col='blue', xlab='Real values',ylab='Predicted values', main ="Validation");abline(0,1,col='red')
+val <- data.frame("Real values" = dat.test$KEGG_PROTEASOME, "Predicted values" = pred)
+ggplot(data = val) + geom_point(aes(Real.values, Predicted.values)) + geom_abline(slope = 1, color = "blue") + ylab("Predicted values") + xlab("Real values") + ggtitle("Validation, manual")
 ```
 
 
@@ -147,13 +152,15 @@ dat.test = pw_activity[-i.train,]
 ```{r}
 colnames(pw_activity)[235]
 
-pca.train = prcomp(dat.train[,-235])
-pca.test = prcomp(dat.test[,-235])
+pca.train = prcomp(dat.train[,-235], rank. = 300)
+pca.test = prcomp(dat.test[,-235], rank. = 300)
 ```
 
 ```{r}
-l.train = lm(dat.train$KEGG_PROTEASOME ~ pca.train$x)
-#summary(l.train)
+new_data <- as.data.frame(cbind(dat.train$KEGG_PROTEASOME, pca.train$x))
+
+l.train = lm(formula(V1 ~ .), data = new_data)
+summary(l.train)
 ```
 
 ```{r}
@@ -163,7 +170,8 @@ rmse.train
 ```
 
 ```{r}
-plot(dat.train$KEGG_PROTEASOME, l.train$fitted.values ,pch=20,col='blue', xlab='Real values',ylab='Predicted values', main ="Training");abline(0,1,col='red')
+val <- data.frame("Real values" = dat.train$KEGG_PROTEASOME, "Predicted values" = l.train$fitted.values)
+ggplot(data = val) + geom_point(aes(Real.values, Predicted.values)) + geom_abline(slope = 1, color = "blue") + ylab("Predicted values") + xlab("Real values") + ggtitle("Training, PC's")
 ```
 
 ```{r}
@@ -178,3 +186,9 @@ residuals = dat.test$KEGG_PROTEASOME - pred
 rmse.test = sqrt(1/n * sum(residuals^2))
 rmse.test
 ```
+
+```{r}
+val <- data.frame("Real values" = dat.test$KEGG_PROTEASOME, "Predicted values" = pred)
+ggplot(data = val) + geom_point(aes(Real.values, Predicted.values)) + geom_abline(slope = 1, color = "blue") + ylab("Predicted values") + xlab("Real values") + ggtitle("Validation, PC's")
+```
+
