@@ -1,0 +1,140 @@
+---
+title: "Regression"
+author: "Fabian Strobel"
+date: '2022-07-08'
+output: html_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r}
+pw_activity_full_TCGA_df <- readRDS("data/pw_activity_full_TCGA_df.rds")
+tcga_tumor_annotation <- readRDS("data/tcga_tumor_annotation.rds")
+
+library(pheatmap)
+library(dplyr)
+library(car)
+```
+```{r}
+#createn einer liste mit allen patienten in dfs sortiert nach krebs
+cancers = list();cancers = vector('list',length(table(tcga_tumor_annotation$cancer_type_abbreviation)))
+names(cancers) = names(table(tcga_tumor_annotation$cancer_type_abbreviation))
+for (i in 1:length(cancers)){
+  cancers[[i]] = pw_activity_full_TCGA_df[,tcga_tumor_annotation$cancer_type_abbreviation == names(cancers)[i]]
+}
+```
+
+Take largest cancer type
+```{r}
+BRCA <- cancers[["BRCA"]]
+```
+
+```{r}
+## Transpose to get correlation of pw activity
+pw_activity <- t(BRCA)
+
+## Correlation
+cor_mat <- cor(pw_activity)
+diag(cor_mat) = NA
+```
+
+```{r}
+pheatmap(cor_mat,
+         show_rownames = F,
+         show_colnames = F)
+```
+
+```{r}
+## Compute variance
+variance <- as.data.frame(apply(pw_activity, 2, var))
+colnames(variance) = "variance"
+
+## sort descending
+var_sorted <- arrange(variance, desc(variance))
+
+## take 9 pws mit highes variance
+topVar <- rownames(var_sorted)[1:20]
+
+## take these pws
+topVar_pw <- as.data.frame(pw_activity[,topVar])
+
+##
+topVar_cor <- cor(topVar_pw); diag(topVar_cor) = NA
+pheatmap(topVar_cor,
+         show_colnames = F)
+```
+```{r}
+Immune_DN <- pw_activity[,"Immune_DN"]
+KEGG_MISMATCH_REPAIR <- pw_activity[,"KEGG_MISMATCH_REPAIR"]
+KEGG_GLYCOSYLPHOSPHATIDYLINOSITOL_GPI_ANCHOR_BIOSYNTHESIS <- pw_activity[,"KEGG_GLYCOSYLPHOSPHATIDYLINOSITOL_GPI_ANCHOR_BIOSYNTHESIS"]
+KEGG_PROTEIN_EXPORT <- pw_activity[,"KEGG_PROTEIN_EXPORT"]
+KEGG_CIRCADIAN_RHYTHM_MAMMAL <- pw_activity[,"KEGG_CIRCADIAN_RHYTHM_MAMMAL"]
+
+regres <- cbind(Immune_DN, KEGG_MISMATCH_REPAIR, KEGG_GLYCOSYLPHOSPHATIDYLINOSITOL_GPI_ANCHOR_BIOSYNTHESIS, KEGG_PROTEIN_EXPORT,KEGG_CIRCADIAN_RHYTHM_MAMMAL)
+
+cor_regres <- cor(regres)
+pheatmap(cor_regres, show_rownames = F, show_colnames = F)
+```
+
+
+```{r}
+lr <- lm(topVar_pw$KEGG_MISMATCH_REPAIR ~ Immune_DN + KEGG_GLYCOSYLPHOSPHATIDYLINOSITOL_GPI_ANCHOR_BIOSYNTHESIS + KEGG_PROTEIN_EXPORT + KEGG_CIRCADIAN_RHYTHM_MAMMAL, topVar_pw)
+summary(lr)
+vif(lr)
+
+hist(lr$residuals)
+qqnorm(lr$residuals); qqline(lr$residuals)
+```
+
+```{r}
+plot(topVar_pw$KEGG_MISMATCH_REPAIR, lr$fitted.values,pch=20,col='blue', xlab='Real values',ylab='Predicted values');abline(0,1,col='red')
+```
+
+root mean squared error (RMSE)
+```{r}
+n = nrow(pw_activity)
+rmse = sqrt(1/n*sum(lr$residuals^2))
+rmse
+```
+
+```{r}
+lr <- lm(topVar_pw$KEGG_PROTEASOME ~ Immune_DN + KEGG_MISMATCH_REPAIR + HALLMARK_MYC_TARGETS_V1 + KEGG_HOMOLOGOUS_RECOMBINATION, topVar_pw)
+summary(lr)
+vif(lr)
+```
+
+
+***
+
+Divide in training and testing set (70/30)
+```{r}
+## take 70 % random patients to form the training set
+set.seed(123); i.train = sample(1:nrow(topVar_pw), round(nrow(topVar_pw)*0.7,0))
+##
+dat.train70 = topVar_pw[i.train,]
+dat.test30 = topVar_pw[-i.train,]
+```
+
+
+```{r}
+l.train = lm(dat.train$KEGG_NUCLEOTIDE_EXCISION_REPAIR ~ ., dat.train)
+summary(l.train)
+vif(l.train)
+```
+
+```{r}
+n = nrow(dat.train)
+rmse.train = sqrt(1/n*sum(l.train$residuals^2))
+rmse.train
+```
+
+```{r}
+pred = predict(l.train,newdata = dat.test)
+```
+
+```{r}
+n = nrow(dat.test)
+residuals = dat.test$KEGG_NUCLEOTIDE_EXCISION_REPAIR - pred
+rmse.test = sqrt(1/n * sum(residuals^2))
+rmse.test
+```
