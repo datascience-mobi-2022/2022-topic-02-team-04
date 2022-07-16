@@ -167,7 +167,7 @@ plot(dat.train$KEGG_PROTEASOME, l.train$fitted.values ,pch=20,col='blue', xlab='
 ```
 
 ```{r}
-x = data.frame(pca.test$x[,1:300])
+x = as.data.frame(pca.test$x)
 
 pred = predict(l.train, newdata = x)
 ```
