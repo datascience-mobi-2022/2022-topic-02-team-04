@@ -15,6 +15,7 @@ library(pheatmap)
 library(dplyr)
 library(car)
 ```
+
 ```{r}
 #createn einer liste mit allen patienten in dfs sortiert nach krebs
 cancers = list();cancers = vector('list',length(table(tcga_tumor_annotation$cancer_type_abbreviation)))
@@ -31,17 +32,11 @@ BRCA <- cancers[["BRCA"]]
 
 ```{r}
 ## Transpose to get correlation of pw activity
-pw_activity <- t(BRCA)
+pw_activity <- as.data.frame(t(BRCA))
 
 ## Correlation
 cor_mat <- cor(pw_activity)
 diag(cor_mat) = NA
-```
-
-```{r}
-pheatmap(cor_mat,
-         show_rownames = F,
-         show_colnames = F)
 ```
 
 ```{r}
@@ -64,13 +59,14 @@ pheatmap(topVar_cor,
          show_colnames = F)
 ```
 ```{r}
+KEGG_PROTEASOME <- pw_activity[,"KEGG_PROTEASOME"]
 Immune_DN <- pw_activity[,"Immune_DN"]
 KEGG_MISMATCH_REPAIR <- pw_activity[,"KEGG_MISMATCH_REPAIR"]
 KEGG_GLYCOSYLPHOSPHATIDYLINOSITOL_GPI_ANCHOR_BIOSYNTHESIS <- pw_activity[,"KEGG_GLYCOSYLPHOSPHATIDYLINOSITOL_GPI_ANCHOR_BIOSYNTHESIS"]
 KEGG_PROTEIN_EXPORT <- pw_activity[,"KEGG_PROTEIN_EXPORT"]
 KEGG_CIRCADIAN_RHYTHM_MAMMAL <- pw_activity[,"KEGG_CIRCADIAN_RHYTHM_MAMMAL"]
 
-regres <- cbind(Immune_DN, KEGG_MISMATCH_REPAIR, KEGG_GLYCOSYLPHOSPHATIDYLINOSITOL_GPI_ANCHOR_BIOSYNTHESIS, KEGG_PROTEIN_EXPORT,KEGG_CIRCADIAN_RHYTHM_MAMMAL)
+regres <- as.data.frame(cbind(KEGG_PROTEASOME, Immune_DN, KEGG_MISMATCH_REPAIR, KEGG_GLYCOSYLPHOSPHATIDYLINOSITOL_GPI_ANCHOR_BIOSYNTHESIS, KEGG_PROTEIN_EXPORT,KEGG_CIRCADIAN_RHYTHM_MAMMAL))
 
 cor_regres <- cor(regres)
 pheatmap(cor_regres, show_rownames = F, show_colnames = F)
@@ -78,27 +74,7 @@ pheatmap(cor_regres, show_rownames = F, show_colnames = F)
 
 
 ```{r}
-lr <- lm(topVar_pw$KEGG_MISMATCH_REPAIR ~ Immune_DN + KEGG_GLYCOSYLPHOSPHATIDYLINOSITOL_GPI_ANCHOR_BIOSYNTHESIS + KEGG_PROTEIN_EXPORT + KEGG_CIRCADIAN_RHYTHM_MAMMAL, topVar_pw)
-summary(lr)
-vif(lr)
-
-hist(lr$residuals)
-qqnorm(lr$residuals); qqline(lr$residuals)
-```
-
-```{r}
-plot(topVar_pw$KEGG_MISMATCH_REPAIR, lr$fitted.values,pch=20,col='blue', xlab='Real values',ylab='Predicted values');abline(0,1,col='red')
-```
-
-root mean squared error (RMSE)
-```{r}
-n = nrow(pw_activity)
-rmse = sqrt(1/n*sum(lr$residuals^2))
-rmse
-```
-
-```{r}
-lr <- lm(topVar_pw$KEGG_PROTEASOME ~ Immune_DN + KEGG_MISMATCH_REPAIR + HALLMARK_MYC_TARGETS_V1 + KEGG_HOMOLOGOUS_RECOMBINATION, topVar_pw)
+lr <- lm(topVar_pw$KEGG_PROTEASOME ~ ., regres)
 summary(lr)
 vif(lr)
 ```
@@ -109,17 +85,75 @@ vif(lr)
 Divide in training and testing set (70/30)
 ```{r}
 ## take 70 % random patients to form the training set
-set.seed(123); i.train = sample(1:nrow(topVar_pw), round(nrow(topVar_pw)*0.7,0))
+set.seed(123); i.train = sample(1:nrow(pw_activity), round(nrow(pw_activity)*0.7,0))
 ##
-dat.train70 = topVar_pw[i.train,]
-dat.test30 = topVar_pw[-i.train,]
+dat.train = regres[i.train,]
+dat.test = regres[-i.train,]
 ```
 
 
 ```{r}
-l.train = lm(dat.train$KEGG_NUCLEOTIDE_EXCISION_REPAIR ~ ., dat.train)
+l.train = lm(dat.train$KEGG_PROTEASOME ~ ., dat.train)
 summary(l.train)
 vif(l.train)
+```
+
+```{r}
+l.train = lm(dat.train$KEGG_PROTEASOME ~ Immune_DN + KEGG_MISMATCH_REPAIR + KEGG_GLYCOSYLPHOSPHATIDYLINOSITOL_GPI_ANCHOR_BIOSYNTHESIS, dat.train)
+summary(l.train)
+vif(l.train)
+```
+
+
+```{r}
+n = nrow(dat.train)
+rmse.train = sqrt(1/n*sum(l.train$residuals^2))
+rmse.train
+```
+
+```{r}
+plot(dat.train$KEGG_PROTEASOME, l.train$fitted.values ,pch=20,col='blue', xlab='Real values',ylab='Predicted values', main ="Training");abline(0,1,col='red')
+```
+
+```{r}
+pred = predict(l.train,newdata = dat.test)
+```
+
+```{r}
+n = nrow(dat.test)
+residuals = dat.test$KEGG_PROTEASOME - pred
+rmse.test = sqrt(1/n * sum(residuals^2))
+rmse.test
+```
+
+```{r}
+plot(dat.test$KEGG_PROTEASOME, pred ,pch=20,col='blue', xlab='Real values',ylab='Predicted values', main ="Validation");abline(0,1,col='red')
+```
+
+
+
+***
+## Principle compontents
+
+Divide in training and testing set (70/30)
+```{r}
+## take 70 % random patients to form the training set
+set.seed(123); i.train = sample(1:nrow(pw_activity), round(nrow(pw_activity)*0.7,0))
+##
+dat.train = pw_activity[i.train,]
+dat.test = pw_activity[-i.train,]
+```
+
+```{r}
+colnames(pw_activity)[235]
+
+pca.train = prcomp(dat.train[,-235])
+pca.test = prcomp(dat.test[,-235])
+```
+
+```{r}
+l.train = lm(dat.train$KEGG_PROTEASOME ~ pca.train$x)
+#summary(l.train)
 ```
 
 ```{r}
@@ -129,12 +163,18 @@ rmse.train
 ```
 
 ```{r}
-pred = predict(l.train,newdata = dat.test)
+plot(dat.train$KEGG_PROTEASOME, l.train$fitted.values ,pch=20,col='blue', xlab='Real values',ylab='Predicted values', main ="Training");abline(0,1,col='red')
+```
+
+```{r}
+x = data.frame(pca.test$x[,1:300])
+
+pred = predict(l.train, newdata = x)
 ```
 
 ```{r}
 n = nrow(dat.test)
-residuals = dat.test$KEGG_NUCLEOTIDE_EXCISION_REPAIR - pred
+residuals = dat.test$KEGG_PROTEASOME - pred
 rmse.test = sqrt(1/n * sum(residuals^2))
 rmse.test
 ```
