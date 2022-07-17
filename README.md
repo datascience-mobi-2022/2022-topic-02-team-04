@@ -10,10 +10,12 @@ Prostate cancer itself is the second most common cancer type found in males worl
 
 **descriptive_analysis**: This folder contains mainly plots for descriptive analysis of the given data sets.
 
-**pan_cancer**: This folder contains the analysis of the large pan-cancer RNAseq
+**pan_cancer**: This folder contains the analysis of the large pan-cancer RNA-seq.
 
 **prad_normal_vs_tumor**: This folder contains the complete focused analysis of prostate adenocarcinoma.
 
 **preprocessing**: This folder contains the preprocessing files for the pan-cancer data frame.
 
-**refrences**: This folder contains the .bib file for the citations and the r package citations
+**references**: This folder contains the .bib file for the citations and the r package citations.
+
+**report**: This folder contains our final report.
