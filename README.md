@@ -1,7 +1,7 @@
 # 2022-topic-02-team-04: Cancer Hallmark and Metabolic Pathways differ over Cancer types and in Prostate Adenocarcinoma patients
 
-*Contributors:* Fabian Strobel, Lottida Phondeth, Laura Lange, Carla Welz
-*Supervisors:* Dr. Carl Herrmann, Wangjun Hu
+**Contributors:** Fabian Strobel, Lottida Phondeth, Laura Lange, Carla Welz <br>
+**Supervisors:** Dr. Carl Herrmann, Wangjun Hu
 
 ## Abstract
 The complexity of cancer cells has been broken down by the defined “Hallmarks of cancer”. In this project, it is the goal to further investigate these hallmarks of cancer as well as metabolic pathways via a pan-cancer analysis. In order to tackle these tasks, we make use of the given gene expression data stemming from various tumor samples. It is of great interest to find cancer-specific gene expression patterns with the help of so-called gene enrichment analysis such as the Gene Set Variance Analysis (GSVA) or the Gene Set Enrichment Analysis (GSEA) next to other methods we used along the way. Besides that, we took a closer look at prostate adenocarcinoma (PRAD). 
