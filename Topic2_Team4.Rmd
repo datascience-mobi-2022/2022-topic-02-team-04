@@ -35,9 +35,8 @@ output:
 
 	\vspace{\stretch{0.25}}
 	
-{\Large
-	 `r format(Sys.time(),'%d/%m/%y')`
-}
+{\Large Submission date: 18.07.2022}
+
 	\vspace{\stretch{0.75}}
 
 	{\Large
