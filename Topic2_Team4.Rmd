@@ -13,7 +13,7 @@ output:
     number_sections: true
     
 ---
-\pagenumbering{arabic}
+\pagenumbering{gobble}
 \begin{titlepage}
 \centering
 	{\Large Ruprecht-Karls University of Heidelberg\\
@@ -56,6 +56,7 @@ output:
 ![Cancer type abbreviations and their names.](report_figures/Cancer type abbrevitatios and their names.png){width=70%}\
 
 \newpage
+\pagenumbering{arabic}
 # Introduction
 ## Hallmarks of cancer and prostate adenocarcinoma
 In 2000, Hanahan and Weinberg defined the characteristics of cancer cells in their publication “The hallmarks of cancer” [@RN20]. They described qualities such as immortalization, immune evasion, or angiogenesis that need to apply to cells to be considered a cancer cell. Additional characteristics were postulated in 2011 [@RN19]. One major hallmark that offers a myriad of pharmacological interventions is the “deregulation of cellular energetics”. Altering metabolic pathways, therefore providing an energy supply, thus supporting cell proliferation, can be seen in various cancer types such as prostate adenocarcinoma (PRAD) [@RN23].
