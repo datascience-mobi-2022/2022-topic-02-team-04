@@ -1,6 +1,6 @@
 # 2022-topic-02-team-04
 
-#Folder structure
+# Folder structure
 
 ## data
 This folder contains the rds.files used during the project (.gitignore)
