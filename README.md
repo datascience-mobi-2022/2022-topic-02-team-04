@@ -24,4 +24,4 @@ During the project four given data sets were used: A list of gene sets for cance
 
 **references**: This folder contains the .bib file for the citations and the r package citations.
 
-**report**: This folder contains our final report.
+**report_figures**: This folder contains the figures for our final report.

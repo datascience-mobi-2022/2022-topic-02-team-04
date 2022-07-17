@@ -2,7 +2,8 @@
 title: " "
 author: " "
 date: " "
-bibliography: dataanalysis_ref.bib 
+bibliography: references/dataanalysis_ref.bib 
+csl: references/cell.csl
 geometry: "margin=2.3cm" 
 linestretch: 1.15
 fontsize: 11pt
