@@ -51,9 +51,11 @@ output:
 \tableofcontents
 
 \newpage
-## Cancer type abbreviations
+## abbreviations
 
-![Cancer type abbreviations and their names.](report_figures/Cancer type abbrevitatios and their names.png){width=70%}\
+![Cancer type abbreviations and their names.](report_figures/Cancer type abbrevitations and their names.png){width=70%}\
+
+![abbreviations](report_figures/Abbreviations.png){width=70%}\
 
 \newpage
 \pagenumbering{arabic}
